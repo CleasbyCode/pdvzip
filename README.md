@@ -21,7 +21,7 @@ Usage:  pdvzip  <png_image>  <zip_file>
 
 Once the ZIP file has been embedded within a PNG image, it's ready to be shared (tweeted) or 'executed' whenever you want to open/play the media file.
 
-You can also upload your PNG image to *some popular image hosting sites, such as **Postimage** [(postimages.org)](https://postimages.org).
+You can also upload your PNG image to *some popular image hosting sites, such as **Imgur** [(imgur.com)](https://imgur.com) **Postimage** [(postimages.org)](https://postimages.org).
 *Not all image hosting sites are compatible.
 
 ## Accessing Arbitrary Data
