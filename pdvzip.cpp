@@ -346,7 +346,7 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 	the in-zip media file using an application command based on a matched file extension, or if no match found, defaulting to the
 	operating system making the choice, if possible.
 
-	The completed "hIST" chunk will later be inserted after the IHDR chunk of the PNG image (which is stored in the vector "ImageVec") */
+	The completed "hIST" chunk will later be inserted after PLTE chunk and just before the first IDAT chunk of the PNG image (from the vector "ImageVec") */
 	vector<unsigned char>ScriptVec{ 0,0,'\x13','\x08','h','I','S','T','\x0d','R','E','M',';','c','l','e','a','r',';','u','n','z','i','p','\x20','-','q','o','\x20',
 		'"','$','0','"',';','c','l','e','a','r',';','"','"',';','e','x','i','t',';','\x0d','\x0a','#','&','c','l','s','&','t','a','r','\x20','-','x','f','\x20',
 		'"','%','~','n','0','%','~','x','0','"','&','\x20','"','.','\\','"','&','r','e','n','\x20','"','%','~','n','0','%','~','x','0','"','\x20',
@@ -450,11 +450,11 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 
 	// "ImageVec" vector's index insert location for vector "ScriptVec" (just before first IDAT chunk and after PLTE chunk) within the PNG image. 
 	// This location for the hIST (script) chunk is required for Imgur support. 
-	// For Imgur to work correctly, the PLTE chunk must be located BEFORE this hIST (script) chunk. 
+	// For Imgur to work correctly, the PLTE chunk MUST be located BEFORE this hIST (script) chunk. 
 	const ptrdiff_t HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
 
 	// Insert contents of "ScriptVec" vector into "ImageVec" vector, combining Script with PNG image.
-	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); // Inserted right after the IHDR PNG chunk.
+	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); // Inserted just before fisrt IDAT chunk.
 
 	// "ImageVec" vector's index insert location for vector "ZipVec", last 12 bytes of the PNG image.
 	const ptrdiff_t LAST_IDAT_CHUNK_INSERT_INDEX = ImageVec.size() - 12;
