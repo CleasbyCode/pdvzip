@@ -53,7 +53,12 @@ For any other media type/file extension, Linux & Windows will rely on the operat
 **Video Examples (YouTube)**
 1. [Embed, Play & Tweet MP4 Video (Linux & Windows Demo)](https://youtu.be/BwfFDwTSOK8) 
 2. [Embed, Tweet & Run Python Program (Linux & Windows Demo)](https://youtu.be/ZubGU_Eb7Ks)
-3. [Embed, Open & Tweet PDF Document (Windows & Linux Demo)](https://youtu.be/FnxD9XEjXos)
+3. [Embed, Open & Tweet PDF Document (Windows & Linux Demo)](https://youtu.be/FnxD9XEjXos)  
+
+**Image Example**  
+
+
+  Imgur (https://imgur.com/a/zF40QMX). This image contains an embedded PDF document.
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
