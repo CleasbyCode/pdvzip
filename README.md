@@ -45,7 +45,7 @@ Opening the cmd file from the desktop, on its first run, Windows may display a s
 
 For some common video & audio files, Linux requires the 'vlc (VideoLAN)' application, Windows uses the set default media player.  
 PDF '.pdf', Linux requires the 'evince' application, Windows uses the set default PDF viewer.  
-Python '.py', Linux & Windows use the 'python3' command to run these programs.
+Python '.py', Linux & Windows use the 'python3' command to run these programs.  
 PowerShell '.ps1', Linux uses the 'pwsh' command (if PowerShell installed), Windows uses 'powershell' to run these scripts.
 
 For any other media type/file extension, Linux & Windows will rely on the operating system's set default application. To just get access to the file(s) within the ZIP archive, rename the '.png' file extension to '.zip'. Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.
