@@ -29,8 +29,8 @@ You can also upload your PNG image to *some popular image hosting sites, such as
 Make sure image file has executable permissions.
 ```c
 
-$chmod +x pdv_your_image_file.png
-$./pdv_your_image_file.png 
+$ chmod +x pdv_your_image_file.png
+$ ./pdv_your_image_file.png 
 
 ```  
 **Windows**   
