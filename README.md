@@ -12,7 +12,7 @@ Compile and run the program under Windows or **Linux**.
 ```c
 $ g++ pdvzip.cpp -o pdvzip
 $
-$./pdvzip
+$ ./pdvzip
 
 Usage:  pdvzip  <png_image>  <zip_file>
         pdvzip  --info
