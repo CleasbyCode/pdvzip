@@ -24,6 +24,8 @@ Once the ZIP file has been embedded within a PNG image, it's ready to be shared 
 You can also upload your PNG image to *some popular image hosting sites, such as [**Imgur**](https://imgur.com) and [**Postimages**](https://postimages.org), etc.  
 *Not all image hosting sites are compatible.
 
+**Mobile Issue**: Sometimes when saving images from Twitter to a mobile, the file gets saved with a 'jpg' extension. Please note, the file has not been converted to a JPG. Lazy Twitter has just renamed the extension, so it is still the original PNG image with its embedded content. 
+
 ## Accessing Arbitrary Data
 **Linux**    
 Make sure image file has executable permissions.
@@ -55,10 +57,11 @@ For any other media type/file extension, Linux & Windows will rely on the operat
 2. [Embed, Tweet & Run Python Program (Linux & Windows Demo)](https://youtu.be/ZubGU_Eb7Ks)
 3. [Embed, Open & Tweet PDF Document (Windows & Linux Demo)](https://youtu.be/FnxD9XEjXos)  
 
-**Image Example**  
+**Image Examples**  
 
-
-  Imgur (https://imgur.com/a/zF40QMX). This image contains an embedded PDF document.
+1. [Imgur. This image contains an embedded zip/PDF document](https://imgur.com/a/zF40QMX)
+2. [Twitter. This image contains an embedded zip/Python program](https://pbs.twimg.com/media/FdblTYzWAAE3Jjo?format=png&name=4096x4096)
+3. [PostImages. This image contains an embedded zip/JPG image](https://postimg.cc/xcCcvpLJ) (**Always select: "*Download original image***".)
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
