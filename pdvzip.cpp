@@ -232,43 +232,43 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 			PLTE_CHUNK_LENGTH = (ImageVec[PLTE_LENGTH_FIELD_INDEX + 2] << 8) | ImageVec[PLTE_LENGTH_FIELD_INDEX + 3];
 
 		// Linux: Some characters that may appear in the PLTE chunk will cause the script to crash out (or other unwanted behaviour). 
-		// I've auto tested many images, only one image (so far) has displayed any sign of distortion/corruption after changing the character.
-		char badChar[6] = { '(', ')', '\'', '`', '"', '>' };
-		
-		char alt = '*';
-		int twoCount = 0;
+		char badChar[7] = { '(', ')', '\'', '`', '"', '>', ';' };
 
-		// Linux: Two (or more) of "&", "|", ";" characters in a row will crash out the script. Alter one of these characters.
+		int twoCount = 0;
+		char alt = '*';
+
+		// Linux: Two (or more) of "&" or "|" characters in a row will crash out the script. Alter one of these characters.
 		for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
-			if (ImageVec[i] == '&' || ImageVec[i] == '|' || ImageVec[i] == ';') {
+		
+			if (ImageVec[i] == '&' || ImageVec[i] == '|') {
 				twoCount++;
 				if (twoCount > 1) {
-					ImageVec[i] = alt;
+					ImageVec[i] = ImageVec[i] == '&' ? alt : '}';
 				}
 			}
 			else {
 				twoCount = 0;
 			}
-
-			// Linux: '&' followed by '#' , '|' or ';' will crash out the script. '<' followed by '&' or ';' followed by '&' will also crash out.
-			// Alter these characters if right after or just before '&'.
-			if ((ImageVec[i] == '#' && ImageVec[i-1] == '&') 
-				|| (ImageVec[i] == '|' && ImageVec[i-1] == '&') 
-				|| (ImageVec[i] == ';' && ImageVec[i-1] == '&')
-				|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
-				|| (ImageVec[i] == ';' && ImageVec[i + 1] == '&')) {
-				ImageVec[i] = alt;
+			
+			// Linux: '&' followed by '#' or '|' will crash out the script. Also, '<' followed by '&' will crash out.
+			// Alter these characters if right after or before '&'.
+			if ((ImageVec[i] == '#' && ImageVec[i - 1] == '&')
+				|| (ImageVec[i] == '|' && ImageVec[i - 1] == '&')
+				|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')) 
+			{
+				ImageVec[i] = ImageVec[i] == '<' ? '=' : alt;
 			}
-
-			// Linux:  Search for any of the six bad characters and alter them if found.
-			for (int j = 0; j < 6; j++) {
-				if (ImageVec[i] == badChar[j]) {
-					ImageVec[i] = alt;
+			
+			// Linux:  Search for any of the seven bad characters and alter them if found.
+			for (int j = 0; j < 7; j++) {
+				if (ImageVec[i] == badChar[j]) 
+				{
+					ImageVec[i] = (ImageVec[i] == badChar[3]) ? 'a' : (ImageVec[i] == badChar[5]) ? '?' : ((ImageVec[i] == badChar[6]) ? ':' : alt);
 					break;
 				}
 			}
 		}
-
+		
 		int modCrcVal = 255;
 		bool redoCrc;
 
