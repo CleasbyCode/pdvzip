@@ -234,7 +234,8 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		// Linux: Some characters that may appear in the PLTE chunk will cause the script to crash out (or other unwanted behaviour). 
 		// I've auto tested many images, only one image (so far) has displayed any sign of distortion/corruption after changing the character.
 		char badChar[6] = { '(', ')', '\'', '`', '"', '>' };
-
+		
+		char alt = '*';
 		int twoCount = 0;
 
 		// Linux: Two (or more) of "&", "|", ";" characters in a row will crash out the script. Alter one of these characters.
@@ -242,22 +243,27 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 			if (ImageVec[i] == '&' || ImageVec[i] == '|' || ImageVec[i] == ';') {
 				twoCount++;
 				if (twoCount > 1) {
-					ImageVec[i] = '*';
+					ImageVec[i] = alt;
 				}
 			}
 			else {
 				twoCount = 0;
 			}
 
-			 // Linux: '&' followed by '#' , '|' or ';' will crash out the script. Alter these characters if right after '&'.
-			if ((ImageVec[i] == '#' && ImageVec[i-1] == '&') || (ImageVec[i] == '|' && ImageVec[i-1] == '&') || (ImageVec[i] == ';' && ImageVec[i-1] == '&')) {
-				ImageVec[i] = '*';
+			// Linux: '&' followed by '#' , '|' or ';' will crash out the script. '<' followed by '&' or ';' followed by '&' will also crash out.
+			// Alter these characters if right after or just before '&'.
+			if ((ImageVec[i] == '#' && ImageVec[i-1] == '&') 
+				|| (ImageVec[i] == '|' && ImageVec[i-1] == '&') 
+				|| (ImageVec[i] == ';' && ImageVec[i-1] == '&')
+				|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
+				|| (ImageVec[i] == ';' && ImageVec[i + 1] == '&')) {
+				ImageVec[i] = alt;
 			}
 
 			// Linux:  Search for any of the six bad characters and alter them if found.
 			for (int j = 0; j < 6; j++) {
 				if (ImageVec[i] == badChar[j]) {
-					ImageVec[i] = '*';
+					ImageVec[i] = alt;
 					break;
 				}
 			}
@@ -454,7 +460,7 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 	const ptrdiff_t HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
 
 	// Insert contents of "ScriptVec" vector into "ImageVec" vector, combining Script with PNG image.
-	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); // Inserted just before fisrt IDAT chunk.
+	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); // Inserted just before first IDAT chunk.
 
 	// "ImageVec" vector's index insert location for vector "ZipVec", last 12 bytes of the PNG image.
 	const ptrdiff_t LAST_IDAT_CHUNK_INSERT_INDEX = ImageVec.size() - 12;
