@@ -211,8 +211,7 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		// File requirements check success. Now find and remove unwanted chunks.
 
 		string removeChunk;
-		string chunkName[9] = { "bKGD", "cHRM", "gAMA", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tRNS" };
-
+		string chunkName[13] = { "bKGD", "cHRM", "gAMA", "iCCP", "iTXt", "pHYs", "sBIT", "sRGB", "sPLT", "tEXt", "tIME", "tRNS", "zTXt" };
 		int chunkCount = sizeof(chunkName) / sizeof(string);
 
 		while (chunkCount--) {
@@ -221,6 +220,7 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 			if (REMOVE_ID_INDEX != ImageVec.size() - 4) {
 				int chunkLength = (ImageVec[REMOVE_ID_INDEX + 2] << 8) | ImageVec[REMOVE_ID_INDEX + 3];
 				ImageVec.erase(ImageVec.begin() + REMOVE_ID_INDEX, ImageVec.begin() + REMOVE_ID_INDEX + (chunkLength + 12));
+				chunkCount++;
 			}
 		}
 
