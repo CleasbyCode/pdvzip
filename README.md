@@ -60,7 +60,7 @@ For any other media type/file extension, Linux & Windows will rely on the operat
 **Image Examples**  
 
 1. [Imgur. This image contains an embedded zip/PDF document](https://imgur.com/a/zF40QMX)
-2. [Twitter. This image contains an embedded zip/Python program](https://pbs.twimg.com/media/FdblTYzWAAE3Jjo?format=png&name=4096x4096)
+2. [Twitter. This image contains an embedded zip/Python program](https://twitter.com/CleasbyCode/status/1573697255424540673?s=20&t=r0WWUyMNBhVs973PWqqpjg)
 3. [PostImages. This image contains an embedded zip/JPG image](https://postimg.cc/xcCcvpLJ) (**Always select: "*Download original image***".)
 
 ## PNG Image Requirements for Arbitrary Data Preservation
