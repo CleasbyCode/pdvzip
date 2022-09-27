@@ -93,6 +93,6 @@ The less detailed your image, the more space available for the ZIP.
 
 **Video Example**
 
-[Paint.net: Configure Correct PNG Image Settings for PDVZIP](https://youtu.be/nMlUNdiaS88)
+[Paint.net: Configure Correct PNG Image Settings for PDVZIP](https://www.youtube.com/watch_popup?v=nMlUNdiaS88)
 
 ##
