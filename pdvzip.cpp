@@ -231,42 +231,73 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 			PLTE_LENGTH_FIELD_INDEX = PLTE_START_INDEX - 4,
 			PLTE_CHUNK_LENGTH = (ImageVec[PLTE_LENGTH_FIELD_INDEX + 2] << 8) | ImageVec[PLTE_LENGTH_FIELD_INDEX + 3];
 
-		// Linux: Some characters that may appear in the PLTE chunk will cause the script to crash out (or other unwanted behaviour). 
-		char badChar[7] = { '(', ')', '\'', '`', '"', '>', ';' };
+		// Linux issue only: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will 
+		// break the script. The main 'for loop' contains a number of fixes for this issue.
+		// For Imgur support, the PLTE chunk has to be BEFORE the hIST chunk (extraction shell script). 
+		// The following mess would be unnecessary if I did not support Imgur.
+
+		char badChar[7] = { '(', ')', '\'', '`', '"', '>', ';' }; // These individual characters in the PLTE chunk will cause the shell script to crash out. 
+		char altChar[7] = { '*', '&', '=', '}', 'a', '?', ':' };  // Replace them with these characters. No distortion should occur to image. 
 
 		int twoCount = 0;
-		char alt = '*';
-
-		// Linux: Two (or more) of "&" or "|" characters in a row will crash out the script. Alter one of these characters.
-		for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
 		
+		for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
+			
+			// The sequence ')', '!', ')' or ')', '!', ' ', ')' will break the script. Alter first ')' character. 
+			// As ')' is a bad character that gets altered to '&' it's the equivalent of '&', '!', '&' or '&', '!', ' ', '&'
+			if ((ImageVec[i] == ')' && ImageVec[i + 1] == '!' && ImageVec[i + 2] == ')')
+				|| (ImageVec[i] == ')' && ImageVec[i + 1] == '!' && ImageVec[i + 2] == '\x0' && ImageVec[i + 3] == ')'))
+			{
+				ImageVec[i] = altChar[0];
+			}
+
+			// Search for any of the seven problem characters and alter them if found.
+			for (int j = 0; j < 7; j++) {
+				if (ImageVec[i] == badChar[j])
+				{
+					ImageVec[i] = (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[5]) ? altChar[5] : ((ImageVec[i] == badChar[6]) ? altChar[6] : altChar[1]);
+					break;
+				}
+			}
+
+			// Two (or more) of "&" or "|" characters in a row will break the script. Alter one of these characters.
 			if (ImageVec[i] == '&' || ImageVec[i] == '|') {
 				twoCount++;
 				if (twoCount > 1) {
-					ImageVec[i] = ImageVec[i] == '&' ? alt : '}';
+					ImageVec[i] = ImageVec[i] == '&' ? altChar[0] : altChar[3];
 				}
 			}
 			else {
 				twoCount = 0;
 			}
+
+			// '<' followed by a number (or a sequence of numbers) ending with '<' will break the script. 
+			// Alter '<' character at beginning of sequence (of upto 11 digits).
+			int j = 1, k = 2;
+			while (j < 12) {
+				if ((ImageVec[i] == '<' && (ImageVec[i + j] > 47 && ImageVec[i + j] < 58) && ImageVec[i + k] == '<'))
+				{
+					ImageVec[i] = altChar[2];
+				}
+				j++, k++;
+			}
 			
-			// Linux: '&' followed by '#' or '|' will crash out the script. Also, '<' followed by '&' will crash out.
-			// Alter these characters if right after or before '&'.
+			// '&' followed by '#' or '|' will break the script. '<' followed by '&' will also break.
+			// Alter these characters if before or after '&'.
 			if ((ImageVec[i] == '#' && ImageVec[i - 1] == '&')
 				|| (ImageVec[i] == '|' && ImageVec[i - 1] == '&')
 				|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')) 
 			{
-				ImageVec[i] = ImageVec[i] == '<' ? '=' : alt;
+				ImageVec[i] = ImageVec[i] == '<' ? altChar[2] : altChar[0];
 			}
 			
-			// Linux:  Search for any of the seven bad characters and alter them if found.
-			for (int j = 0; j < 7; j++) {
-				if (ImageVec[i] == badChar[j]) 
-				{
-					ImageVec[i] = (ImageVec[i] == badChar[3]) ? 'a' : (ImageVec[i] == badChar[5]) ? '?' : ((ImageVec[i] == badChar[6]) ? ':' : alt);
-					break;
-				}
-			}
+			// '&' followed by x0 followed by '&' ( ')' is converted to '&') will break the script.
+			if ((ImageVec[i] == '&' && ImageVec[i + 1] == '\x0' && ImageVec[i+2] == ')')
+				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '\x0' && ImageVec[i + 3] == ')')) 
+			{
+				ImageVec[i] = altChar[0];
+ 			}
+
 		}
 		
 		int modCrcVal = 255;
@@ -286,11 +317,11 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 			// Call function to insert the updated CRC value into the 4 byte PLTE CRC chunk field (bits=32) within the vector "ImageVec".
 			insertChunkLength(ImageVec, plteCrcInsertIndex, PLTE_CHUNK_CRC, 32, true);
 
-			// Linux: Check to make sure the CRC value does not contain any of the six bad characters.
-			// If we find a bad character in the CRC, modify one byte in the PLTE chunk (mod location), then recalculate CRC. 
-			// Repeat until no bad characters found.
+			// Linux: Check to make sure the CRC value does not contain any of the seven problem characters.
+			// If we find a problem character in the CRC, modify one byte in the PLTE chunk (mod location), then recalculate CRC. 
+			// Repeat until no problem characters found.
 			for (int i = 0; i < 5; i++) {
-				for (int j = 0; j < 6; j++) {
+				for (int j = 0; j < 7; j++) {
 					if (i > 3) break;
 					if (ImageVec[plteCrcInsertIndex] == badChar[j])
 					{
