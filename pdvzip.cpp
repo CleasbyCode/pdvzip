@@ -211,14 +211,16 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		// File requirements check success. Now find and remove unwanted chunks.
 
 		string removeChunk;
-		string chunkName[13] = { "bKGD", "cHRM", "gAMA", "iCCP", "iTXt", "pHYs", "sBIT", "sRGB", "sPLT", "tEXt", "tIME", "tRNS", "zTXt" };
+		string chunkName[13] = { "bKGD", "cHRM", "gAMA", "iCCP", "tRNS", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tEXt", "iTXt", "zTXt" };
+
 		int chunkCount = sizeof(chunkName) / sizeof(string);
+		int chunkLength = 0;
 
 		while (chunkCount--) {
 			removeChunk = chunkName[chunkCount];
 			const ptrdiff_t REMOVE_ID_INDEX = search(ImageVec.begin(), ImageVec.end(), removeChunk.begin(), removeChunk.end()) - ImageVec.begin() - 4;
 			if (REMOVE_ID_INDEX != ImageVec.size() - 4) {
-				int chunkLength = (ImageVec[REMOVE_ID_INDEX + 2] << 8) | ImageVec[REMOVE_ID_INDEX + 3];
+				chunkLength = (ImageVec[REMOVE_ID_INDEX + 2] << 8) | ImageVec[REMOVE_ID_INDEX + 3];
 				ImageVec.erase(ImageVec.begin() + REMOVE_ID_INDEX, ImageVec.begin() + REMOVE_ID_INDEX + (chunkLength + 12));
 				chunkCount++;
 			}
@@ -230,27 +232,18 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 			PLTE_START_INDEX = search(ImageVec.begin(), ImageVec.end(), PLTE_ID.begin(), PLTE_ID.end()) - ImageVec.begin(),
 			PLTE_LENGTH_FIELD_INDEX = PLTE_START_INDEX - 4,
 			PLTE_CHUNK_LENGTH = (ImageVec[PLTE_LENGTH_FIELD_INDEX + 2] << 8) | ImageVec[PLTE_LENGTH_FIELD_INDEX + 3];
-
+		
 		// Linux issue only: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will 
 		// break the script. The main 'for loop' contains a number of fixes for this issue.
-		// For Imgur support, the PLTE chunk has to be BEFORE the hIST chunk (extraction shell script). 
-		// The following mess would be unnecessary if I did not support Imgur.
+		// For Imgur support, the PLTE chunk has to be before the hIST chunk (extraction shell script). The following would be unnecessary if I did not support Imgur.
 
 		char badChar[7] = { '(', ')', '\'', '`', '"', '>', ';' }; // These individual characters in the PLTE chunk will cause the shell script to crash out. 
-		char altChar[7] = { '*', '&', '=', '}', 'a', '?', ':' };  // Replace them with these characters. No distortion should occur to image. 
+		char altChar[7] = { '*', '&', '=', '}', 'a', '?', ':' };  // Replace them with these characters. 
 
 		int twoCount = 0;
 		
 		for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
 			
-			// The sequence ')', '!', ')' or ')', '!', ' ', ')' will break the script. Alter first ')' character. 
-			// As ')' is a bad character that gets altered to '&' it's the equivalent of '&', '!', '&' or '&', '!', ' ', '&'
-			if ((ImageVec[i] == ')' && ImageVec[i + 1] == '!' && ImageVec[i + 2] == ')')
-				|| (ImageVec[i] == ')' && ImageVec[i + 1] == '!' && ImageVec[i + 2] == '\x0' && ImageVec[i + 3] == ')'))
-			{
-				ImageVec[i] = altChar[0];
-			}
-
 			// Search for any of the seven problem characters and alter them if found.
 			for (int j = 0; j < 7; j++) {
 				if (ImageVec[i] == badChar[j])
@@ -260,18 +253,31 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 				}
 			}
 
+			// Character combinations that will break the script. Alter first '&' character to prevent script failure. 
+			if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
+				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '}')
+				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '{')
+				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '\x0')
+				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '#')
+				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '|')
+				|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
+				|| (ImageVec[i] == '<' && ImageVec[i + 1] == ')'))
+			{
+				ImageVec[i] = ImageVec[i] == '<' ? altChar[2] : altChar[0];	
+			}
+
 			// Two (or more) of "&" or "|" characters in a row will break the script. Alter one of these characters.
 			if (ImageVec[i] == '&' || ImageVec[i] == '|') {
 				twoCount++;
 				if (twoCount > 1) {
-					ImageVec[i] = ImageVec[i] == '&' ? altChar[0] : altChar[3];
+					ImageVec[i] = (ImageVec[i] == '&' ? altChar[0] : altChar[3]);
 				}
 			}
 			else {
 				twoCount = 0;
 			}
 
-			// '<' followed by a number (or a sequence of numbers) ending with '<' will break the script. 
+			// '<' followed by a number (or a sequence of numbers) and ending with '<' will break the script. 
 			// Alter '<' character at beginning of sequence (of upto 11 digits).
 			int j = 1, k = 2;
 			while (j < 12) {
@@ -282,22 +288,6 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 				j++, k++;
 			}
 			
-			// '&' followed by '#' or '|' will break the script. '<' followed by '&' will also break.
-			// Alter these characters if before or after '&'.
-			if ((ImageVec[i] == '#' && ImageVec[i - 1] == '&')
-				|| (ImageVec[i] == '|' && ImageVec[i - 1] == '&')
-				|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')) 
-			{
-				ImageVec[i] = ImageVec[i] == '<' ? altChar[2] : altChar[0];
-			}
-			
-			// '&' followed by x0 followed by '&' ( ')' is converted to '&') will break the script.
-			if ((ImageVec[i] == '&' && ImageVec[i + 1] == '\x0' && ImageVec[i+2] == ')')
-				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '\x0' && ImageVec[i + 3] == ')')) 
-			{
-				ImageVec[i] = altChar[0];
- 			}
-
 		}
 		
 		int modCrcVal = 255;
