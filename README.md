@@ -57,7 +57,7 @@ For any other media type/file extension, Linux & Windows will rely on the operat
 **Image Examples**  
 
 1. [Imgur. This image contains an embedded zip/PDF document](https://imgur.com/a/zF40QMX)
-2. [Twitter. This image contains an embedded zip/Python program](https://twitter.com/CleasbyCode/status/1573697255424540673?s=20&t=r0WWUyMNBhVs973PWqqpjg)
+2. [Twitter. This image contains an embedded zip/Python program](https://twitter.com/CleasbyCode/status/1575818509203910657?s=20&t=r1ykFjAda4P9enUPeRk-Sw)
 3. [PostImages. This image contains an embedded zip/JPG image](https://postimg.cc/xcCcvpLJ) (**Always select: "*Download original image***".)
 
 **Video Examples (YouTube)**
