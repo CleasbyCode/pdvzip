@@ -257,13 +257,21 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 			if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
 				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '}')
 				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '{')
+				|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == ')')
+				|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '(')
+				|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '&')
 				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '\x0')
 				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '#')
 				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '|')
 				|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
 				|| (ImageVec[i] == '<' && ImageVec[i + 1] == ')'))
 			{
-				ImageVec[i] = ImageVec[i] == '<' ? altChar[2] : altChar[0];	
+				if (ImageVec[i] == '\x0a') {
+					ImageVec[i + 1] = altChar[0];
+				}
+				else {
+					ImageVec[i] = ImageVec[i] == '<' ? altChar[2] : altChar[0];
+				}
 			}
 
 			// Two (or more) of "&" or "|" characters in a row will break the script. Alter one of these characters.
