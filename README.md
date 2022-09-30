@@ -32,6 +32,7 @@ Make sure image file has executable permissions.
 ```c
 
 $ chmod +x pdv_your_image_file.png
+$
 $ ./pdv_your_image_file.png 
 
 ```  
@@ -40,6 +41,7 @@ First, rename the '.png' file extension to '.cmd'.
 ```c
 
 G:\demo> ren pdv_your_image_file.png pdv_your_image_file.cmd
+G:\demo>
 G:\demo> .\pdv_your_image_file.cmd
 
 ```
@@ -52,16 +54,16 @@ PowerShell '.ps1', Linux uses the 'pwsh' command (if PowerShell installed), Wind
 
 For any other media type/file extension, Linux & Windows will rely on the operating system's set default application. To just get access to the file(s) within the ZIP archive, rename the '.png' file extension to '.zip'. Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.
 
-**Video Examples (YouTube)**
-1. [Embed, Play & Tweet MP4 Video (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=BwfFDwTSOK8) 
-2. [Embed, Tweet & Run Python Program (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=ZubGU_Eb7Ks)
-3. [Embed, Open & Tweet PDF Document (Windows & Linux Demo)](https://www.youtube.com/watch_popup?v=FnxD9XEjXos)  
-
 **Image Examples**  
 
 1. [Imgur. This image contains an embedded zip/PDF document](https://imgur.com/a/zF40QMX)
 2. [Twitter. This image contains an embedded zip/Python program](https://twitter.com/CleasbyCode/status/1573697255424540673?s=20&t=r0WWUyMNBhVs973PWqqpjg)
 3. [PostImages. This image contains an embedded zip/JPG image](https://postimg.cc/xcCcvpLJ) (**Always select: "*Download original image***".)
+
+**Video Examples (YouTube)**
+1. [Embed, Play & Tweet MP4 Video (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=BwfFDwTSOK8) 
+2. [Embed, Tweet & Run Python Program (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=ZubGU_Eb7Ks)
+3. [Embed, Open & Tweet PDF Document (Windows & Linux Demo)](https://www.youtube.com/watch_popup?v=FnxD9XEjXos)  
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
