@@ -58,14 +58,14 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 **Image Examples**  
 
-1. [Imgur. This image contains an embedded zip/PDF document](https://imgur.com/a/zF40QMX)
-2. [Twitter. This image contains an embedded zip/Python program](https://twitter.com/CleasbyCode/status/1575818509203910657?s=20&t=r1ykFjAda4P9enUPeRk-Sw)
+1. [Twitter. This image contains an embedded zip/Python program](https://twitter.com/CleasbyCode/status/1575818509203910657?s=20&t=r1ykFjAda4P9enUPeRk-Sw)
+2. [Imgur. This image contains an embedded zip/PDF document](https://imgur.com/a/zF40QMX)
 3. [PostImages. This image contains an embedded zip/JPG image](https://postimg.cc/xcCcvpLJ) (**Always select: "*Download original image***".)
 
 **Video Examples (YouTube)**
-1. [Embed, Play & Tweet MP4 Video (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=BwfFDwTSOK8) 
-2. [Embed, Tweet & Run Python Program (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=ZubGU_Eb7Ks)
-3. [Embed, Open & Tweet PDF Document (Windows & Linux Demo)](https://www.youtube.com/watch_popup?v=FnxD9XEjXos)  
+1. [MP4 Video (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=19hi4_UFICI) 
+2. [Python Program (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=wYEUT7DidbM)
+3. [PDF Document (Windows & Linux Demo)](https://www.youtube.com/watch_popup?v=u32zvWSLqto)  
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
