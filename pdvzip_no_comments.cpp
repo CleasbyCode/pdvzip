@@ -240,7 +240,6 @@ void fixPalettecChunk(vector<unsigned char>& ImageVec) {
 	int twoCount = 0;
 
 	for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
-
 		for (int j = 0; j < 7; j++) {
 			if (ImageVec[i] == badChar[j])
 			{
