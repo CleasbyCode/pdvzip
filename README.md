@@ -58,9 +58,9 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 **Image Examples**  
 
-1. [Twitter. This image contains an embedded zip/Python program](https://twitter.com/CleasbyCode/status/1575818509203910657?s=20&t=r1ykFjAda4P9enUPeRk-Sw)
+1. [Twitter. Tweet contains four images. Embedded with (TL) Python, (TR) MP3, (BL) PDF, (BR) MP4](https://twitter.com/CleasbyCode/status/1576652013588602880)
 2. [Imgur. This image contains an embedded zip/PDF document](https://imgur.com/a/zF40QMX)
-3. [PostImages. This image contains an embedded zip/JPG image](https://postimg.cc/xcCcvpLJ) (**Always select: "*Download original image***".)
+3. [PostImages. This image contains an embedded zip/JPG image](https://postimg.cc/xcCcvpLJ) (**Always select: "*Download original image***")
 
 **Video Examples (YouTube)**
 1. [MP4 Video (Linux & Windows Demo)](https://www.youtube.com/watch_popup?v=19hi4_UFICI) 
