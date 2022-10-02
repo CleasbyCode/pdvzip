@@ -64,13 +64,19 @@ int openFilesCheckSize(char* []);
 // Read & store PNG image & ZIP file into separate vectors, check for relevant file requirements. Display error message and quit program if requirement checks fail.
 int readFilesIntoVectorsCheckSpecs(const string&, const string&, const ptrdiff_t&, const ptrdiff_t&);
 
+// Find and remove chunks in the PNG image. 
+void eraseChunks(vector<unsigned char>&);
+
+// Search and replace problem characters in the PLTE chunk that are breaking the Linux extraction shell script. Also updates PLTE CRC.
+void fixPalettecChunk(vector<unsigned char>&);
+
 // Select & insert the correct elements from "extApp" string array into the vector "ScriptVec", to complete the script build.
 int buildScript(vector<unsigned char>&, vector<unsigned char>&, const string&);
 
 // Combine three vectors into one.
 void combineVectors(vector<unsigned char>&, vector<unsigned char>&, vector<unsigned char>&, const string&);
 
-// Update ZIP file record offsets to new location
+// Update ZIP file record offsets to their new location.
 void fixZipOffset(vector<unsigned char>&, const ptrdiff_t&);
 
 // Write out to file complete PNG vector (Image + Script + ZIP). Display error & quit program if write fails.
@@ -95,8 +101,8 @@ const string
 
 const unsigned int
 	MAX_MULTIPLIED_DIMS = 5500000,	// Maximum multiplied Width x Height dimensions value;
-	MAX_PNG = 5242880,		// Twitter's 5MB PNG file size limit;
-	MAX_SCRIPT_SIZE = 400;		// Script size limit, bytes.
+	MAX_PNG = 5242880,				// Twitter's 5MB PNG file size limit;
+	MAX_SCRIPT_SIZE = 400;			// Script size limit, bytes.
 
 
 int main(int argc, char** argv) {
@@ -112,6 +118,7 @@ int main(int argc, char** argv) {
 	}
 	return 0;
 }
+
 
 int openFilesCheckSize(char* argv[]) {
 
@@ -153,7 +160,7 @@ int openFilesCheckSize(char* argv[]) {
 	else { // File size check failure, display relevant error message and quit program.
 		if (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) {
 			cerr << "\nPNG " << SIZE_ERR_MSG << "\n\n";
-		}
+		} 
 		else if (ZIP_SIZE > MAX_PNG) {
 			cerr << "\nZIP " << SIZE_ERR_MSG << "\n\n";
 		}
@@ -197,7 +204,7 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 	const unsigned int
 		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])), // Get image dimensions from vector "ImageVec" and multiply Width x Height.
 		COLOR_TYPE = ImageVec[25],		// Get image colour type value from vector "ImageVec".
-		INZIP_NAME_LENGTH = ZipVec[34], 	// Get length of in-zip media filename from vector "ZipVec".
+		INZIP_NAME_LENGTH = ZipVec[34], // Get length of in-zip media filename from vector "ZipVec".
 		INDEXED_COLOR_TYPE = 3,			// PNG Indexed colour type has a set value of 3
 		MIN_NAME_LENGTH = 4;			// Minimum filename length of inzip media file.
 
@@ -208,132 +215,12 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		&& COLOR_TYPE == INDEXED_COLOR_TYPE
 		&& INZIP_NAME_LENGTH >= MIN_NAME_LENGTH) {
 
-		// File requirements check success. Now find and remove unwanted chunks.
+		// File requirements check success. Now find and remove unwanted PNG chunks.
+		eraseChunks(ImageVec);
 
-		string removeChunk;
-		string chunkName[13] = { "bKGD", "cHRM", "gAMA", "iCCP", "tRNS", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tEXt", "iTXt", "zTXt" };
+		// Check PLTE chunk for character issues that break the Linux extraction shell script.
+		fixPalettecChunk(ImageVec);
 
-		int chunkCount = sizeof(chunkName) / sizeof(string);
-		int chunkLength = 0;
-
-		while (chunkCount--) {
-			removeChunk = chunkName[chunkCount];
-			const ptrdiff_t REMOVE_ID_INDEX = search(ImageVec.begin(), ImageVec.end(), removeChunk.begin(), removeChunk.end()) - ImageVec.begin() - 4;
-			if (REMOVE_ID_INDEX != ImageVec.size() - 4) {
-				chunkLength = (ImageVec[REMOVE_ID_INDEX + 2] << 8) | ImageVec[REMOVE_ID_INDEX + 3];
-				ImageVec.erase(ImageVec.begin() + REMOVE_ID_INDEX, ImageVec.begin() + REMOVE_ID_INDEX + (chunkLength + 12));
-				chunkCount++;
-			}
-		}
-
-		// Search for index location of PLTE chunk name within vector "ImageVec". When calculating CRC, we include the 4 byte chunk name field + data field.
-		// Next, get PLTE chunk length for CRC. (Chunk name, 4 bytes + data field length).
-		const ptrdiff_t
-			PLTE_START_INDEX = search(ImageVec.begin(), ImageVec.end(), PLTE_ID.begin(), PLTE_ID.end()) - ImageVec.begin(),
-			PLTE_LENGTH_FIELD_INDEX = PLTE_START_INDEX - 4,
-			PLTE_CHUNK_LENGTH = (ImageVec[PLTE_LENGTH_FIELD_INDEX + 2] << 8) | ImageVec[PLTE_LENGTH_FIELD_INDEX + 3];
-		
-		// Linux issue only: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will 
-		// break the script. The main 'for loop' contains a number of fixes for this issue.
-		// For Imgur support, the PLTE chunk has to be before the hIST chunk (extraction shell script). The following would be unnecessary if I did not support Imgur.
-
-		char badChar[7] = { '(', ')', '\'', '`', '"', '>', ';' }; // These individual characters in the PLTE chunk will cause the shell script to crash out. 
-		char altChar[7] = { '*', '&', '=', '}', 'a', '?', ':' };  // Replace them with these characters. 
-
-		int twoCount = 0;
-		
-		for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
-			
-			// Search for any of the seven problem characters and alter them if found.
-			for (int j = 0; j < 7; j++) {
-				if (ImageVec[i] == badChar[j])
-				{
-					ImageVec[i] = (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[5]) ? altChar[5] : ((ImageVec[i] == badChar[6]) ? altChar[6] : altChar[1]);
-					break;
-				}
-			}
-
-			// Character combinations that will break the script. Alter first '&' character to prevent script failure. 
-			if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
-				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '}')
-				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '{')
-				|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == ')')
-				|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '(')
-				|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '&')
-				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '\x0')
-				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '#')
-				|| (ImageVec[i] == '&' && ImageVec[i + 1] == '|')
-				|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
-				|| (ImageVec[i] == '<' && ImageVec[i + 1] == ')'))
-			{
-				if (ImageVec[i] == '\x0a') {
-					ImageVec[i + 1] = altChar[0];
-				}
-				else {
-					ImageVec[i] = ImageVec[i] == '<' ? altChar[2] : altChar[0];
-				}
-			}
-
-			// Two (or more) of "&" or "|" characters in a row will break the script. Alter one of these characters.
-			if (ImageVec[i] == '&' || ImageVec[i] == '|') {
-				twoCount++;
-				if (twoCount > 1) {
-					ImageVec[i] = (ImageVec[i] == '&' ? altChar[0] : altChar[3]);
-				}
-			}
-			else {
-				twoCount = 0;
-			}
-
-			// '<' followed by a number (or a sequence of numbers) and ending with '<' will break the script. 
-			// Alter '<' character at beginning of sequence (of upto 11 digits).
-			int j = 1, k = 2;
-			while (j < 12) {
-				if ((ImageVec[i] == '<' && (ImageVec[i + j] > 47 && ImageVec[i + j] < 58) && ImageVec[i + k] == '<'))
-				{
-					ImageVec[i] = altChar[2];
-				}
-				j++, k++;
-			}
-			
-		}
-		
-		int modCrcVal = 255;
-		bool redoCrc;
-
-		do {
-			redoCrc = false;
-
-			// Pass these two values to the CRC fuction to get correct PLTE CRC.  https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-			const uint32_t PLTE_CHUNK_CRC = crc(&ImageVec[PLTE_START_INDEX], PLTE_CHUNK_LENGTH + 4);
-
-			// Index location for PLTE CRC field and PLTE mod location.
-			ptrdiff_t 
-				plteCrcInsertIndex = PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4),
-				plteModCrcInsertIndex = plteCrcInsertIndex - 1;
-
-			// Call function to insert the updated CRC value into the 4 byte PLTE CRC chunk field (bits=32) within the vector "ImageVec".
-			insertChunkLength(ImageVec, plteCrcInsertIndex, PLTE_CHUNK_CRC, 32, true);
-
-			// Linux: Check to make sure the CRC value does not contain any of the seven problem characters.
-			// If we find a problem character in the CRC, modify one byte in the PLTE chunk (mod location), then recalculate CRC. 
-			// Repeat until no problem characters found.
-			for (int i = 0; i < 5; i++) {
-				for (int j = 0; j < 7; j++) {
-					if (i > 3) break;
-					if (ImageVec[plteCrcInsertIndex] == badChar[j])
-					{
-						ImageVec[plteModCrcInsertIndex] = modCrcVal;
-						modCrcVal--;
-						redoCrc = true;
-						break;
-					}
-				}
-				plteCrcInsertIndex++;
-			}
-		} 
-		while (redoCrc);
-		
 		// Update IDAT chunk length.
 		// "ZipVec" vector's insert index location for IDAT chunk length field.
 		int idatZipChunkLengthIndex = 1;
@@ -368,6 +255,137 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 	return 0;
 }
 
+void eraseChunks(vector<unsigned char>& ImageVec) {
+
+	// Chunks to remove. Remove TEXT chunks first as they can sometimes mention other chunks names within their data field, causing confusion.
+	string removeChunk[14] = { "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
+	
+	int chunkNum = sizeof(removeChunk) / sizeof(string);
+
+	// Remove chunks. Make sure we check for multiple occurrences of each chunk we remove.
+	while (chunkNum--) {
+		const ptrdiff_t REMOVE_ID_INDEX = search(ImageVec.begin(), ImageVec.end(), removeChunk[chunkNum].begin(), removeChunk[chunkNum].end()) - ImageVec.begin() - 4;
+		if (REMOVE_ID_INDEX != ImageVec.size() - 4) {
+			int chunkLength = (ImageVec[REMOVE_ID_INDEX + 2] << 8) | ImageVec[REMOVE_ID_INDEX + 3];
+			ImageVec.erase(ImageVec.begin() + REMOVE_ID_INDEX, ImageVec.begin() + REMOVE_ID_INDEX + (chunkLength + 12));
+			chunkNum++;
+		}
+	}
+}
+
+void fixPalettecChunk(vector<unsigned char>& ImageVec) {
+
+	// Linux issue: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will break the script.
+	// The main 'for loop' contains a number of fixes for this issue.
+	// For Imgur support, the PLTE chunk has to be before the hIST chunk (extraction shell script). The following would be unnecessary if I did not support Imgur.
+
+	// After modify the PLTE chunk, we need to update its CRC value.
+	// Search for index location of PLTE chunk name within vector "ImageVec". When calculating CRC, we include the 4 byte chunk name field + data field.
+	// Get PLTE chunk length for CRC. (Chunk name, 4 bytes + data field length).
+	const ptrdiff_t
+		PLTE_START_INDEX = search(ImageVec.begin(), ImageVec.end(), PLTE_ID.begin(), PLTE_ID.end()) - ImageVec.begin(),
+		PLTE_LENGTH_FIELD_INDEX = PLTE_START_INDEX - 4,
+		PLTE_CHUNK_LENGTH = (ImageVec[PLTE_LENGTH_FIELD_INDEX + 2] << 8) | ImageVec[PLTE_LENGTH_FIELD_INDEX + 3];
+
+	char 
+		badChar[7] = { '(', ')', '\'', '`', '"', '>', ';' },  // These individual characters in the PLTE chunk will break the shell extraction script. 
+		altChar[7] = { '*', '&', '=', '}', 'a', '?', ':' };  // Replace them with these characters. 
+
+	int twoCount = 0;
+
+	for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
+
+		// Search for any of the seven problem characters and replace them if found.
+		for (int j = 0; j < 7; j++) {
+			if (ImageVec[i] == badChar[j])
+			{
+				ImageVec[i] = (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[5]) ? altChar[5] : ((ImageVec[i] == badChar[6]) ? altChar[6] : altChar[1]);
+				break;
+			}
+		}
+
+		// Character combinations that will break the shell extraction script. Replace relevant character to prevent script failure. 
+		if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
+			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '}')
+			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '{')
+			|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == ')')
+			|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '(')
+			|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '&')
+			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '\x0')
+			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '#')
+			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '|')
+			|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
+			|| (ImageVec[i] == '<' && ImageVec[i + 1] == ')'))
+		{
+			if (ImageVec[i] == '\x0a') {
+				ImageVec[i + 1] = altChar[0];
+			}
+			else {
+				ImageVec[i] = ImageVec[i] == '<' ? altChar[2] : altChar[0];
+			}
+		}
+
+		// Two (or more) characters of "&" or "|" in a row will break the script. Replace one of these characters.
+		if (ImageVec[i] == '&' || ImageVec[i] == '|') {
+			twoCount++;
+			if (twoCount > 1) {
+				ImageVec[i] = (ImageVec[i] == '&' ? altChar[0] : altChar[3]);
+			}
+		}
+		else {
+			twoCount = 0;
+		}
+
+		// Character '<' followed by a number (or a sequence of numbers) and ending with the same character '<' will break the script. 
+		// Replace character '<' at the beginning of the sequence (of up to 11 digits).
+		int j = 1, k = 2;
+		while (j < 12) {
+			if ((ImageVec[i] == '<' && (ImageVec[i + j] > 47 && ImageVec[i + j] < 58) && ImageVec[i + k] == '<'))
+			{
+				ImageVec[i] = altChar[2];
+			}
+			j++, k++;
+		}
+
+	}
+
+	int modCrcVal = 255;
+	bool redoCrc;
+
+	do {
+		redoCrc = false;
+
+		// Pass these two values (PLTE_START_INDEX & PLTE_CHUNK_LENGTH + 4) to the CRC fuction to get correct PLTE CRC.
+		const uint32_t PLTE_CHUNK_CRC = crc(&ImageVec[PLTE_START_INDEX], PLTE_CHUNK_LENGTH + 4);
+
+		// Get index location for PLTE CRC field and PLTE mod location.
+		ptrdiff_t
+			plteCrcInsertIndex = PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4),
+			plteModCrcInsertIndex = plteCrcInsertIndex - 1;
+
+		// Call function to insert the updated CRC value into the 4 byte PLTE CRC chunk field (bits=32) within the vector "ImageVec".
+		insertChunkLength(ImageVec, plteCrcInsertIndex, PLTE_CHUNK_CRC, 32, true);
+
+		// Linux: Check to make sure the CRC value does not contain any of the seven problem characters.
+		// If we find a problem character in the CRC value, modify one byte in the PLTE chunk (mod location), then recalculate CRC. 
+		// Repeat until no problem characters found.
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 7; j++) {
+				if (i > 3) break;
+				if (ImageVec[plteCrcInsertIndex] == badChar[j])
+				{
+					ImageVec[plteModCrcInsertIndex] = modCrcVal;
+					modCrcVal--;
+					redoCrc = true;
+					break;
+				}
+			}
+			plteCrcInsertIndex++;
+		}
+	} while (redoCrc);
+
+}
+
 int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, const string& ZIP_FILE) {
 
 	/* Vector "ScriptVec". hIST is a valid PNG chunk type. It does not require a correct CRC value. First four bytes is the chunk length field.
@@ -381,7 +399,7 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 	the in-zip media file using an application command based on a matched file extension, or if no match found, defaulting to the
 	operating system making the choice, if possible.
 
-	The completed "hIST" chunk will later be inserted after PLTE chunk and just before the first IDAT chunk of the PNG image (from the vector "ImageVec") */
+	The completed "hIST" chunk will later be inserted after the IHDR chunk of the PNG image (which is stored in the vector "ImageVec") */
 	vector<unsigned char>ScriptVec{ 0,0,'\x13','\x08','h','I','S','T','\x0d','R','E','M',';','c','l','e','a','r',';','u','n','z','i','p','\x20','-','q','o','\x20',
 		'"','$','0','"',';','c','l','e','a','r',';','"','"',';','e','x','i','t',';','\x0d','\x0a','#','&','c','l','s','&','t','a','r','\x20','-','x','f','\x20',
 		'"','%','~','n','0','%','~','x','0','"','&','\x20','"','.','\\','"','&','r','e','n','\x20','"','%','~','n','0','%','~','x','0','"','\x20',
@@ -394,10 +412,10 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 	const int
 		VLC = 19, DEV_NULL = 25, START_B = 27, PAUSE = 28,	// A few "extApp" string array element names & their index value.
 		LINUX_INSERT_INDEX = 40, WINDOWS_INSERT_INDEX = 75,	// "ScriptVec" vector's script insert index location values for Linux & Windows script commands.
-		INZIP_NAME_LENGTH_INDEX = 34,				// "ZipVec" vector's index location for in-zip media filename length value.
-		INZIP_NAME_INDEX = 38,					// "ZipVec" vector's index location for in-zip media filename.
+		INZIP_NAME_LENGTH_INDEX = 34,						// "ZipVec" vector's index location for in-zip media filename length value.
+		INZIP_NAME_INDEX = 38,								// "ZipVec" vector's index location for in-zip media filename.
 		INZIP_NAME_LENGTH = ZipVec[INZIP_NAME_LENGTH_INDEX],	// Get length value of in-zip media filename from vector "ZipVec".
-		FILENAME_INSERT_INDEX[3] = { 80, 42, 8 };		// Small int array containing three "ScriptVec" index locations for inserting in-zip media filename.
+		FILENAME_INSERT_INDEX[3] = { 80, 42, 8 };				// Small int array containing three "ScriptVec" index locations for inserting in-zip media filename.
 
 	// Within the local header and central directory of ZIP file (from vector "ZipVec") change first character of in-zip media filename to '.', so that it is hidden under Linux. 
 	ZipVec[INZIP_NAME_INDEX] = '.';
@@ -405,8 +423,8 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 
 	string
 		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH),	// Get in-zip media filename from vector "ZipVec".
-		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),	// Get file extension from in-zip media filename (last three chars).
-		argsLinux, argsWindows;						// Variables to store optional user arguments for Python or PowerShell.
+		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),		// Get file extension from in-zip media filename (last three chars).
+		argsLinux, argsWindows;											// Variables to store optional user arguments for Python or PowerShell.
 
 	// Insert in-zip media filename into three index locations of the script within vector "ScriptVec"
 	for (int offset : FILENAME_INSERT_INDEX)
@@ -419,7 +437,7 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 	for (appIndex = 0; appIndex != 24; appIndex++) {
 		if (extApp[appIndex] == inzipNameExt) {
 			appIndex = appIndex <= 14 ? 19 : appIndex += 5; // After an extension match, any appIndex value between 0 & 14 defaults to 19(vlc), 
-			break;						// if over 14, add 5 to its value. 15=20(evince), 16=21(python3), etc.
+			break;											// if over 14, add 5 to its value. 15=20(evince), 16=21(python3), etc.
 		}
 	}
 
@@ -485,11 +503,11 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 
 	// "ImageVec" vector's index insert location for vector "ScriptVec" (just before first IDAT chunk and after PLTE chunk) within the PNG image. 
 	// This location for the hIST (script) chunk is required for Imgur support. 
-	// For Imgur to work correctly, the PLTE chunk MUST be located BEFORE this hIST (script) chunk. 
+	// For Imgur to work correctly, the PLTE chunk must be located BEFORE this hIST (script) chunk. 
 	const ptrdiff_t HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
 
 	// Insert contents of "ScriptVec" vector into "ImageVec" vector, combining Script with PNG image.
-	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); // Inserted just before first IDAT chunk.
+	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); // Inserted right after the IHDR PNG chunk.
 
 	// "ImageVec" vector's index insert location for vector "ZipVec", last 12 bytes of the PNG image.
 	const ptrdiff_t LAST_IDAT_CHUNK_INSERT_INDEX = ImageVec.size() - 12;
@@ -528,11 +546,11 @@ void fixZipOffset(vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_IN
 		END_CENTRAL_DIR_INDEX = search(ImageVec.begin() + START_CENTRAL_DIR_INDEX, ImageVec.end(), END_CENTRAL_ID.begin(), END_CENTRAL_ID.end()) - ImageVec.begin();
 
 	ptrdiff_t
-		zipFileRecordsIndex = END_CENTRAL_DIR_INDEX + 11,		// Vector index location for ZIP file records value.
+		zipFileRecordsIndex = END_CENTRAL_DIR_INDEX + 11,			// Vector index location for ZIP file records value.
 		commentLengthInsertIndex = END_CENTRAL_DIR_INDEX + 21,		// Vector index location for ZIP comment length.
 		endCentralStartInsertIndex = END_CENTRAL_DIR_INDEX + 19,	// Vector index location for End Central Start offset.
 		centralLocalInsertIndex = START_CENTRAL_DIR_INDEX - 1,		// Initialise variable to just before (-1) Start Central index location.
-		newZipOffset = LAST_IDAT_INDEX,					// Initialise variable to last IDAT chunk's index location.
+		newZipOffset = LAST_IDAT_INDEX,								// Initialise variable to last IDAT chunk's index location.
 		zipFileRecords = (ImageVec[zipFileRecordsIndex] << 8) | ImageVec[zipFileRecordsIndex - 1]; // Get ZIP file records value from vector "ImageVec" index location.
 
 	// Starting from around the last IDAT chunk index location, traverse through vector "ImageVec" searching for ZIP file record offsets and updating them to their new location.
