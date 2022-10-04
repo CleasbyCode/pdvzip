@@ -398,7 +398,7 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 	the in-zip media file using an application command based on a matched file extension, or if no match found, defaulting to the
 	operating system making the choice, if possible.
 
-	The completed "hIST" chunk will later be inserted after the IHDR chunk of the PNG image (which is stored in the vector "ImageVec") */
+	The completed "hIST" chunk will later be inserted after the PLTE chunk of the PNG image (which is stored in the vector "ImageVec") */
 	vector<unsigned char>ScriptVec{ 0,0,'\x13','\x08','h','I','S','T','\x0d','R','E','M',';','c','l','e','a','r',';','u','n','z','i','p','\x20','-','q','o','\x20',
 		'"','$','0','"',';','c','l','e','a','r',';','"','"',';','e','x','i','t',';','\x0d','\x0a','#','&','c','l','s','&','t','a','r','\x20','-','x','f','\x20',
 		'"','%','~','n','0','%','~','x','0','"','&','\x20','"','.','\\','"','&','r','e','n','\x20','"','%','~','n','0','%','~','x','0','"','\x20',
