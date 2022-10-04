@@ -506,7 +506,7 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 	const ptrdiff_t HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
 
 	// Insert contents of "ScriptVec" vector into "ImageVec" vector, combining Script with PNG image.
-	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); // Inserted right after the IHDR PNG chunk.
+	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); // Inserted right after the PLTE PNG chunk.
 
 	// "ImageVec" vector's index insert location for vector "ZipVec", last 12 bytes of the PNG image.
 	const ptrdiff_t LAST_IDAT_CHUNK_INSERT_INDEX = ImageVec.size() - 12;
