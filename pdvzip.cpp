@@ -199,8 +199,8 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		HEADER_ERR_MSG = "\nHeader Error : File does not appear to be a valid",
 		IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. See 'pdvzip --info' for more details.\n\n",
 		IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements. See 'pdvzip --info' for more details.\n\n",
-		ZIP_ERR_MSG = "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)." 
-					  "\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
+		ZIP_ERR_MSG = 	"\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)." 
+				"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
 					  
 	const unsigned int
 		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])), // Get image dimensions from vector "ImageVec" and multiply Width x Height.
