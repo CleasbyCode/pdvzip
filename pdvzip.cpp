@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
 
 int openFilesCheckSize(char* argv[]) {
 
-const string
+	const string
 		IMG_FILE = argv[1],
 		ZIP_FILE = argv[2],
 		READ_ERR_MSG = "Read Error: Unable to open/read file: ",
