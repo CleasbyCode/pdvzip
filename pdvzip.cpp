@@ -290,8 +290,8 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 		// Replace any of the seven problem characters if found within PLTE chunk.
 		ImageVec[i] = (ImageVec[i] == badChar[0]) ? altChar[1] 
 				: (ImageVec[i] == badChar[1]) ? altChar[1] : (ImageVec[i] == badChar[2]) ? altChar[1]
-				: (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[5]) ? altChar[5] 
-				: ((ImageVec[i] == badChar[6]) ? altChar[6] : ImageVec[i]);
+				: (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[4]) ? altChar[0] 
+				: (ImageVec[i] == badChar[5]) ? altChar[5] : ((ImageVec[i] == badChar[6]) ? altChar[6] : ImageVec[i]);
 
 		// Character combinations that will break the shell extraction script. Replace relevant character to prevent script failure. 
 		if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
