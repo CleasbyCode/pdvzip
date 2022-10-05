@@ -68,7 +68,7 @@ int readFilesIntoVectorsCheckSpecs(const string&, const string&, const ptrdiff_t
 void eraseChunks(vector<unsigned char>&);
 
 // Search and replace problem characters in the PLTE chunk that are breaking the Linux extraction shell script. Also updates PLTE CRC.
-void fixPalettecChunk(vector<unsigned char>&);
+void fixPaletteChunk(vector<unsigned char>&);
 
 // Select & insert the correct elements from "extApp" string array into the vector "ScriptVec", to complete the script build.
 int buildScript(vector<unsigned char>&, vector<unsigned char>&, const string&);
@@ -104,7 +104,6 @@ const unsigned int
 	MAX_PNG = 5242880,		// Twitter's 5MB PNG file size limit;
 	MAX_SCRIPT_SIZE = 400;		// Script size limit, bytes.
 
-
 int main(int argc, char** argv) {
 
 	if (argc == 2 && std::string(argv[1]) == "--info") {
@@ -119,57 +118,56 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-
 int openFilesCheckSize(char* argv[]) {
 
-	const string
+const string
 		IMG_FILE = argv[1],
 		ZIP_FILE = argv[2],
-		SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes)", // Repeated error messages.
-		READ_ERR_MSG = "Read File Error: Unable to open / read file: ";
+		READ_ERR_MSG = "Read Error: Unable to open/read file: ",
+		SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n";
 
+	unsigned int
+		combinedSize = 0,
+		exceedSize = 0,
+		availableSize = 0;
+		
 	ifstream readImg(IMG_FILE, ios::binary);
 	ifstream readZip(ZIP_FILE, ios::binary);
 
 	if (!readImg || !readZip) {
-		// Open file failure, display relevant error message and quit program.
-		if (!readImg) {
-			cerr << "\nPNG " << READ_ERR_MSG << IMG_FILE << "\n\n";
-		}
-		else {
-			cerr << "\nZIP " << READ_ERR_MSG << ZIP_FILE << "\n\n";
-		}
+		string errMsg = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
+		cerr << errMsg;
 		return -1;
 	}
+	
 	// Open files success. Now get size of files
 	readImg.seekg(0, readImg.end),
-		readZip.seekg(0, readZip.end);
+	readZip.seekg(0, readZip.end);
 
 	const ptrdiff_t
 		IMG_SIZE = readImg.tellg(),
 		ZIP_SIZE = readZip.tellg();
 
+	combinedSize = static_cast<unsigned int>(IMG_SIZE) + static_cast<unsigned int>(ZIP_SIZE) + MAX_SCRIPT_SIZE;
+	exceedSize = (static_cast<unsigned int>(IMG_SIZE) + static_cast<unsigned int>(ZIP_SIZE) + MAX_SCRIPT_SIZE) - MAX_PNG,
+	availableSize = MAX_PNG - (static_cast<unsigned int>(IMG_SIZE) + MAX_SCRIPT_SIZE);
+
+	const string COMBINED_SIZE_ERR = "\nSize Error: " + to_string(combinedSize) +
+		" bytes is the combined size of your PNG image + ZIP file + Script (400 bytes), \nwhich exceeds Twitter's 5MB size limit by "
+		+ to_string(exceedSize) + " bytes. Available ZIP file space is: " + to_string(availableSize) + " bytes.\n\n";
+
 	if (MAX_PNG >= (IMG_SIZE + MAX_SCRIPT_SIZE)
 		&& MAX_PNG >= ZIP_SIZE
-		&& MAX_PNG >= (IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE)) {
+		&& MAX_PNG >= combinedSize) {
 
 		// File size check success, now read files into vectors.
 		readFilesIntoVectorsCheckSpecs(IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
-
 	}
 	else { // File size check failure, display relevant error message and quit program.
-		if (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) {
-			cerr << "\nPNG " << SIZE_ERR_MSG << "\n\n";
-		} 
-		else if (ZIP_SIZE > MAX_PNG) {
-			cerr << "\nZIP " << SIZE_ERR_MSG << "\n\n";
-		}
-		else {
-			cerr << "\nSize Error: " << (IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE) <<
-				" bytes is the combined size of your PNG image + ZIP file + Script (400 bytes),\nwhich exceeds Twitter's 5MB size limit by " <<
-				(IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE) - MAX_PNG << " bytes. Available ZIP file space is: " <<
-				MAX_PNG - (IMG_SIZE + MAX_SCRIPT_SIZE) << " bytes.\n\n";
-		}
+
+		string errMsg = (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) ? "\nPNG " + SIZE_ERR_MSG : (ZIP_SIZE > MAX_PNG ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR);
+		cerr << errMsg;
+
 		return -1;
 	}
 	return 0;
@@ -198,13 +196,16 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 	const string
 		IMG_HDR(ImageVec.begin(), ImageVec.begin() + PNG_ID.length()),		// Get file header from vector "ImageVec". 
 		ZIP_HDR(ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length()),	// Get file header from vector "ZipVec".
-		FORMAT_ERR_MSG = "Format Error: File does not appear to be a valid", 	// Repeated error/info messages.	
-		INFO_MSG = "See pdvzip --info for more details.";
-
+		HEADER_ERR_MSG = "\nHeader Error : File does not appear to be a valid",
+		IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. See 'pdvzip --info' for more details.\n\n",
+		IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements. See 'pdvzip --info' for more details.\n\n",
+		ZIP_ERR_MSG = "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)." 
+					  "\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
+					  
 	const unsigned int
 		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])), // Get image dimensions from vector "ImageVec" and multiply Width x Height.
 		COLOR_TYPE = ImageVec[25],		// Get image colour type value from vector "ImageVec".
-		INZIP_NAME_LENGTH = ZipVec[34], 	// Get length of in-zip media filename from vector "ZipVec".
+		INZIP_NAME_LENGTH = ZipVec[34], // Get length of in-zip media filename from vector "ZipVec".
 		INDEXED_COLOR_TYPE = 3,			// PNG Indexed colour type has a set value of 3
 		MIN_NAME_LENGTH = 4;			// Minimum filename length of inzip media file.
 
@@ -218,8 +219,8 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		// File requirements check success. Now find and remove unwanted PNG chunks.
 		eraseChunks(ImageVec);
 
-		// Check PLTE chunk for character issues that break the Linux extraction shell script.
-		fixPalettecChunk(ImageVec);
+		// Now check PLTE chunk for character issues that break the Linux extraction shell script.
+		fixPaletteChunk(ImageVec);
 
 		// Update IDAT chunk length.
 		// "ZipVec" vector's insert index location for IDAT chunk length field.
@@ -231,25 +232,16 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 
 		// Call next function to complete script.
 		buildScript(ImageVec, ZipVec, ZIP_FILE);
-
 	}
 	else { // File requirements check failure, display relevant error message and quit program.
-		if (IMG_HDR != PNG_ID) {
-			cerr << "\nPNG " << FORMAT_ERR_MSG << " PNG image.\n\n";
-		}
-		else if (ZIP_HDR != ZIP_ID) {
-			cerr << "\nZIP " << FORMAT_ERR_MSG << " ZIP archive.\n\n";
-		}
-		else if (MAX_PNG > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) {
-			cerr << "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. " << INFO_MSG << "\n\n";
-		}
-		else if (COLOR_TYPE != INDEXED_COLOR_TYPE) {
-			cerr << "\nPNG Image Error: Color type of PNG image does not meet program requirements. " << INFO_MSG << "\n\n";
-		}
-		else {
-			cerr << "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)." <<
-				"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
-		}
+		
+		string errMsg = (IMG_HDR != PNG_ID) ? "PNG " + HEADER_ERR_MSG + " PNG image\n\n" 
+				: (ZIP_HDR != ZIP_ID) ? "ZIP " + HEADER_ERR_MSG + "ZIP archive\n\n"
+				: (MAX_PNG > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) ? IMAGE_ERR_MSG1
+				: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
+
+		cerr << errMsg;
+
 		return -1;
 	}
 	return 0;
@@ -273,7 +265,7 @@ void eraseChunks(vector<unsigned char>& ImageVec) {
 	}
 }
 
-void fixPalettecChunk(vector<unsigned char>& ImageVec) {
+void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 
 	// Linux issue: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will break the script.
 	// The main 'for loop' contains a number of fixes for this issue.
@@ -295,14 +287,11 @@ void fixPalettecChunk(vector<unsigned char>& ImageVec) {
 
 	for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
 
-		// Search for any of the seven problem characters and replace them if found.
-		for (int j = 0; j < 7; j++) {
-			if (ImageVec[i] == badChar[j])
-			{
-				ImageVec[i] = (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[5]) ? altChar[5] : ((ImageVec[i] == badChar[6]) ? altChar[6] : altChar[1]);
-				break;
-			}
-		}
+		// Replace any of the seven problem characters if found within PLTE chunk.
+		ImageVec[i] = (ImageVec[i] == badChar[0]) ? altChar[1] 
+				: (ImageVec[i] == badChar[1]) ? altChar[1] : (ImageVec[i] == badChar[2]) ? altChar[1]
+				: (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[5]) ? altChar[5] 
+				: ((ImageVec[i] == badChar[6]) ? altChar[6] : ImageVec[i]);
 
 		// Character combinations that will break the shell extraction script. Replace relevant character to prevent script failure. 
 		if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
@@ -339,14 +328,16 @@ void fixPalettecChunk(vector<unsigned char>& ImageVec) {
 		// Character '<' followed by a number (or a sequence of numbers) and ending with the same character '<' will break the script. 
 		// Replace character '<' at the beginning of the sequence (of up to 11 digits).
 		int j = 1, k = 2;
-		while (j < 12) {
-			if ((ImageVec[i] == '<' && (ImageVec[i + j] > 47 && ImageVec[i + j] < 58) && ImageVec[i + k] == '<'))
-			{
-				ImageVec[i] = altChar[2];
+		if (ImageVec[i] == '<') {
+			while (j < 12) {
+				if (ImageVec[i + j] > 47 && ImageVec[i + j] < 58 && ImageVec[i + k] == '<')
+				{
+					ImageVec[i] = altChar[2];
+					j = 12;
+				}
+				j++, k++;
 			}
-			j++, k++;
 		}
-
 	}
 
 	int modCrcVal = 255;
