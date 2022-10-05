@@ -153,7 +153,7 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 	
 	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
 	readImg.read((char*)&ImageVec[0], IMG_SIZE);
-
+	
 	ZipVec.resize(ZIP_SIZE + ZipVec.size() / sizeof(unsigned char));
 	readZip.read((char*)&ZipVec[8], ZIP_SIZE);
 
@@ -181,13 +181,9 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		&& INZIP_NAME_LENGTH >= MIN_NAME_LENGTH) {
 
 		eraseChunks(ImageVec);
-
 		fixPaletteChunk(ImageVec);
-
 		int idatZipChunkLengthIndex = 1;
-		
 		insertChunkLength(ZipVec, idatZipChunkLengthIndex, ZIP_SIZE, 24, true);
-
 		buildScript(ImageVec, ZipVec, ZIP_FILE);
 	}
 	else { 
@@ -207,10 +203,8 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 void eraseChunks(vector<unsigned char>& ImageVec) {
 
 	string removeChunk[14] = { "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
-	
 	int chunkNum = sizeof(removeChunk) / sizeof(string);
 
-	// Remove chunks. Make sure we check for multiple occurrences of each chunk we remove.
 	while (chunkNum--) {
 		const ptrdiff_t REMOVE_ID_INDEX = search(ImageVec.begin(), ImageVec.end(), removeChunk[chunkNum].begin(), removeChunk[chunkNum].end()) - ImageVec.begin() - 4;
 		if (REMOVE_ID_INDEX != ImageVec.size() - 4) {
@@ -388,9 +382,7 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 	}
 	else {
 		int histChunkLengthInsertIndex = 2;
-
 		insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
-		
 		combineVectors(ImageVec, ZipVec, ScriptVec, ZIP_FILE);
 	}
 	return 0;
@@ -400,24 +392,15 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 
 	const ptrdiff_t FIRST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), FIRST_IDAT_ID.begin(), FIRST_IDAT_ID.end()) - ImageVec.begin() - 4;
 	const ptrdiff_t HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
-
 	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); 
-
 	const ptrdiff_t LAST_IDAT_CHUNK_INSERT_INDEX = ImageVec.size() - 12;
-
 	ImageVec.insert((ImageVec.begin() + LAST_IDAT_CHUNK_INSERT_INDEX), ZipVec.begin(), ZipVec.end());  
-
 	const ptrdiff_t LAST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), LAST_IDAT_ID.begin(), LAST_IDAT_ID.end()) - ImageVec.begin();
 	const ptrdiff_t LAST_IDAT_LENGTH = ImageVec.size() - (LAST_IDAT_START_INDEX + 16);
-
 	fixZipOffset(ImageVec, LAST_IDAT_START_INDEX);
-
 	const uint32_t LAST_IDAT_CRC = crc(&ImageVec[LAST_IDAT_START_INDEX], LAST_IDAT_LENGTH);
-
 	ptrdiff_t lastIdatCrcInsertIndex = ImageVec.size() - 16;
-
 	insertChunkLength(ImageVec, lastIdatCrcInsertIndex, LAST_IDAT_CRC, 32, true);
-
 	writeFile(ImageVec, ZIP_FILE);
 }
 
@@ -442,18 +425,14 @@ void fixZipOffset(vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_IN
 	}
 	
 	insertChunkLength(ImageVec, endCentralStartInsertIndex, START_CENTRAL_DIR_INDEX, 32, false);
-
 	int commentLength = 16 + (ImageVec[commentLengthInsertIndex] << 8) | ImageVec[commentLengthInsertIndex - 1];
-
 	insertChunkLength(ImageVec, commentLengthInsertIndex, commentLength, 16, false);
 }
 
 int writeFile(vector<unsigned char>& ImageVec, const string& ZIP_FILE) {
 
 	const size_t SLASH_POS = ZIP_FILE.find_last_of("\\/") + 1;
-
 	string outFile = ZIP_FILE.substr(0, SLASH_POS) + "pdv" + "_" + ZIP_FILE.substr(SLASH_POS, ZIP_FILE.length()) + ".png";
-
 	ofstream writeFinal(outFile, ios::binary);
 
 	if (!writeFinal) {
@@ -465,7 +444,6 @@ int writeFile(vector<unsigned char>& ImageVec, const string& ZIP_FILE) {
 	writeFinal.close();
 
 	cout << "\nCreated output file " << "'" << outFile << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
-
 	return 0;
 }
 
