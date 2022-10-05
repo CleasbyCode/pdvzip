@@ -12,6 +12,7 @@ using namespace std;
 //___________________________________________________________________________________________________________________
 
 unsigned long crcTable[256];
+
 int crcTableComputed = 0;
 
 void makeCrcTable(void)
@@ -31,7 +32,6 @@ void makeCrcTable(void)
 	}
 	crcTableComputed = 1;
 }
-
 unsigned long updateCrc(const unsigned long& crc, unsigned char* buf, const size_t& len)
 {
 	unsigned long c = crc;
@@ -44,7 +44,6 @@ unsigned long updateCrc(const unsigned long& crc, unsigned char* buf, const size
 	}
 	return c;
 }
-
 unsigned long crc(unsigned char* buf, const size_t& len)
 {
 	return updateCrc(0xffffffffL, buf, len) ^ 0xffffffffL;
@@ -52,11 +51,10 @@ unsigned long crc(unsigned char* buf, const size_t& len)
 //  End of IDAT CRC Function 
 //__________________________________________________________________________________________________________________
 
-
 int openFilesCheckSize(char* []);
 int readFilesIntoVectorsCheckSpecs(const string&, const string&, const ptrdiff_t&, const ptrdiff_t&);
 void eraseChunks(vector<unsigned char>&);
-void fixPalettecChunk(vector<unsigned char>&);
+void fixPaletteChunk(vector<unsigned char>&);
 int buildScript(vector<unsigned char>&, vector<unsigned char>&, const string&);
 void combineVectors(vector<unsigned char>&, vector<unsigned char>&, vector<unsigned char>&, const string&);
 void fixZipOffset(vector<unsigned char>&, const ptrdiff_t&);
@@ -75,8 +73,8 @@ const string
 
 const unsigned int
 	MAX_MULTIPLIED_DIMS = 5500000,	
-	MAX_PNG = 5242880,				
-	MAX_SCRIPT_SIZE = 400;			
+	MAX_PNG = 5242880,		
+	MAX_SCRIPT_SIZE = 400;		
 
 int main(int argc, char** argv) {
 
@@ -97,49 +95,49 @@ int openFilesCheckSize(char* argv[]) {
 	const string
 		IMG_FILE = argv[1],
 		ZIP_FILE = argv[2],
-		SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes)",
-		READ_ERR_MSG = "Read File Error: Unable to open / read file: ";
+		READ_ERR_MSG = "Read Error: Unable to open/read file: ",
+		SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n";
 
+	unsigned int
+		combinedSize = 0,
+		exceedSize = 0,
+		availableSize = 0;
+		
 	ifstream readImg(IMG_FILE, ios::binary);
 	ifstream readZip(ZIP_FILE, ios::binary);
 
 	if (!readImg || !readZip) {
-		if (!readImg) {
-			cerr << "\nPNG " << READ_ERR_MSG << IMG_FILE << "\n\n";
-		}
-		else {
-			cerr << "\nZIP " << READ_ERR_MSG << ZIP_FILE << "\n\n";
-		}
+		string errMsg = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
+		cerr << errMsg;
 		return -1;
 	}
-
+	
 	readImg.seekg(0, readImg.end),
-		readZip.seekg(0, readZip.end);
+	readZip.seekg(0, readZip.end);
 
 	const ptrdiff_t
 		IMG_SIZE = readImg.tellg(),
 		ZIP_SIZE = readZip.tellg();
 
+	combinedSize = static_cast<unsigned int>(IMG_SIZE) + static_cast<unsigned int>(ZIP_SIZE) + MAX_SCRIPT_SIZE;
+	exceedSize = (static_cast<unsigned int>(IMG_SIZE) + static_cast<unsigned int>(ZIP_SIZE) + MAX_SCRIPT_SIZE) - MAX_PNG,
+	availableSize = MAX_PNG - (static_cast<unsigned int>(IMG_SIZE) + MAX_SCRIPT_SIZE);
+
+	const string COMBINED_SIZE_ERR = "\nSize Error: " + to_string(combinedSize) +
+		" bytes is the combined size of your PNG image + ZIP file + Script (400 bytes), \nwhich exceeds Twitter's 5MB size limit by "
+		+ to_string(exceedSize) + " bytes. Available ZIP file space is: " + to_string(availableSize) + " bytes.\n\n";
+
 	if (MAX_PNG >= (IMG_SIZE + MAX_SCRIPT_SIZE)
 		&& MAX_PNG >= ZIP_SIZE
-		&& MAX_PNG >= (IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE)) {
+		&& MAX_PNG >= combinedSize) {
 
 		readFilesIntoVectorsCheckSpecs(IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
-
 	}
 	else { 
-		if (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) {
-			cerr << "\nPNG " << SIZE_ERR_MSG << "\n\n";
-		} 
-		else if (ZIP_SIZE > MAX_PNG) {
-			cerr << "\nZIP " << SIZE_ERR_MSG << "\n\n";
-		}
-		else {
-			cerr << "\nSize Error: " << (IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE) <<
-				" bytes is the combined size of your PNG image + ZIP file + Script (400 bytes),\nwhich exceeds Twitter's 5MB size limit by " <<
-				(IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE) - MAX_PNG << " bytes. Available ZIP file space is: " <<
-				MAX_PNG - (IMG_SIZE + MAX_SCRIPT_SIZE) << " bytes.\n\n";
-		}
+	
+		string errMsg = (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) ? "\nPNG " + SIZE_ERR_MSG : (ZIP_SIZE > MAX_PNG ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR);
+		cerr << errMsg;
+
 		return -1;
 	}
 	return 0;
@@ -152,7 +150,7 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 
 	ifstream readImg(IMG_FILE, ios::binary);
 	ifstream readZip(ZIP_FILE, ios::binary);
-
+	
 	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
 	readImg.read((char*)&ImageVec[0], IMG_SIZE);
 
@@ -162,12 +160,15 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 	const string
 		IMG_HDR(ImageVec.begin(), ImageVec.begin() + PNG_ID.length()),		
 		ZIP_HDR(ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length()),	
-		FORMAT_ERR_MSG = "Format Error: File does not appear to be a valid",
-		INFO_MSG = "See pdvzip --info for more details.";
-
+		HEADER_ERR_MSG = "\nHeader Error : File does not appear to be a valid",
+		IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. See 'pdvzip --info' for more details.\n\n",
+		IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements. See 'pdvzip --info' for more details.\n\n",
+		ZIP_ERR_MSG = "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)." 
+					  "\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
+					  
 	const unsigned int
-		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])),
-		COLOR_TYPE = ImageVec[25],		
+		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])), 
+		COLOR_TYPE = ImageVec[25],	
 		INZIP_NAME_LENGTH = ZipVec[34], 
 		INDEXED_COLOR_TYPE = 3,			
 		MIN_NAME_LENGTH = 4;			
@@ -180,31 +181,24 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		&& INZIP_NAME_LENGTH >= MIN_NAME_LENGTH) {
 
 		eraseChunks(ImageVec);
-		fixPalettecChunk(ImageVec);
+
+		fixPaletteChunk(ImageVec);
 
 		int idatZipChunkLengthIndex = 1;
-
+		
 		insertChunkLength(ZipVec, idatZipChunkLengthIndex, ZIP_SIZE, 24, true);
-		buildScript(ImageVec, ZipVec, ZIP_FILE);
 
+		buildScript(ImageVec, ZipVec, ZIP_FILE);
 	}
-	else {
-		if (IMG_HDR != PNG_ID) {
-			cerr << "\nPNG " << FORMAT_ERR_MSG << " PNG image.\n\n";
-		}
-		else if (ZIP_HDR != ZIP_ID) {
-			cerr << "\nZIP " << FORMAT_ERR_MSG << " ZIP archive.\n\n";
-		}
-		else if (MAX_PNG > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) {
-			cerr << "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. " << INFO_MSG << "\n\n";
-		}
-		else if (COLOR_TYPE != INDEXED_COLOR_TYPE) {
-			cerr << "\nPNG Image Error: Color type of PNG image does not meet program requirements. " << INFO_MSG << "\n\n";
-		}
-		else {
-			cerr << "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)." <<
-				"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
-		}
+	else { 
+		
+		string errMsg = (IMG_HDR != PNG_ID) ? "PNG " + HEADER_ERR_MSG + " PNG image\n\n" 
+				: (ZIP_HDR != ZIP_ID) ? "ZIP " + HEADER_ERR_MSG + "ZIP archive\n\n"
+				: (MAX_PNG > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) ? IMAGE_ERR_MSG1
+				: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
+
+		cerr << errMsg;
+
 		return -1;
 	}
 	return 0;
@@ -213,8 +207,10 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 void eraseChunks(vector<unsigned char>& ImageVec) {
 
 	string removeChunk[14] = { "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
+	
 	int chunkNum = sizeof(removeChunk) / sizeof(string);
 
+	// Remove chunks. Make sure we check for multiple occurrences of each chunk we remove.
 	while (chunkNum--) {
 		const ptrdiff_t REMOVE_ID_INDEX = search(ImageVec.begin(), ImageVec.end(), removeChunk[chunkNum].begin(), removeChunk[chunkNum].end()) - ImageVec.begin() - 4;
 		if (REMOVE_ID_INDEX != ImageVec.size() - 4) {
@@ -223,10 +219,9 @@ void eraseChunks(vector<unsigned char>& ImageVec) {
 			chunkNum++;
 		}
 	}
-
 }
 
-void fixPalettecChunk(vector<unsigned char>& ImageVec) {
+void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 
 	const ptrdiff_t
 		PLTE_START_INDEX = search(ImageVec.begin(), ImageVec.end(), PLTE_ID.begin(), PLTE_ID.end()) - ImageVec.begin(),
@@ -235,19 +230,17 @@ void fixPalettecChunk(vector<unsigned char>& ImageVec) {
 
 	char 
 		badChar[7] = { '(', ')', '\'', '`', '"', '>', ';' }, 
-		altChar[7] = { '*', '&', '=', '}', 'a', '?', ':' }; 
+		altChar[7] = { '*', '&', '=', '}', 'a', '?', ':' };   
 
 	int twoCount = 0;
 
 	for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
-		for (int j = 0; j < 7; j++) {
-			if (ImageVec[i] == badChar[j])
-			{
-				ImageVec[i] = (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[5]) ? altChar[5] : ((ImageVec[i] == badChar[6]) ? altChar[6] : altChar[1]);
-				break;
-			}
-		}
-
+	
+		ImageVec[i] = (ImageVec[i] == badChar[0]) ? altChar[1] 
+				: (ImageVec[i] == badChar[1]) ? altChar[1] : (ImageVec[i] == badChar[2]) ? altChar[1]
+				: (ImageVec[i] == badChar[3]) ? altChar[4] : (ImageVec[i] == badChar[5]) ? altChar[5] 
+				: ((ImageVec[i] == badChar[6]) ? altChar[6] : ImageVec[i]);
+				
 		if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
 			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '}')
 			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '{')
@@ -267,7 +260,7 @@ void fixPalettecChunk(vector<unsigned char>& ImageVec) {
 				ImageVec[i] = ImageVec[i] == '<' ? altChar[2] : altChar[0];
 			}
 		}
-
+		
 		if (ImageVec[i] == '&' || ImageVec[i] == '|') {
 			twoCount++;
 			if (twoCount > 1) {
@@ -279,14 +272,16 @@ void fixPalettecChunk(vector<unsigned char>& ImageVec) {
 		}
 
 		int j = 1, k = 2;
-		while (j < 12) {
-			if ((ImageVec[i] == '<' && (ImageVec[i + j] > 47 && ImageVec[i + j] < 58) && ImageVec[i + k] == '<'))
-			{
-				ImageVec[i] = altChar[2];
+		if (ImageVec[i] == '<') {
+			while (j < 12) {
+				if (ImageVec[i + j] > 47 && ImageVec[i + j] < 58 && ImageVec[i + k] == '<')
+				{
+					ImageVec[i] = altChar[2];
+					j = 12;
+				}
+				j++, k++;
 			}
-			j++, k++;
 		}
-
 	}
 
 	int modCrcVal = 255;
@@ -294,7 +289,9 @@ void fixPalettecChunk(vector<unsigned char>& ImageVec) {
 
 	do {
 		redoCrc = false;
+		
 		const uint32_t PLTE_CHUNK_CRC = crc(&ImageVec[PLTE_START_INDEX], PLTE_CHUNK_LENGTH + 4);
+		
 		ptrdiff_t
 			plteCrcInsertIndex = PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4),
 			plteModCrcInsertIndex = plteCrcInsertIndex - 1;
@@ -315,7 +312,6 @@ void fixPalettecChunk(vector<unsigned char>& ImageVec) {
 			plteCrcInsertIndex++;
 		}
 	} while (redoCrc);
-
 }
 
 int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, const string& ZIP_FILE) {
@@ -327,32 +323,32 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 
 	string extApp[29] = { "aac", "mp3", "mp4", "avi", "asf", "flv", "ebm", "mkv", "peg", "wav", "wmv", "wma","mov", "3gp", "ogg", "pdf", ".py", ".sh", "ps1",
 			"vlc --play-and-exit --no-video-title-show ", "evince ", "python3 ", "sh ", "pwsh ", "xdg-open "," &> /dev/null", "powershell","start /b \"\"","pause&" };
-
+	
 	const int
 		VLC = 19, DEV_NULL = 25, START_B = 27, PAUSE = 28,	
 		LINUX_INSERT_INDEX = 40, WINDOWS_INSERT_INDEX = 75,	
-		INZIP_NAME_LENGTH_INDEX = 34,						
-		INZIP_NAME_INDEX = 38,								
+		INZIP_NAME_LENGTH_INDEX = 34,				
+		INZIP_NAME_INDEX = 38,					
 		INZIP_NAME_LENGTH = ZipVec[INZIP_NAME_LENGTH_INDEX],	
-		FILENAME_INSERT_INDEX[3] = { 80, 42, 8 };				
+		FILENAME_INSERT_INDEX[3] = { 80, 42, 8 };		
 
 	ZipVec[INZIP_NAME_INDEX] = '.';
 	ZipVec[search(ZipVec.begin(), ZipVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ZipVec.begin() + 46] = '.';
 
 	string
-		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH),
-		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),		
-		argsLinux, argsWindows;											
+		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH),	
+		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),	
+		argsLinux, argsWindows;						
 
 	for (int offset : FILENAME_INSERT_INDEX)
 		ScriptVec.insert(ScriptVec.end() - offset, inzipName.begin(), inzipName.end());
 
-	int appIndex;	
+	int appIndex;
 
 	for (appIndex = 0; appIndex != 24; appIndex++) {
 		if (extApp[appIndex] == inzipNameExt) {
-			appIndex = appIndex <= 14 ? 19 : appIndex += 5;
-			break;											
+			appIndex = appIndex <= 14 ? 19 : appIndex += 5; 
+			break;						
 		}
 	}
 
@@ -365,8 +361,8 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 		ScriptVec.insert(ScriptVec.begin() + extApp[VLC].length() + LINUX_INSERT_INDEX + INZIP_NAME_LENGTH + 2, extApp[DEV_NULL].begin(), extApp[DEV_NULL].end());
 		ScriptVec.insert(ScriptVec.begin() + WINDOWS_INSERT_INDEX + extApp[VLC].length() + INZIP_NAME_LENGTH + extApp[DEV_NULL].length(), extApp[START_B].begin(), extApp[START_B].end());
 		break;
-	case 21:
-	case 23:
+	case 21: 
+	case 23: 
 		cout << "\n" << scriptType << " Script Found...\n\nAdd extra arguments if required.\n\nLinux: ";
 		getline(cin, argsLinux);
 		cout << "\nWindows: ";
@@ -379,7 +375,7 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 		ScriptVec.insert(ScriptVec.begin() + argsLinux.length() + (INZIP_NAME_LENGTH * 2) + 5 + WINDOWS_INSERT_INDEX + extApp[appIndex].length() + extApp[appSwitch].length(), argsWindows.begin(), argsWindows.end());
 		ScriptVec.insert(ScriptVec.end() - extApp[PAUSE].length(), extApp[PAUSE].begin(), extApp[PAUSE].end());
 		break;
-	default:
+	default: 
 		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX, extApp[appIndex].begin(), extApp[appIndex].end());
 		ScriptVec.insert(ScriptVec.begin() + INZIP_NAME_LENGTH + WINDOWS_INSERT_INDEX + extApp[appIndex].length(), extApp[START_B].begin(), extApp[START_B].end());
 	}
@@ -391,10 +387,10 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 		return -1;
 	}
 	else {
-
 		int histChunkLengthInsertIndex = 2;
 
 		insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
+		
 		combineVectors(ImageVec, ZipVec, ScriptVec, ZIP_FILE);
 	}
 	return 0;
@@ -405,11 +401,11 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 	const ptrdiff_t FIRST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), FIRST_IDAT_ID.begin(), FIRST_IDAT_ID.end()) - ImageVec.begin() - 4;
 	const ptrdiff_t HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
 
-	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end());
+	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end()); 
 
 	const ptrdiff_t LAST_IDAT_CHUNK_INSERT_INDEX = ImageVec.size() - 12;
 
-	ImageVec.insert((ImageVec.begin() + LAST_IDAT_CHUNK_INSERT_INDEX), ZipVec.begin(), ZipVec.end());
+	ImageVec.insert((ImageVec.begin() + LAST_IDAT_CHUNK_INSERT_INDEX), ZipVec.begin(), ZipVec.end());  
 
 	const ptrdiff_t LAST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), LAST_IDAT_ID.begin(), LAST_IDAT_ID.end()) - ImageVec.begin();
 	const ptrdiff_t LAST_IDAT_LENGTH = ImageVec.size() - (LAST_IDAT_START_INDEX + 16);
@@ -417,9 +413,11 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 	fixZipOffset(ImageVec, LAST_IDAT_START_INDEX);
 
 	const uint32_t LAST_IDAT_CRC = crc(&ImageVec[LAST_IDAT_START_INDEX], LAST_IDAT_LENGTH);
+
 	ptrdiff_t lastIdatCrcInsertIndex = ImageVec.size() - 16;
 
 	insertChunkLength(ImageVec, lastIdatCrcInsertIndex, LAST_IDAT_CRC, 32, true);
+
 	writeFile(ImageVec, ZIP_FILE);
 }
 
@@ -430,11 +428,11 @@ void fixZipOffset(vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_IN
 		END_CENTRAL_DIR_INDEX = search(ImageVec.begin() + START_CENTRAL_DIR_INDEX, ImageVec.end(), END_CENTRAL_ID.begin(), END_CENTRAL_ID.end()) - ImageVec.begin();
 
 	ptrdiff_t
-		zipFileRecordsIndex = END_CENTRAL_DIR_INDEX + 11,			
+		zipFileRecordsIndex = END_CENTRAL_DIR_INDEX + 11,		
 		commentLengthInsertIndex = END_CENTRAL_DIR_INDEX + 21,		
 		endCentralStartInsertIndex = END_CENTRAL_DIR_INDEX + 19,	
 		centralLocalInsertIndex = START_CENTRAL_DIR_INDEX - 1,		
-		newZipOffset = LAST_IDAT_INDEX,								
+		newZipOffset = LAST_IDAT_INDEX,					
 		zipFileRecords = (ImageVec[zipFileRecordsIndex] << 8) | ImageVec[zipFileRecordsIndex - 1]; 
 
 	while (zipFileRecords--) {
@@ -442,7 +440,7 @@ void fixZipOffset(vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_IN
 		centralLocalInsertIndex = 45 + search(ImageVec.begin() + centralLocalInsertIndex, ImageVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ImageVec.begin();
 		insertChunkLength(ImageVec, centralLocalInsertIndex, newZipOffset, 32, false);
 	}
-
+	
 	insertChunkLength(ImageVec, endCentralStartInsertIndex, START_CENTRAL_DIR_INDEX, 32, false);
 
 	int commentLength = 16 + (ImageVec[commentLengthInsertIndex] << 8) | ImageVec[commentLengthInsertIndex - 1];
@@ -453,6 +451,7 @@ void fixZipOffset(vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_IN
 int writeFile(vector<unsigned char>& ImageVec, const string& ZIP_FILE) {
 
 	const size_t SLASH_POS = ZIP_FILE.find_last_of("\\/") + 1;
+
 	string outFile = ZIP_FILE.substr(0, SLASH_POS) + "pdv" + "_" + ZIP_FILE.substr(SLASH_POS, ZIP_FILE.length()) + ".png";
 
 	ofstream writeFinal(outFile, ios::binary);
