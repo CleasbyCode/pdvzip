@@ -21,8 +21,7 @@ Usage:  pdvzip  <png_image>  <zip_file>
 
 Once the ZIP file has been embedded within a PNG image, it's ready to be shared (tweeted) or '*executed*' whenever you want to open/play the media file.
 
-You can also upload your PNG image to *some popular image hosting sites, such as [**Imgur**](https://imgur.com/a/zF40QMX) and [**Postimages**](https://postimg.cc/xcCcvpLJ), etc.  
-*Not all image hosting sites are compatible.
+You can also upload and share your PNG image to *some popular image hosting sites, such as [***Flickr***](https://www.flickr.com/), [***ImgBB***](https://imgbb.com/), [***Imgur***](https://imgur.com/a/zF40QMX), [***ImgPile***](https://imgpile.com/), [***ImageShack***](https://imageshack.com/), [***PostImage***](https://postimg.cc/xcCcvpLJ), etc. **Not all image hosting sites are compatible, e.g. [***ImgBox***](https://imgbox.com/).*
 
 **Mobile Issue**: Sometimes when saving images from Twitter to a mobile, the file gets saved with a '*.jpg*' extension. Please note, the file has not been converted to a JPG. Lazy Twitter has just renamed the extension, so it is still the original PNG image with its embedded content. 
 
@@ -45,7 +44,7 @@ G:\demo>
 G:\demo> .\pdv_your_image_file.cmd
 
 ```
-Opening the cmd file from the desktop, on its first run, Windows may display a security warning. Clear this by clicking '**More info**' then select '**Run anyway**'.
+Opening the cmd file from the desktop, on its first run, Windows may display a security warning. Clear this by clicking '***More info***' then select '***Run anyway***'.
 
 For some common video & audio files, Linux requires the '***vlc (VideoLAN)***' application, Windows uses the set default media player.  
 PDF '*.pdf*', Linux requires the '***evince***' application, Windows uses the set default PDF viewer.  
