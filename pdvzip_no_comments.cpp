@@ -202,12 +202,18 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 
 void eraseChunks(vector<unsigned char>& ImageVec) {
 
+	// Chunks to remove. 
 	string removeChunk[14] = { "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
+	
+	// Get first IDAT chunk index location. Don't remove chunks after this point.
+	const ptrdiff_t FIRST_IDAT = search(ImageVec.begin(), ImageVec.end(), FIRST_IDAT_ID.begin(), FIRST_IDAT_ID.end()) - ImageVec.begin() - 4;
+
 	int chunkNum = sizeof(removeChunk) / sizeof(string);
 
+	// Remove chunks. Make sure we check for multiple occurrences of each chunk we remove.
 	while (chunkNum--) {
 		const ptrdiff_t REMOVE_ID_INDEX = search(ImageVec.begin(), ImageVec.end(), removeChunk[chunkNum].begin(), removeChunk[chunkNum].end()) - ImageVec.begin() - 4;
-		if (REMOVE_ID_INDEX != ImageVec.size() - 4) {
+		if (FIRST_IDAT > REMOVE_ID_INDEX) {
 			int chunkLength = (ImageVec[REMOVE_ID_INDEX + 2] << 8) | ImageVec[REMOVE_ID_INDEX + 3];
 			ImageVec.erase(ImageVec.begin() + REMOVE_ID_INDEX, ImageVec.begin() + REMOVE_ID_INDEX + (chunkLength + 12));
 			chunkNum++;
