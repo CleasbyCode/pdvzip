@@ -18,13 +18,13 @@ unsigned long crcTable[256];
 int crcTableComputed = 0;
 
 // Make the table for a fast CRC.
-void makeCrcTable(void)
+void makeCrcTable()
 {
 	unsigned long c;
 	int n, k;
 
 	for (n = 0; n < 256; n++) {
-		c = (unsigned long)n;
+		c = n;
 		for (k = 0; k < 8; k++) {
 			if (c & 1)
 				c = 0xedb88320L ^ (c >> 1);
@@ -86,7 +86,7 @@ int writeFile(vector<unsigned char>&, const string&);
 void insertChunkLength(vector<unsigned char>&, ptrdiff_t, const size_t&, int, bool);
 
 // Display program information
-void displayInfo(void);
+void displayInfo();
 
 // ID header strings for vector search and file type validation.
 const string
@@ -121,50 +121,46 @@ int openFilesCheckSize(char* argv[]) {
 
 	const string
 		IMG_FILE = argv[1],
-		ZIP_FILE = argv[2],
-		READ_ERR_MSG = "Read Error: Unable to open/read file: ",
-		SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n";
-
-	unsigned int
-		combinedSize = 0,
-		exceedSize = 0,
-		availableSize = 0;
-		
+		ZIP_FILE = argv[2];
+	
 	ifstream readImg(IMG_FILE, ios::binary);
 	ifstream readZip(ZIP_FILE, ios::binary);
 
 	if (!readImg || !readZip) { // Open file failure, display relevant error message and quit program.
+		const string READ_ERR_MSG = "Read Error: Unable to open/read file: ";
 		string errMsg = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
 		cerr << errMsg;
 		return -1;
 	}
-	
-	// Open files success. Now get size of files.
+
+	// Open files success. Now get size of files
 	readImg.seekg(0, readImg.end),
 	readZip.seekg(0, readZip.end);
 
 	const ptrdiff_t
 		IMG_SIZE = readImg.tellg(),
-		ZIP_SIZE = readZip.tellg();
-
-	combinedSize = static_cast<unsigned int>(IMG_SIZE) + static_cast<unsigned int>(ZIP_SIZE) + MAX_SCRIPT_SIZE;
-	exceedSize = (static_cast<unsigned int>(IMG_SIZE) + static_cast<unsigned int>(ZIP_SIZE) + MAX_SCRIPT_SIZE) - MAX_PNG,
-	availableSize = MAX_PNG - (static_cast<unsigned int>(IMG_SIZE) + MAX_SCRIPT_SIZE);
-
-	const string COMBINED_SIZE_ERR = "\nSize Error: " + to_string(combinedSize) +
-		" bytes is the combined size of your PNG image + ZIP file + Script (400 bytes), \nwhich exceeds Twitter's 5MB size limit by "
-		+ to_string(exceedSize) + " bytes. Available ZIP file space is: " + to_string(availableSize) + " bytes.\n\n";
+		ZIP_SIZE = readZip.tellg(),
+	    	COMBINED_SIZE = IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE;
 
 	if (MAX_PNG >= (IMG_SIZE + MAX_SCRIPT_SIZE)
 		&& MAX_PNG >= ZIP_SIZE
-		&& MAX_PNG >= combinedSize) {
+		&& MAX_PNG >= COMBINED_SIZE) {
 
 		// File size check success, now read files into vectors.
 		readFilesIntoVectorsCheckSpecs(IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
 	}
 	else { // File size check failure, display relevant error message and quit program.
+		const ptrdiff_t
+			EXCEED_SIZE = (IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE) - MAX_PNG,
+			AVAILABLE_SIZE = MAX_PNG - (IMG_SIZE + MAX_SCRIPT_SIZE);
 
-		string errMsg = (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) ? "\nPNG " + SIZE_ERR_MSG : (ZIP_SIZE > MAX_PNG ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR);
+		const string
+			SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n",
+			COMBINED_SIZE_ERR_MSG = "\nSize Error: " + to_string(COMBINED_SIZE) +
+			" bytes is the combined size of your PNG image + ZIP file + Script (400 bytes), \nwhich exceeds Twitter's 5MB size limit by "
+			+ to_string(EXCEED_SIZE) + " bytes. Available ZIP file size is " + to_string(AVAILABLE_SIZE) + " bytes.\n\n";
+			
+		string errMsg = (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) ? "\nPNG " + SIZE_ERR_MSG : (ZIP_SIZE > MAX_PNG ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR_MSG);
 		cerr << errMsg;
 
 		return -1;
@@ -194,23 +190,15 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 
 	const string
 		IMG_HDR(ImageVec.begin(), ImageVec.begin() + PNG_ID.length()),		// Get file header from vector "ImageVec". 
-		ZIP_HDR(ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length()),	// Get file header from vector "ZipVec".
-		
-		HEADER_ERR_MSG = "\nHeader Error : File does not appear to be a valid",
-		IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. See 'pdvzip --info' for more details.\n\n",
-		IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements. See 'pdvzip --info' for more details.\n\n",
-		ZIP_ERR_MSG = 	"\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)." 
-				"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
-					  
+		ZIP_HDR(ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length());	// Get file header from vector "ZipVec".
+
 	const unsigned int
-		
-		// Get image dimensions from vector "ImageVec" and multiply its Width x Height values.
+		// Get image dimensions from vector "ImageVec" and multiply Width x Height.
 		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])), 
-		
-		COLOR_TYPE = ImageVec[25],	// Get image colour type value from vector "ImageVec".
-		INZIP_NAME_LENGTH = ZipVec[34], // Get length of in-zip media filename from vector "ZipVec".
-		INDEXED_COLOR_TYPE = 3,		// PNG Indexed colour type has a set value of 3.
-		MIN_NAME_LENGTH = 4;		// Minimum filename length of inzip media file.
+		COLOR_TYPE = ImageVec[25],		// Get image colour type value from vector "ImageVec".
+		INZIP_NAME_LENGTH = ZipVec[34], 	// Get length of in-zip media filename from vector "ZipVec".
+		INDEXED_COLOR_TYPE = 3,			// PNG Indexed colour type has a set value of 3
+		MIN_NAME_LENGTH = 4;			// Minimum filename length of inzip media file.
 
 	if (IMG_HDR == PNG_ID
 		&& ZIP_HDR == ZIP_ID
@@ -222,7 +210,7 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		// File requirements check success. Now find and remove unwanted PNG chunks.
 		eraseChunks(ImageVec);
 
-		// Check PLTE chunk for character issues that break the Linux extraction script.
+		// Now check PLTE chunk for character issues that break the Linux extraction shell script.
 		fixPaletteChunk(ImageVec);
 
 		// Update IDAT chunk length.
@@ -233,15 +221,20 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		// This IDAT chunk length will never exceed 5MB, so only 3 bytes maximum (bits=24) of the 4 byte length field will be used.
 		insertChunkLength(ZipVec, idatZipChunkLengthIndex, ZIP_SIZE, 24, true);
 
-		// Call next function to complete the Linux/Windows extraction script.
+		// Call next function to complete script.
 		buildScript(ImageVec, ZipVec, ZIP_FILE);
 	}
 	else { // File requirements check failure, display relevant error message and quit program.
+		const string
+			HEADER_ERR_MSG = "Header Error: File does not appear to be a valid",
+			IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. See 'pdvzip --info' for more details.\n\n",
+			IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements. See 'pdvzip --info' for more details.\n\n",
+			ZIP_ERR_MSG = "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)."
+			"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
 		
-		string errMsg = (IMG_HDR != PNG_ID) ? "PNG " + HEADER_ERR_MSG + " PNG image\n\n" 
-				: (ZIP_HDR != ZIP_ID) ? "ZIP " + HEADER_ERR_MSG + "ZIP archive\n\n"
-				: (MAX_PNG > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) ? IMAGE_ERR_MSG1
-				: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
+		string errMsg = (IMG_HDR != PNG_ID) ? "\nPNG " + HEADER_ERR_MSG + " PNG image\n\n" : (ZIP_HDR != ZIP_ID) ? "\nZIP " + HEADER_ERR_MSG + " ZIP archive\n\n"
+			: (MAX_PNG > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) ? IMAGE_ERR_MSG1
+			: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
 
 		cerr << errMsg;
 
@@ -603,23 +596,46 @@ void insertChunkLength(vector<unsigned char>& vec, ptrdiff_t lengthInsertIndex, 
 		while (bits) vec.at(lengthInsertIndex--) = (CHUNK_LENGTH >> (bits -= 8)) & 0xff;
 }
 
-void displayInfo(void) {
+void displayInfo() {
 
-	cout << "\nPNG Data Vehicle for Twitter, ZIP Edition (PDVZIP) v1.1. Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.\n\n" <<
-		"PDVZIP enables you to embed a ZIP archive containing a small media file within a tweetable PNG image. " <<
-		"\nTwitter will retain the arbitrary data embedded inside the image. Twitter's PNG size limit is 5MB per image." <<
-		"\n\nYou can also upload your PNG-ZIP file to *some popular image hosting sites, such as Imgur (imgur.com) and\nPostimage (postimages.org), etc. *Not all image" <<
-		" hosting sites are compatible.\n\nOnce the ZIP file has been embedded within your PNG image, its ready to be shared (tweeted) or\n'executed' whenever you want to open/play the media file.\n\n" <<
-		"From a Linux terminal: ./pdv_your_image_file.png (Image file requires executable permissions).\n\nWindows: First, rename the '.png' file extension to '.cmd'." <<
-		" From a Windows terminal: .\\pdv_your_image_file.cmd (Windows may display a\nsecurity warning when running the cmd file from desktop, clear this by clicking 'More info'" <<
-		" then select 'Run anyway').\n\nFor some common video & audio files, Linux requires the 'vlc (VideoLAN)' application, Windows uses the set default media player.\n" <<
-		"PDF '.pdf', Linux requires the 'evince' application, Windows uses the set default PDF viewer.\nPython '.py', Linux & Windows use the 'python3'" <<
-		" command to run these programs.\nPowerShell '.ps1', Linux uses the 'pwsh' command (if PowerShell installed), Windows uses 'powershell' to run these " <<
-		"scripts.\n\nFor any other media type/file extension, Linux & Windows will rely on the operating system's set default application.\n\nPNG Image Requirements: " <<
-		"Bit depth, 8-bit or lower (4,2,1) Indexed colour (PNG colour type value: 3).\nImage's multiplied dimensions value must be between 5,242,880 & 5,500,000.\nSuggested Width x Height Dimensions: " <<
-		"2900 x 1808 = 5,243,200. Example Two: 2290 x 2290 = 5,244,100, etc.\n\nZIP File Size & Other Information: To work out the maximum ZIP file size, start with " <<
-		"Twitter's size limit of 5MB (5,242,880 bytes), \nminus your PNG image size, minus 400 bytes. Example: 5,242,880 - (307,200 + 400) = 4,935,280 bytes available for " <<
-		"ZIP file.\nThe less detailed the image, the more space available for the ZIP.\n\nMake sure ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer." <<
-		"\nAlways use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.\n" <<
-		"Paint.net application is recommended for easily creating compatible PNG image files.\n\n";
+	cout << R"(
+PNG Data Vehicle for Twitter, ZIP Edition(PDVZIP) v1.1. Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
+
+PDVZIP enables you to embed a ZIP archive containing a small media file within a tweetable PNG image.
+Twitter will retain the arbitrary data embedded inside the image. Twitter's PNG size limit is 5MB per image.
+
+Once the ZIP file has been embedded within your PNG image, its ready to be shared (tweeted) or 'executed' 
+whenever you want to open/play the media file. You can also upload and share your PNG file to *some popular
+image hosting sites, such as Flickr, ImgBB, Imgur, ImgPile, ImageShack, PostImage, etc. 
+*Not all image hosting sites are compatible, e.g. ImgBox, Reddit.
+
+From a Linux terminal: ./pdv_your_image_file.png (Image file requires executable permissions).
+From a Windows terminal: First, rename the '.png' file extension to '.cmd', then .\pdv_your_image_file.cmd 
+
+For some common video & audio files, Linux requires the 'vlc (VideoLAN)' program, Windows uses the default media player.
+PDF '.pdf', Linux requires the 'evince' program, Windows uses the set default PDF viewer.
+Python '.py', Linux & Windows use the 'python3' command to run these programs.
+PowerShell '.ps1', Linux uses the 'pwsh' command (if PowerShell installed), Windows uses 'powershell' to run these scripts.
+
+For any other media type/file extension, Linux & Windows will rely on the operating system's set default application.
+
+PNG Image Requirements
+
+Bit depth, 8-bit or lower (4,2,1) Indexed colour (PNG colour type value: 3).
+
+Image's multiplied dimensions value must be between 5,242,880 & 5,500,000.
+Suggested Width x Height Dimensions: 2900 x 1808 = 5,243,200. Example Two: 2290 x 2290 = 5,244,100, etc.
+
+ZIP File Size & Other Information
+
+To work out the maximum ZIP file size, start with Twitter's size limit of 5MB (5,242,880 bytes), minus PNG image size, 
+minus 400 bytes (extraction script). Example: 5,242,880 - (307,200 + 400) = 4,935,280 bytes available for ZIP file. 
+
+The less detailed the image, the more space available for the ZIP.
+
+Make sure ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
+Always use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.
+Paint.net application is recommended for easily creating compatible PNG image files.
+
+)";
 }
