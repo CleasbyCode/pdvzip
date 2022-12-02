@@ -1,19 +1,19 @@
-/* Vector "ScriptVec" (see function "buildScript in the main pdvzip.cpp file). 
-	
-	ScriptVec stores the shell/batch script commands used for extracting and opening the zipped media file.
+/* 
+Vector "ScriptVec" (see function "buildScript" in the main pdvzip.cpp file). 
+ScriptVec stores the shell/batch script used for extracting and opening the zipped media file.
 
-	This barebones script is only about 120 (250) bytes, with a maxiumum size of 700 bytes. 
+This barebones script is only about 300 bytes, with a maxiumum size of 750 bytes. 
+The buildScript function will insert additional filenames, app+arg strings & other 
+required script commands, depending on media type.
 
-	The buildScript function will insert additional filenames, 
-	app+arg strings & other required 	script commands, depending on media type.
+Script supports both Linux & Windows. 
 
-	Script supports both Linux & Windows. 
-	The completed script will unzip the media file from the PNG image & attempt to open/play/run (depending on file type)
-	the in-zip media file using an application command based on a matched file extension. 
-	If no match found, defaulting to the operating system making the choice, if possible. 
+The completed script will unzip the media file from the PNG image & attempt to open/play/run (depending on file type)
+the in-zip media file using an application command based on a matched file extension. 
+If no match found, defaulting to the operating system making the choice, if possible. 
 
-	The completed script will later be inserted after the PLTE chunk of the PNG image (which is stored in the vector "ImageVec") */
-
+The completed script will later be inserted after the PLTE chunk of the PNG image (which is stored in the vector "ImageVec") 
+*/
 
 std::vector<unsigned char>ScriptVec{
 	0x00, 0x00, 0x00, 0xFD, 0x68, 0x49, 0x53, 0x54, 0x0D, 0x52, 0x45, 0x4D,
@@ -39,5 +39,3 @@ std::vector<unsigned char>ScriptVec{
 	0x6E, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78, 0x30, 0x22,
 	0x20, 0x2A, 0x2E, 0x70, 0x6E, 0x67, 0x26, 0x65, 0x78, 0x69, 0x74, 0x0D,
 	0x0A };
-
-
