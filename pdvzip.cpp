@@ -284,7 +284,7 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 
 	int twoCount = 0;
 
-	for (int i = static_cast<int>(PLTE_START_INDEX); i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
+	for (ptrdiff_t i = PLTE_START_INDEX; i < (PLTE_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
 
 		// Replace each of the seven problem characters if found within PLTE chunk.
 		ImageVec[i] = (ImageVec[i] == badChar[0]) ? altChar[1] 
