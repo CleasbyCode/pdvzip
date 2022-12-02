@@ -85,15 +85,15 @@ These settings are mostly the result of trial and error tinkering with PNG image
 ## ZIP File Size & Other Important Information
 
 To work out the maximum ZIP file size, start with Twitter's size limit of 5MB (5,242,880 bytes),
-minus your PNG image size, minus 400 bytes (internal script size).  
+minus your PNG image size, minus 750 bytes (internal shell extraction script size).  
   
-Example: 5,242,880 - (307,200 + 400) = 4,935,280 bytes available 
-for your ZIP file.  
+Example: 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for your ZIP file.  
 
 The less detailed your image, the more space available for the ZIP.
 
 * Make sure your ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.  
-* Always use file extensions for your media file within the ZIP archive: *my_doc.pdf*, *my_video.mp4*, *my_program.py*, etc.  
+* Use file extensions for your media file within the ZIP archive: *my_doc.pdf*, *my_video.mp4*, *my_program.py*, etc.
+  A file without an extension will be treated as a Linux executable.      
 * Paint.net application is recommended for easily creating compatible PNG image files.
 
 **Video Example**
