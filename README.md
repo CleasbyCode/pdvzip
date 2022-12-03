@@ -17,6 +17,14 @@ $ ./pdvzip
 Usage:  pdvzip  <png_image>  <zip_file>
         pdvzip  --info
 
+$ ./pdvzip snow_pic.png training_doc.pdf.zip
+
+Created output file 'pdv_training_doc.pdf.zip.png' 3414402 bytes.
+
+All Done!
+
+$
+
 ```
 
 Once the ZIP file has been embedded within a PNG image, it's ready to be shared (tweeted) or '*executed*' whenever you want to open/play the media file.
