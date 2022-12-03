@@ -470,7 +470,7 @@ int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, 
 	}
 
 	switch (appIndex) {
-	case VIDEO_AUDIO:		// Vlc for Linux and start /b (default player) for Windows.
+	case VIDEO_AUDIO:		// vlc for Linux and start /b (default player) for Windows.
 		extAppElement = 5;	// Start extAppInsertSequence from index positions [0] (insertIndex) and [5] (extAappElement). 
 					// [0] = 236 ScriptVec index insert location, [5] = extApp index 33, vector element inzip media filename.
 		break;
@@ -674,30 +674,43 @@ void displayInfo() {
 
 	cout << R"(
 PNG Data Vehicle for Twitter, ZIP Edition(PDVZIP) v1.1. Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
+
 PDVZIP enables you to embed a ZIP archive containing a small media file within a tweetable PNG image.
 Twitter will retain the arbitrary data embedded inside the image. Twitter's PNG size limit is 5MB per image.
+
 Once the ZIP file has been embedded within your PNG image, its ready to be shared (tweeted) or 'executed' 
 whenever you want to open/play the media file. You can also upload and share your PNG file to *some popular
 image hosting sites, such as Flickr, ImgBB, Imgur, ImgPile, ImageShack, PostImage, etc. 
 *Not all image hosting sites are compatible, e.g. ImgBox, Reddit.
+
 From a Linux terminal: ./pdv_your_image_file.png (Image file requires executable permissions).
 From a Windows terminal: First, rename the '.png' file extension to '.cmd', then .\pdv_your_image_file.cmd 
+
 For some common video & audio files, Linux requires the 'vlc (VideoLAN)' program, Windows uses the default media player.
 PDF '.pdf', Linux requires the 'evince' program, Windows uses the set default PDF viewer.
 Python '.py', Linux & Windows use the 'python3' command to run these programs.
 PowerShell '.ps1', Linux uses the 'pwsh' command (if PowerShell installed), Windows uses 'powershell' to run these scripts.
+
 For any other media type/file extension, Linux & Windows will rely on the operating system's set default application.
+
 PNG Image Requirements
+
 Bit depth, 8-bit or lower (4,2,1) Indexed colour (PNG colour type value: 3).
+
 Image's multiplied dimensions value must be between 5,242,880 & 5,500,000.
 Suggested Width x Height Dimensions: 2900 x 1808 = 5,243,200. Example Two: 2290 x 2290 = 5,244,100, etc.
+
 ZIP File Size & Other Information
+
 To work out the maximum ZIP file size, start with Twitter's size limit of 5MB (5,242,880 bytes), minus PNG image size, 
 minus 750 bytes (extraction script). Example: 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for ZIP file. 
+
 The less detailed the image, the more space available for the ZIP.
+
 Make sure ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
 Use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.
 A file without an extension will be treated as a Linux executable.
 Paint.net application is recommended for easily creating compatible PNG image files.
+
 )";
 }
