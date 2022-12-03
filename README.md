@@ -61,7 +61,7 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 **Video Example (YouTube)**
 
-[PDF Document (Windows & Linux Demo)](https://www.youtube.com/watch_popup?v=u32zvWSLqto)
+[PDF Document (Windows & Linux Demo)](https://www.youtube.com/watch_popup?v=mUkg8jSMpJs)
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
