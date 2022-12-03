@@ -170,4 +170,4 @@ hIST
 	ren "%~n0%~x0" *.png&
 	pause&
 	exit
-
+*/
