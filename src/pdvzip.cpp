@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "ScriptVec.hpp"
 
 using namespace std;
 
@@ -375,110 +376,188 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 
 int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, const string& ZIP_FILE) {
 
-	/* Vector "ScriptVec". hIST is a valid PNG chunk type. It does not require a correct CRC value. First four bytes is the chunk length field.
-	This vector stores the Linux/Windows shell commands used for extracting and opening the zipped media file.
-	This data chunk is set to an initial (and maximum) size of 400 bytes. The barebones script is about 120 bytes, but I've added a few hundred more bytes,
-	which should be more than enough to account for the later addition of filenames, app+arg strings & other required script commands.
-	Real size is updated when script is complete.
+	/* Vector "ScriptVec" (See seperate file "ScriptVec.hpp").
+
+	hIST is a valid PNG chunk type. It does not require a correct CRC value. First four bytes is the chunk length field.
+	This vector stores the shell/batch script commands used for extracting and opening the zipped media file.
+
+	This data chunk is set to an initial (and maximum) size of 750 bytes. 
+	
+	The barebones script is only about 300 bytes, but with the limit being 750 bytes, that should be more than enough to account 
+	for the later addition of filenames, app+arg strings & other required script commands. Real size is updated when script is complete.
+
 	Script supports both Linux & Windows. The completed script will unzip the media file from the PNG image & attempt to open/play
 	the in-zip media file using an application command based on a matched file extension, or if no match found, defaulting to the
-	operating system making the choice, if possible.
-	The completed "hIST" chunk will later be inserted after the PLTE chunk of the PNG image, which is stored in the vector "ImageVec" */
-	vector<unsigned char>ScriptVec{ 0,0,'\x13','\x08','h','I','S','T','\x0d','R','E','M',';','c','l','e','a','r',';','u','n','z','i','p','\x20','-','q','o','\x20',
-		'"','$','0','"',';','c','l','e','a','r',';','"','"',';','e','x','i','t',';','\x0d','\x0a','#','&','c','l','s','&','t','a','r','\x20','-','x','f','\x20',
-		'"','%','~','n','0','%','~','x','0','"','&','\x20','"','.','\\','"','&','r','e','n','\x20','"','%','~','n','0','%','~','x','0','"','\x20',
-		'*','.','p','n','g','&','a','t','t','r','i','b','\x20','+','h','\x20','"','"','&','e','x','i','t','\x0d','\x0a' };
+	operating system making the choice, if possible. The media file needs to be compatible with the operating system you are running it on.
 
-	// Short string array of file extensions for some popular media types along with several default application commands (+args) that support those extensions.
-	string extApp[29] = { "aac", "mp3", "mp4", "avi", "asf", "flv", "ebm", "mkv", "peg", "wav", "wmv", "wma","mov", "3gp", "ogg", "pdf", ".py", ".sh", "ps1",
-			"vlc --play-and-exit --no-video-title-show ", "evince ", "python3 ", "sh ", "pwsh ", "xdg-open "," &> /dev/null", "powershell","start /b \"\"","pause&" };
+	The completed "hIST" chunk will be inserted after the PLTE chunk of the PNG image (which is stored in the vector "ImageVec") */
 
+	// String vector of file extensions for some popular media types along with several default application commands (+ args) that support those extensions.
+	vector<string> extApp{ "aac","mp3","mp4","avi","asf","flv","ebm","mkv","peg","wav","wmv","wma","mov","3gp","ogg","pdf",".py","ps1","exe",
+				".sh","vlc --play-and-exit --no-video-title-show ","evince ","python3 ","pwsh ","./","xdg-open ","powershell;Invoke-Item ",
+				" &> /dev/null","start /b \"\"","pause&","powershell","chmod +x ",";" };
+			
 	const int
-		VLC = 19, DEV_NULL = 25, START_B = 27, PAUSE = 28,	  // A few "extApp" string array element names & their index value.
-		LINUX_INSERT_INDEX = 40, WINDOWS_INSERT_INDEX = 75,	  // "ScriptVec" vector's script insert index location values for Linux & Windows shell commands.
-		INZIP_NAME_LENGTH_INDEX = 34,				                  // "ZipVec" vector's index location for in-zip media filename length value.
-		INZIP_NAME_INDEX = 38,					                      // "ZipVec" vector's index location for in-zip media filename.
+		INZIP_NAME_LENGTH_INDEX = 34,				// "ZipVec" vector's index location for in-zip media filename length value.
+		INZIP_NAME_INDEX = 38,					// "ZipVec" vector's index location for in-zip media filename.
 		INZIP_NAME_LENGTH = ZipVec[INZIP_NAME_LENGTH_INDEX],	// Get length value of in-zip media filename from vector "ZipVec".
-		FILENAME_INSERT_INDEX[3] = { 80, 42, 8 };	            // Small int array containing three "ScriptVec" index locations for inserting in-zip media filename.
-
-	// Within the local header and central directory of user ZIP file (from vector "ZipVec"), 
-	// change the first character of in-zip media filename to '.', so that it is hidden under Linux. 
-	ZipVec[INZIP_NAME_INDEX] = '.';
-	ZipVec[search(ZipVec.begin(), ZipVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ZipVec.begin() + 46] = '.';
+		
+		// extApp vector index element values. Some extApp elements are added later (push_back), so don't currently appear in the above extApp vector.
+		VIDEO_AUDIO = 20, PDF = 21, PYTHON = 22,
+		LINUX_PWSH = 23, EXECUTABLE = 24, BASH_XDG_OPEN = 25, 
+		FOLDER_INVOKE_ITEM = 26, WIN_POWERSHELL = 30, INZIP_FILENAME = 33,
+		LINUX_ARGS = 34, WINDOWS_ARGS = 35, MOD_INZIP_FILENAME = 36;
 
 	string
-		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH),  // Get in-zip media filename from vector "ZipVec".
-		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),	// Get file extension from in-zip media filename (last three chars).
-		argsLinux, argsWindows;		                                  // Variables to store optional user arguments for Python or PowerShell.
+		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH), // Get in-zip media filename from vector "ZipVec".
+		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),	// Get file extension from in-zip media filename.
+		argsLinux, argsWindows;																					// Optional user arguments string variables.
 
-	// Insert the in-zip media filename into three index locations of the shell script within vector "ScriptVec".
-	for (int offset : FILENAME_INSERT_INDEX)
-		ScriptVec.insert(ScriptVec.end() - offset, inzipName.begin(), inzipName.end());
+	size_t findExtension = inzipName.find_last_of('.');
 
-	int appIndex;	// Variable will store index number for 'extApp' array elements.
+	// Copy inzipName to extApp vector (33)
+	extApp.push_back(inzipName);
+
+	/* When inserting string elements from "extApp" into the script within vector "ScriptVec", we are inserting items in the order of last to first.	
+
+	[0](259) Windows: index insert location for "pause&" extApp 29, which is only used when file is python, powershell or exe.
+	[1](237) Windows: index insert location for optional command-line args string, (added later into extApp, 35). Used with .py, .ps1, .sh and .exe file types.
+	[2](236) Windows: index insert location for inzip media filename (added later into extApp, 33). 
+		 File name used with "start /b" extApp 28, "python3" 22, "powershell" 30 & "powershell;Invoke-Item" 26.
+			
+	[3](234) Windows: index insert location for "start /b" extApp 28. Location also used for "python3" 22, "powershell" 30 & "powershell;Invoke-Item" 26.
+	[4](116) Linux: index insert location for "Dev Null" extApp 27, used with vlc. 
+		 Location also used for optional Linux command-line args string, (added into extApp, 34).
+	[5](115) Linux: index insert location for inzip media filename (added later into extApp, 33).
+	[6](114) Linux: index insert location for "vlc" extApp 20. 
+		 Location also used for "evince" 21, "python3" 22, "pwsh" 23, "./" 24, "xdg-open" 25, "chmod +x" 31 and ";" 32. */
+
+	// Array extAppInsertSequence contains sequences of ScriptVec index insert location values (high numbers)
+	// and the corresponding extApp element index values (low numbers). For example, in the first sequence, 
+	// insert location index 236 (insertIndex) corresponds with (extAppElement) extApp element 33 (inzip media filename).
+
+	int extAppInsertSequence[52] = { 
+				236,234,116,115,114, 33,28,27,33,20, 	// 1st sequence used for case: VIDEO_AUDIO. 
+				236,234,115,114, 33,28,33,21,		// 2nd sequence used for cases: PDF, FOLDER_INVOKE_ITEM, DEFAULT.
+				259,237,236,234,116,115,114, 29,35,33,22,34,33,22, // 3rd sequence used for cases: PYTHON, LINUX_PWSH & WIN_POWERSHELL.
+				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31 }, // 4th sequence used for cases: EXECUTABLE & BASH_XDG_OPEN.
+
+	appIndex = 0, insertIndex = -1, extAppElement = 0, sequenceLimit = 0;
 
 	// From a matched file extension "inzipNameExt" we can select which application string (+args) and commands to use in our script, 
-	// and to open/play the extracted in-zip media file. Once correct app extention has been matched, 
-	// insert the relevant strings into the shell script within vector "ScriptVec".
-	for (appIndex = 0; appIndex != 24; appIndex++) {
+	// and to open/play the extracted in-zip media file. Once correct app extention has been matched, insert the relevant strings 
+	// into the script within vector "ScriptVec".
+	for (appIndex = 0; appIndex != 26; appIndex++) {
 		if (extApp[appIndex] == inzipNameExt) {
-			appIndex = appIndex <= 14 ? 19 : appIndex += 5; // After an extension match, any appIndex value between 0 & 14 defaults to 19(vlc), 
-			break;						                              // if over 14, add 5 to its value. 15=20(evince), 16=21(python3), etc.
+			appIndex = appIndex <= 14 ? 20 : appIndex += 6; // After an extension match, any appIndex value between 0 & 14 defaults to extApp 20 (vlc), 
+			break;					// if over 14, add 6 to its value. 15 + 6 = extApp 21 (evince), 16 + 6 = 22 extApp (python3), etc.
 		}
 	}
 
-	// The required 'ScriptVec.insert' commands (case: 21,23) for python3 and pwsh/powershell (21,23,26) are almost identical, 
-	// so eliminate repeated code (case:21) by just switching between app number here.
-	int appSwitch = appIndex == 23 ? 26 : appIndex;
-	string scriptType = (appIndex == 21) ? "Python" : "PowerShell";
+	// If no file extension detected, check if "inzipName" points to a folder (/) or else assume file is a Linux executable.
+	if (findExtension == 0 || findExtension > inzipName.length()) {
+		appIndex = ZipVec[INZIP_NAME_INDEX + INZIP_NAME_LENGTH - 1] == '/' ? FOLDER_INVOKE_ITEM : EXECUTABLE;
+	}
 
-	// When inserting string elements from "extApp" into the script within vector "ScriptVec", we need to make sure to keep the script in alignment. 
-	switch (appIndex) {
-	case 19:// Linux: Insert "vlc" app name + default args. Windows: Insert "start /b". (Use the set default media player for Windows). 
-		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX, extApp[VLC].begin(), extApp[VLC].end());
-		ScriptVec.insert(ScriptVec.begin() + extApp[VLC].length() + LINUX_INSERT_INDEX + INZIP_NAME_LENGTH + 2, extApp[DEV_NULL].begin(), extApp[DEV_NULL].end());
-		ScriptVec.insert(ScriptVec.begin() + WINDOWS_INSERT_INDEX + extApp[VLC].length() + INZIP_NAME_LENGTH + extApp[DEV_NULL].length(), extApp[START_B].begin(), extApp[START_B].end());
-		break;
-	case 21: // Linux: Insert "python3" app name + optional user arguments. Windows: Insert "python3" app name + optional user arguments + "pause" command.
-	case 23: // Linux: Insert "pwsh" app name + optional user arguments. Windows: Insert "powershell" app name + optional user arguments + "pause" command.
-		cout << "\n" << scriptType << " Script Found...\n\nAdd extra arguments if required.\n\nLinux: ";
+	// Provide the option to give command-line arguments for .py, .ps1, .sh  and .exe file types.
+	if (appIndex > 21 && appIndex < 26) {
+		cout << "\nFor this file type you can provide command-line arguments here, if required.\n\nLinux: ";
 		getline(cin, argsLinux);
 		cout << "\nWindows: ";
 		getline(cin, argsWindows);
-		argsLinux.insert(0, "\x20");
-		argsWindows.insert(0, "\x20");
-		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX, extApp[appIndex].begin(), extApp[appIndex].end());
-		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX + extApp[appIndex].length() + INZIP_NAME_LENGTH + 2, argsLinux.begin(), argsLinux.end());
-		ScriptVec.insert(ScriptVec.begin() + argsLinux.length() + INZIP_NAME_LENGTH + WINDOWS_INSERT_INDEX + extApp[appIndex].length(), extApp[appSwitch].begin(), extApp[appSwitch].end());
-		ScriptVec.insert(ScriptVec.begin() + argsLinux.length() + (INZIP_NAME_LENGTH * 2) + 5 + WINDOWS_INSERT_INDEX + extApp[appIndex].length() + extApp[appSwitch].length(), argsWindows.begin(), argsWindows.end());
-		ScriptVec.insert(ScriptVec.end() - extApp[PAUSE].length(), extApp[PAUSE].begin(), extApp[PAUSE].end());
+		argsLinux.insert(0, "\x20"), argsWindows.insert(0, "\x20");
+		extApp.push_back(argsLinux), extApp.push_back(argsWindows); // extApp (34), (35).
+	}
+
+	switch (appIndex) {
+	case VIDEO_AUDIO:		// Vlc for Linux and start /b (default player) for Windows.
+		extAppElement = 5;	// Start extAppInsertSequence from index positions [0] (insertIndex) and [5] (extAappElement). 
+					// [0] = 236 ScriptVec index insert location, [5] = extApp index 33, vector element inzip media filename.
 		break;
-	default: // Linux: For ".pdf" insert "evince" (20), for ".sh", insert "sh" (22). 
-		 // Anything else, Linux: Defaults to "xdg-open" (24). Windows: Defaults to "start /b" (27).
-		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX, extApp[appIndex].begin(), extApp[appIndex].end());
-		ScriptVec.insert(ScriptVec.begin() + INZIP_NAME_LENGTH + WINDOWS_INSERT_INDEX + extApp[appIndex].length(), extApp[START_B].begin(), extApp[START_B].end());
+	case PDF:					// Evince for Linux and start /b (default viewer) for Windows.
+		insertIndex = 9, extAppElement = 14;	// Start extAppInsertSequence from index positions [9] (insertIndex) and [14] (extAppElement).
+		break;
+	case PYTHON:			// python3 for Linux & Windows.
+	case LINUX_PWSH:		// pwsh for Linux, powershell for Windows.
+		insertIndex = 17, extAppElement = 25;	// Start extAppInsertSequence from index positions [17] (insertIndex) and [25] (extAppElement).
+							// [17] = 259 ScriptVec index insert location, [25] = extApp index 29, vector element "pause&".
+
+		if (appIndex == LINUX_PWSH) {		// Case LINUX_PWSH is similar to case PYTHON, switch index elements to PowerShell (extApp 23 & 30).
+			inzipName.insert(0, ".\\"); 	//  ".\"  required for Windows PowerShell command:  powershell ".\filename.ps1".
+			extApp.push_back(inzipName);
+			extAppInsertSequence[31] = LINUX_PWSH,
+			extAppInsertSequence[28] = WIN_POWERSHELL;
+			extAppInsertSequence[27] = MOD_INZIP_FILENAME; // Modified inzipName (".\filename) for Windows powershell command. 
+		}
+		break;
+	case EXECUTABLE:
+		insertIndex = 31, extAppElement = 42;
+		break;
+	case BASH_XDG_OPEN:
+		insertIndex = 32, extAppElement = 43;
+		break;
+	case FOLDER_INVOKE_ITEM:
+	
+		// If inzipName points to a folder and not a file, just open the folder displaying unzipped file(s), 
+		// this is done with "xdg-open" <folder1/folder2/> (Linux) and "powershell;Invoke-Item" <folder1/folder2> Windows.
+		
+		insertIndex = 9, extAppElement = 14;
+		extAppInsertSequence[15] = FOLDER_INVOKE_ITEM, extAppInsertSequence[17] = BASH_XDG_OPEN; // Case is similar to case PDF, alter two element numbers.
+		break;
+	default:	// All other file types drop here. Linux xdg-open and Windows start /b. (Let operating system choose default program for file type).
+		insertIndex = 9, extAppElement = 14;
+		extAppInsertSequence[17] = BASH_XDG_OPEN;  // Default case similar to case PDF, we just need to alter one element number.
 	}
 
-	// Now that the script within vector "ScriptVec" is complete, update its real chunk length size.
-	// The chunk length counts only the data field, we don't count the fields for chunk length (4 bytes), chunk name (4 bytes) or chunk CRC (4 bytes).
-	const ptrdiff_t HIST_CHUNK_LENGTH = ScriptVec.size() - 12;
+	sequenceLimit = appIndex == BASH_XDG_OPEN ? extAppElement - 1 : extAppElement;
 
-	// Make sure script does not exceed maximum size.
-	if (HIST_CHUNK_LENGTH > MAX_SCRIPT_SIZE) {
-		cerr << "\nScript Error: Script exceeds maximum size of 400 bytes.\n\n";
-		return -1;
-	}
-	else {
-		// "ScriptVec" vector's index insert location for chunk length field.
-		int histChunkLengthInsertIndex = 2;
+	while (++insertIndex < sequenceLimit)
+		ScriptVec.insert(ScriptVec.begin() + extAppInsertSequence[insertIndex], extApp[extAppInsertSequence[extAppElement++]].begin(), extApp[extAppInsertSequence[extAppElement]].end());
+	
+	bool redoChunkLength;
 
-		// Call function to insert updated chunk length value into "ScriptVec" vector's index chunk length field. 
-		// Due to its small size, hIST chunk length will only use 2 bytes maximum (bits=16) of the 4 byte length field.
-		insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
+	do {
 
-		// Shell extraction script complete, now call next function to combine vectors.
-		combineVectors(ImageVec, ZipVec, ScriptVec, ZIP_FILE);
-	}
+		redoChunkLength = false;
+
+		// Script within vector "ScriptVec" is complete, now update its chunk length size.
+		// The chunk length counts only the data field, we don't count the fields for chunk length (4 bytes), chunk name (4 bytes) or chunk CRC (4 bytes).	
+		const ptrdiff_t HIST_CHUNK_LENGTH = ScriptVec.size() - 12;
+
+		// Make sure script does not exceed maximum size
+		if (HIST_CHUNK_LENGTH > MAX_SCRIPT_SIZE) {
+			cerr << "\nScript Error: Script exceeds maximum size of 750 bytes.\n\n";
+			return -1;
+		}
+
+		else {
+
+			// "ScriptVec" vector's index insert location for chunk length field.
+			int histChunkLengthInsertIndex = 2;
+
+			// Call function to insert updated chunk length value into "ScriptVec" vector's index chunk length field. 
+			// Due to its small size, hIST chunk length will only use 2 bytes maximum (bits=16) of the 4 byte length field.
+			insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
+
+			// Check the first byte of the hIST chunk length field to make sure it does not contain a character 
+			// that will break the Linux extraction shell script.
+			if (ScriptVec[3] == '(' || ScriptVec[3] == ')' 
+				|| ScriptVec[3] == '\'' || ScriptVec[3] == '`' 
+				|| ScriptVec[3] == '"' || ScriptVec[3] == '>' 
+				|| ScriptVec[3] == ';') {
+				
+				// Found a bad character, so insert a byte at the end of ScriptVec to increase chunk length, 
+				// then update chunk length field again. Recheck for bad characters, repeat byte insertion if required until
+				// no bad character is generated by the chunk length update.
+				ScriptVec.insert(ScriptVec.begin() + (HIST_CHUNK_LENGTH + 10), '.'); 
+
+				redoChunkLength = true;
+			}
+		}
+	} while (redoChunkLength);
+
+	// Script update complete, call next function to combine vectors.
+	combineVectors(ImageVec, ZipVec, ScriptVec, ZIP_FILE);
 	return 0;
 }
 
