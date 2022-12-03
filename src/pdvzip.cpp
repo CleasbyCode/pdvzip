@@ -57,7 +57,6 @@ unsigned long crc(unsigned char* buf, const size_t& len)
 //  End of IDAT CRC Function 
 //__________________________________________________________________________________________________________________
 
-
 // Open user files for reading, check size of PNG & ZIP File. Display error & quit program if any file fails to open or exceeds size limits.
 int openFilesCheckSize(char* []);
 
@@ -100,8 +99,8 @@ const string
 
 const unsigned int
 	MAX_MULTIPLIED_DIMS = 5500000,	// Maximum multiplied Width x Height dimensions value;
-	MAX_PNG = 5242880,		          // Twitter's 5MB PNG file size limit;
-	MAX_SCRIPT_SIZE = 400;		      // Script size limit, bytes.
+	MAX_PNG = 5242880,		// Twitter's 5MB PNG file size limit;
+	MAX_SCRIPT_SIZE = 750;		// Script size limit, bytes.
 
 int main(int argc, char** argv) {
 
@@ -123,8 +122,7 @@ int openFilesCheckSize(char* argv[]) {
 		IMG_FILE = argv[1],
 		ZIP_FILE = argv[2];
 	
-	ifstream readImg(IMG_FILE, ios::binary);
-	ifstream readZip(ZIP_FILE, ios::binary);
+	ifstream readImg(IMG_FILE, ios::binary), readZip(ZIP_FILE, ios::binary);
 
 	if (!readImg || !readZip) { // Open file failure, display relevant error message and quit program.
 		const string READ_ERR_MSG = "Read Error: Unable to open/read file: ";
@@ -157,7 +155,7 @@ int openFilesCheckSize(char* argv[]) {
 		const string
 			SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n",
 			COMBINED_SIZE_ERR_MSG = "\nSize Error: " + to_string(COMBINED_SIZE) +
-			" bytes is the combined size of your PNG image + ZIP file + Script (400 bytes), \nwhich exceeds Twitter's 5MB size limit by "
+			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds Twitter's 5MB size limit by "
 			+ to_string(EXCEED_SIZE) + " bytes. Available ZIP file size is " + to_string(AVAILABLE_SIZE) + " bytes.\n\n";
 			
 		string errMsg = (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) ? "\nPNG " + SIZE_ERR_MSG : (ZIP_SIZE > MAX_PNG ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR_MSG);
@@ -174,7 +172,7 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 	// We will need to update both the CRC, last 4 bytes, currently zero, and the chunk length field, first 4 bytes, also zero, within this vector. 
 	vector<unsigned char>ZipVec{ 0,0,0,0,73,68,65,84,0,0,0,0 };
 
-	// Vector "ImageVec" is where we will store the user PNG image, later combining it with the vectors "ScriptVec" and "ZipVec", before writing it out to file.
+	// Vector "ImageVec" is where we will store the user PNG image, later combining it with vectors "ScriptVec" & "ZipVec", before writing it out to file.
 	vector<unsigned char>ImageVec(0 / sizeof(unsigned char));
 
 	ifstream readImg(IMG_FILE, ios::binary);
@@ -189,16 +187,16 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 	readZip.read((char*)&ZipVec[8], ZIP_SIZE);
 
 	const string
-    IMG_HDR(ImageVec.begin(), ImageVec.begin() + PNG_ID.length()),		  // Get file header from vector "ImageVec". 
+    		IMG_HDR(ImageVec.begin(), ImageVec.begin() + PNG_ID.length()),		// Get file header from vector "ImageVec". 
 		ZIP_HDR(ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length());	// Get file header from vector "ZipVec".
 
 	const unsigned int
 		// Get image dimensions from vector "ImageVec" and multiply Width x Height.
 		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])), 
-		COLOR_TYPE = ImageVec[25],		    // Get image colour type value from vector "ImageVec".
-		INZIP_NAME_LENGTH = ZipVec[34],   // Get length of in-zip media filename from vector "ZipVec".
-		INDEXED_COLOR_TYPE = 3,			      // PNG Indexed colour type has a set value of 3
-		MIN_NAME_LENGTH = 4;			        // Minimum filename length of inzip media file.
+		COLOR_TYPE = ImageVec[25],		// Get image colour type value from vector "ImageVec".
+		INZIP_NAME_LENGTH = ZipVec[34],   	// Get length of in-zip media filename from vector "ZipVec".
+		INDEXED_COLOR_TYPE = 3,			// PNG Indexed colour type has a set value of 3
+		MIN_NAME_LENGTH = 4;			// Minimum filename length of inzip media file.
 
 	if (IMG_HDR == PNG_ID
 		&& ZIP_HDR == ZIP_ID
@@ -221,7 +219,7 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 		// This IDAT chunk length will never exceed 5MB, so only 3 bytes maximum (bits=24) of the 4 byte length field will be used.
 		insertChunkLength(ZipVec, idatZipChunkLengthIndex, ZIP_SIZE, 24, true);
 
-		// Call next function to complete script.
+		// Call next function to complete shell extraction script.
 		buildScript(ImageVec, ZipVec, ZIP_FILE);
 	}
 	else { // File requirements check failure, display relevant error message and quit program.
@@ -534,11 +532,11 @@ void fixZipOffset(vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_IN
 		END_CENTRAL_DIR_INDEX = search(ImageVec.begin() + START_CENTRAL_DIR_INDEX, ImageVec.end(), END_CENTRAL_ID.begin(), END_CENTRAL_ID.end()) - ImageVec.begin();
 
 	ptrdiff_t
-		zipFileRecordsIndex = END_CENTRAL_DIR_INDEX + 11,	        // Vector index location for ZIP file records value.
+		zipFileRecordsIndex = END_CENTRAL_DIR_INDEX + 11,	  // Vector index location for ZIP file records value.
 		commentLengthInsertIndex = END_CENTRAL_DIR_INDEX + 21,	  // Vector index location for ZIP comment length.
 		endCentralStartInsertIndex = END_CENTRAL_DIR_INDEX + 19,  // Vector index location for End Central Start offset.
 		centralLocalInsertIndex = START_CENTRAL_DIR_INDEX - 1,	  // Initialise variable to just before (-1) Start Central index location.
-		newZipOffset = LAST_IDAT_INDEX,				                    // Initialise variable to last IDAT chunk's index location.
+		newZipOffset = LAST_IDAT_INDEX,				  // Initialise variable to last IDAT chunk's index location.
 		
 		// Get ZIP file records value from vector "ImageVec" index location.
 		zipFileRecords = (ImageVec[zipFileRecordsIndex] << 8) | ImageVec[zipFileRecordsIndex - 1]; 
@@ -616,10 +614,11 @@ Image's multiplied dimensions value must be between 5,242,880 & 5,500,000.
 Suggested Width x Height Dimensions: 2900 x 1808 = 5,243,200. Example Two: 2290 x 2290 = 5,244,100, etc.
 ZIP File Size & Other Information
 To work out the maximum ZIP file size, start with Twitter's size limit of 5MB (5,242,880 bytes), minus PNG image size, 
-minus 400 bytes (extraction script). Example: 5,242,880 - (307,200 + 400) = 4,935,280 bytes available for ZIP file. 
+minus 750 bytes (extraction script). Example: 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for ZIP file. 
 The less detailed the image, the more space available for the ZIP.
 Make sure ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
-Always use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.
+Use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.
+A file without an extension will be treated as a Linux executable.
 Paint.net application is recommended for easily creating compatible PNG image files.
 )";
 }
