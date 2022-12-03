@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "ScriptVec.hpp"
 
 using namespace std;
 
@@ -312,82 +313,127 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 }
 
 int buildScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, const string& ZIP_FILE) {
-
-	vector<unsigned char>ScriptVec{ 0,0,'\x13','\x08','h','I','S','T','\x0d','R','E','M',';','c','l','e','a','r',';','u','n','z','i','p','\x20','-','q','o','\x20',
-		'"','$','0','"',';','c','l','e','a','r',';','"','"',';','e','x','i','t',';','\x0d','\x0a','#','&','c','l','s','&','t','a','r','\x20','-','x','f','\x20',
-		'"','%','~','n','0','%','~','x','0','"','&','\x20','"','.','\\','"','&','r','e','n','\x20','"','%','~','n','0','%','~','x','0','"','\x20',
-		'*','.','p','n','g','&','a','t','t','r','i','b','\x20','+','h','\x20','"','"','&','e','x','i','t','\x0d','\x0a' };
-
-	string extApp[29] = { "aac", "mp3", "mp4", "avi", "asf", "flv", "ebm", "mkv", "peg", "wav", "wmv", "wma","mov", "3gp", "ogg", "pdf", ".py", ".sh", "ps1",
-			"vlc --play-and-exit --no-video-title-show ", "evince ", "python3 ", "sh ", "pwsh ", "xdg-open "," &> /dev/null", "powershell","start /b \"\"","pause&" };
 	
+	vector<string> extApp{ "aac","mp3","mp4","avi","asf","flv","ebm","mkv","peg","wav","wmv","wma","mov","3gp","ogg","pdf",".py","ps1","exe",
+				".sh","vlc --play-and-exit --no-video-title-show ","evince ","python3 ","pwsh ","./","xdg-open ","powershell;Invoke-Item ",
+				" &> /dev/null","start /b \"\"","pause&","powershell","chmod +x ",";" };
+			
 	const int
-		VLC = 19, DEV_NULL = 25, START_B = 27, PAUSE = 28,	
-		LINUX_INSERT_INDEX = 40, WINDOWS_INSERT_INDEX = 75,	
 		INZIP_NAME_LENGTH_INDEX = 34,				
 		INZIP_NAME_INDEX = 38,					
 		INZIP_NAME_LENGTH = ZipVec[INZIP_NAME_LENGTH_INDEX],	
-		FILENAME_INSERT_INDEX[3] = { 80, 42, 8 };		
-
-	ZipVec[INZIP_NAME_INDEX] = '.';
-	ZipVec[search(ZipVec.begin(), ZipVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ZipVec.begin() + 46] = '.';
+		
+		VIDEO_AUDIO = 20, PDF = 21, PYTHON = 22,
+		LINUX_PWSH = 23, EXECUTABLE = 24, BASH_XDG_OPEN = 25, 
+		FOLDER_INVOKE_ITEM = 26, WIN_POWERSHELL = 30, INZIP_FILENAME = 33,
+		LINUX_ARGS = 34, WINDOWS_ARGS = 35, MOD_INZIP_FILENAME = 36;
 
 	string
-		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH),	
-		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),	
-		argsLinux, argsWindows;						
+		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH), 
+		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),
+		argsLinux, argsWindows;																					// Optional user arguments string variables.
 
-	for (int offset : FILENAME_INSERT_INDEX)
-		ScriptVec.insert(ScriptVec.end() - offset, inzipName.begin(), inzipName.end());
+	size_t findExtension = inzipName.find_last_of('.');
 
-	int appIndex;
+	extApp.push_back(inzipName);
+	
+	int extAppInsertSequence[52] = { 
+				236,234,116,115,114, 33,28,27,33,20, 	
+				236,234,115,114, 33,28,33,21,		
+				259,237,236,234,116,115,114, 29,35,33,22,34,33,22, 
+				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31 }, 
 
-	for (appIndex = 0; appIndex != 24; appIndex++) {
+	appIndex = 0, insertIndex = -1, extAppElement = 0, sequenceLimit = 0;
+
+	for (appIndex = 0; appIndex != 26; appIndex++) {
 		if (extApp[appIndex] == inzipNameExt) {
-			appIndex = appIndex <= 14 ? 19 : appIndex += 5; 
-			break;						
+			appIndex = appIndex <= 14 ? 20 : appIndex += 6; 
+			break;					
 		}
 	}
 
-	int appSwitch = appIndex == 23 ? 26 : appIndex;
-	string scriptType = (appIndex == 21) ? "Python" : "PowerShell";
+	if (findExtension == 0 || findExtension > inzipName.length()) {
+		appIndex = ZipVec[INZIP_NAME_INDEX + INZIP_NAME_LENGTH - 1] == '/' ? FOLDER_INVOKE_ITEM : EXECUTABLE;
+	}
 
-	switch (appIndex) {
-	case 19:
-		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX, extApp[VLC].begin(), extApp[VLC].end());
-		ScriptVec.insert(ScriptVec.begin() + extApp[VLC].length() + LINUX_INSERT_INDEX + INZIP_NAME_LENGTH + 2, extApp[DEV_NULL].begin(), extApp[DEV_NULL].end());
-		ScriptVec.insert(ScriptVec.begin() + WINDOWS_INSERT_INDEX + extApp[VLC].length() + INZIP_NAME_LENGTH + extApp[DEV_NULL].length(), extApp[START_B].begin(), extApp[START_B].end());
-		break;
-	case 21: 
-	case 23: 
-		cout << "\n" << scriptType << " Script Found...\n\nAdd extra arguments if required.\n\nLinux: ";
+	if (appIndex > 21 && appIndex < 26) {
+		cout << "\nFor this file type you can provide command-line arguments here, if required.\n\nLinux: ";
 		getline(cin, argsLinux);
 		cout << "\nWindows: ";
 		getline(cin, argsWindows);
-		argsLinux.insert(0, "\x20");
-		argsWindows.insert(0, "\x20");
-		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX, extApp[appIndex].begin(), extApp[appIndex].end());
-		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX + extApp[appIndex].length() + INZIP_NAME_LENGTH + 2, argsLinux.begin(), argsLinux.end());
-		ScriptVec.insert(ScriptVec.begin() + argsLinux.length() + INZIP_NAME_LENGTH + WINDOWS_INSERT_INDEX + extApp[appIndex].length(), extApp[appSwitch].begin(), extApp[appSwitch].end());
-		ScriptVec.insert(ScriptVec.begin() + argsLinux.length() + (INZIP_NAME_LENGTH * 2) + 5 + WINDOWS_INSERT_INDEX + extApp[appIndex].length() + extApp[appSwitch].length(), argsWindows.begin(), argsWindows.end());
-		ScriptVec.insert(ScriptVec.end() - extApp[PAUSE].length(), extApp[PAUSE].begin(), extApp[PAUSE].end());
+		argsLinux.insert(0, "\x20"), argsWindows.insert(0, "\x20");
+		extApp.push_back(argsLinux), extApp.push_back(argsWindows); // extApp (34), (35).
+	}
+
+	switch (appIndex) {
+	case VIDEO_AUDIO:		
+		extAppElement = 5;			
 		break;
-	default: 
-		ScriptVec.insert(ScriptVec.begin() + LINUX_INSERT_INDEX, extApp[appIndex].begin(), extApp[appIndex].end());
-		ScriptVec.insert(ScriptVec.begin() + INZIP_NAME_LENGTH + WINDOWS_INSERT_INDEX + extApp[appIndex].length(), extApp[START_B].begin(), extApp[START_B].end());
+	case PDF:					
+		insertIndex = 9, extAppElement = 14;	
+		break;
+	case PYTHON:			
+	case LINUX_PWSH:		
+		insertIndex = 17, extAppElement = 25;	
+		if (appIndex == LINUX_PWSH) {		
+			inzipName.insert(0, ".\\"); 	
+			extApp.push_back(inzipName);
+			extAppInsertSequence[31] = LINUX_PWSH,
+			extAppInsertSequence[28] = WIN_POWERSHELL;
+			extAppInsertSequence[27] = MOD_INZIP_FILENAME; 
+		}
+		break;
+	case EXECUTABLE:
+		insertIndex = 31, extAppElement = 42;
+		break;
+	case BASH_XDG_OPEN:
+		insertIndex = 32, extAppElement = 43;
+		break;
+	case FOLDER_INVOKE_ITEM:	
+		insertIndex = 9, extAppElement = 14;
+		extAppInsertSequence[15] = FOLDER_INVOKE_ITEM, extAppInsertSequence[17] = BASH_XDG_OPEN; 
+		break;
+	default:	
+		insertIndex = 9, extAppElement = 14;
+		extAppInsertSequence[17] = BASH_XDG_OPEN;  
 	}
 
-	const ptrdiff_t HIST_CHUNK_LENGTH = ScriptVec.size() - 12;
+	sequenceLimit = appIndex == BASH_XDG_OPEN ? extAppElement - 1 : extAppElement;
 
-	if (HIST_CHUNK_LENGTH > MAX_SCRIPT_SIZE) {
-		cerr << "\nScript Error: Script exceeds maximum size of 400 bytes.\n\n";
-		return -1;
-	}
-	else {
-		int histChunkLengthInsertIndex = 2;
-		insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
-		combineVectors(ImageVec, ZipVec, ScriptVec, ZIP_FILE);
-	}
+	while (++insertIndex < sequenceLimit)
+		ScriptVec.insert(ScriptVec.begin() + extAppInsertSequence[insertIndex], extApp[extAppInsertSequence[extAppElement++]].begin(), extApp[extAppInsertSequence[extAppElement]].end());
+	
+	bool redoChunkLength;
+
+	do {
+
+		redoChunkLength = false;
+		
+		const ptrdiff_t HIST_CHUNK_LENGTH = ScriptVec.size() - 12;
+
+		if (HIST_CHUNK_LENGTH > MAX_SCRIPT_SIZE) {
+			cerr << "\nScript Error: Script exceeds maximum size of 750 bytes.\n\n";
+			return -1;
+		}
+
+		else {
+
+			int histChunkLengthInsertIndex = 2;
+			
+			insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
+
+			if (ScriptVec[3] == '(' || ScriptVec[3] == ')' 
+				|| ScriptVec[3] == '\'' || ScriptVec[3] == '`' 
+				|| ScriptVec[3] == '"' || ScriptVec[3] == '>' 
+				|| ScriptVec[3] == ';') {
+				
+				ScriptVec.insert(ScriptVec.begin() + (HIST_CHUNK_LENGTH + 10), '.'); 
+				redoChunkLength = true;
+			}
+		}
+	} while (redoChunkLength);
+
+	combineVectors(ImageVec, ZipVec, ScriptVec, ZIP_FILE);
 	return 0;
 }
 
