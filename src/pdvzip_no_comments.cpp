@@ -74,7 +74,7 @@ const string
 const unsigned int
 	MAX_MULTIPLIED_DIMS = 5500000,	
 	MAX_PNG = 5242880,		
-	MAX_SCRIPT_SIZE = 400;		
+	MAX_SCRIPT_SIZE = 750;		
 
 int main(int argc, char** argv) {
 
@@ -128,7 +128,7 @@ int openFilesCheckSize(char* argv[]) {
 		const string
 			SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n",
 			COMBINED_SIZE_ERR_MSG = "\nSize Error: " + to_string(COMBINED_SIZE) +
-			" bytes is the combined size of your PNG image + ZIP file + Script (400 bytes), \nwhich exceeds Twitter's 5MB size limit by "
+			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds Twitter's 5MB size limit by "
 			+ to_string(EXCEED_SIZE) + " bytes. Available ZIP file size is " + to_string(AVAILABLE_SIZE) + " bytes.\n\n";
 			
 		string errMsg = (IMG_SIZE + MAX_SCRIPT_SIZE > MAX_PNG) ? "\nPNG " + SIZE_ERR_MSG : (ZIP_SIZE > MAX_PNG ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR_MSG);
@@ -201,15 +201,12 @@ int readFilesIntoVectorsCheckSpecs(const string& IMG_FILE, const string& ZIP_FIL
 
 void eraseChunks(vector<unsigned char>& ImageVec) {
 
-	// Chunks to remove. 
 	string removeChunk[14] = { "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
 	
-	// Get first IDAT chunk index location. Don't remove chunks after this point.
 	const ptrdiff_t FIRST_IDAT = search(ImageVec.begin(), ImageVec.end(), FIRST_IDAT_ID.begin(), FIRST_IDAT_ID.end()) - ImageVec.begin() - 4;
 
 	int chunkNum = sizeof(removeChunk) / sizeof(string);
 
-	// Remove chunks. Make sure we check for multiple occurrences of each chunk we remove.
 	while (chunkNum--) {
 		const ptrdiff_t REMOVE_ID_INDEX = search(ImageVec.begin(), ImageVec.end(), removeChunk[chunkNum].begin(), removeChunk[chunkNum].end()) - ImageVec.begin() - 4;
 		if (FIRST_IDAT > REMOVE_ID_INDEX) {
@@ -494,13 +491,13 @@ Suggested Width x Height Dimensions: 2900 x 1808 = 5,243,200. Example Two: 2290 
 ZIP File Size & Other Information
 
 To work out the maximum ZIP file size, start with Twitter's size limit of 5MB (5,242,880 bytes), minus PNG image size, 
-minus 400 bytes (extraction script). Example: 5,242,880 - (307,200 + 400) = 4,935,280 bytes available for ZIP file. 
+minus 750 bytes (extraction script). Example: 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for ZIP file. 
 
 The less detailed the image, the more space available for the ZIP.
 
 Make sure ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
-Always use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.
+Use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.
+A file without an extension will be treated as a Linux executable.
 Paint.net application is recommended for easily creating compatible PNG image files.
-
 )";
 }
