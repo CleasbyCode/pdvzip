@@ -11,6 +11,7 @@ Script supports both Linux & Windows.
 The completed script will unzip the media file from the PNG image & attempt to open/play/run (depending on file type)
 the in-zip media file using an application command based on a matched file extension. 
 If no match found, defaulting to the operating system making the choice, if possible. 
+The media file needs to be compatible with the operating system you are running it on.
 
 The completed script will later be inserted after the PLTE chunk of the PNG image (which is stored in the vector "ImageVec") 
 */
@@ -39,4 +40,134 @@ std::vector<unsigned char>ScriptVec{
 	0x6E, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78, 0x30, 0x22,
 	0x20, 0x2A, 0x2E, 0x70, 0x6E, 0x67, 0x26, 0x65, 0x78, 0x69, 0x74, 0x0D,
 	0x0A };
+
+/* ---------------------------------
+
+Script Example 1: Barebones script.
+
+hIST
+REM;clear;mkdir ./pdvzip_extracted;mv "$0" ./pdvzip_extracted;cd ./pdvzip_extracted;unzip -qo "$0";clear;"";exit;
+#&cls&mkdir .\pdvzip_extracted&move "%~dpnx0" .\pdvzip_extracted&cd .\pdvzip_extracted&cls&tar -xf "%~n0%~x0"& ""&ren "%~n0%~x0" *.png&exit
+
+hIST
+
+(Linux)
+
+	REM;
+	clear;
+	mkdir ./pdvzip_extracted;
+	mv "$0" ./pdvzip_extracted;
+	cd ./pdvzip_extracted;
+	unzip -qo "$0";
+	clear;
+	"";
+	exit;
+
+	(Windows)
+
+	#&
+	cls&
+	mkdir .\pdvzip_extracted&
+	move "%~dpnx0" .\pdvzip_extracted&
+	cd .\pdvzip_extracted&
+	cls&
+	tar -xf "%~n0%~x0"& 
+	""&
+	ren "%~n0%~x0" *.png&
+	exit
+
+-----------------------
+
+Script Example 2: Completed Script for MP4 Video (.mp4) File.
+
+hIST
+
+(Linux)
+
+	REM;
+	clear;
+	mkdir ./pdvzip_extracted;
+	mv "$0" ./pdvzip_extracted;
+	cd ./pdvzip_extracted;
+	unzip -qo "$0";
+	clear;
+	vlc --play-and-exit --no-video-title-show "joker.mp4" &> /dev/null;
+	exit;
+
+(Windows)
+
+	#&
+	cls&
+	mkdir .\pdvzip_extracted&
+	move "%~dpnx0" .\pdvzip_extracted&
+	cd .\pdvzip_extracted&
+	cls&
+	tar -xf "%~n0%~x0"&
+	start /b "" "joker.mp4"&
+	ren "%~n0%~x0" *.png&
+	exit
+
+-----------------------
+
+Script Example 3: Completed Script for Bash Script (.sh) File, Containing Command-Line Args.
+
+hIST
+
+(Linux)
+
+	REM;
+	clear;
+	mkdir ./pdvzip_extracted;
+	mv "$0" ./pdvzip_extracted;
+	cd ./pdvzip_extracted;
+	unzip -qo "$0";
+	clear;
+	chmod +x test.sh;
+	./"test.sh" -f 'John Smith' -a 25 -u john;
+	exit;
+
+(Windows)
+
+	#&
+	cls&
+	mkdir .\pdvzip_extracted&
+	move "%~dpnx0" .\pdvzip_extracted&
+	cd .\pdvzip_extracted&
+	cls&
+	tar -xf "%~n0%~x0"&
+	start /b "" "test.sh" -f 'John Smith' -a 25 -u john&
+	ren "%~n0%~x0" *.png&
+	exit
+
+-----------------------
+
+Last Script Example: Completed Script for Python (.py) File.
+
+hIST
+
+(Linux)
+
+	REM;
+	clear;
+	mkdir ./pdvzip_extracted;
+	mv "$0" ./pdvzip_extracted;
+	cd ./pdvzip_extracted;
+	unzip -qo "$0";
+	clear;
+	python3 "clock.py" ;
+	exit;
+
+(Windows)
+
+	#&
+	cls&
+	mkdir .\pdvzip_extracted&
+	move "%~dpnx0" .\pdvzip_extracted&
+	cd .\pdvzip_extracted&
+	cls&
+	tar -xf "%~n0%~x0"&
+	python3  "clock.py" &
+	ren "%~n0%~x0" *.png&
+	pause&
+	exit
 
