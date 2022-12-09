@@ -670,7 +670,7 @@ void writeFile(std::vector<unsigned char>& ImageVec, const std::string& ZIP_FILE
 
 	if (!writeFinal) {
 		std::cerr << "\nWrite Error: Unable to write to file.\n\n";
-		terminate();
+		std::terminate();
 	}
 
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
