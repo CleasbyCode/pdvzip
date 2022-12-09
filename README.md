@@ -33,7 +33,7 @@ You can also upload and share your PNG image to *some popular image hosting site
 
 **Mobile Issue**: Sometimes when saving images from Twitter to a mobile, the file gets saved with a '*.jpg*' extension. Please note, the file has not been converted to a JPG. Lazy Twitter has just renamed the extension, so it is still the original PNG image with its embedded content. 
 
-## Accessing Arbitrary Data
+## Extracting Your Embedded File(s)
 **Linux**    
 Make sure image file has executable permissions.
 ```c
