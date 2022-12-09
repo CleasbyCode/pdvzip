@@ -102,8 +102,8 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 		COMBINED_SIZE = IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES;
 	
 	if ((IMG_SIZE + MAX_SCRIPT_SIZE_BYTES) > MAX_PNG_SIZE_BYTES
-		|| ZIP_SIZE > MAX_PNG_SIZE_BYTES
-		|| COMBINED_SIZE > MAX_PNG_SIZE_BYTES) {
+	    || ZIP_SIZE > MAX_PNG_SIZE_BYTES
+	    || COMBINED_SIZE > MAX_PNG_SIZE_BYTES) {
 		const ptrdiff_t
 			EXCEED_SIZE = (IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES) - MAX_PNG_SIZE_BYTES,
 			AVAILABLE_SIZE = MAX_PNG_SIZE_BYTES - (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES);
@@ -157,11 +157,11 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		MIN_NAME_LENGTH = 4;			
 
 	if (IMG_HDR != PNG_ID
-		|| ZIP_HDR != ZIP_ID
-		|| MAX_PNG_SIZE_BYTES > MULTIPLIED_DIMS
-		|| MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS
-		|| COLOR_TYPE != INDEXED_COLOR_TYPE
-		|| MIN_NAME_LENGTH > INZIP_NAME_LENGTH) {
+	    || ZIP_HDR != ZIP_ID
+	    || MAX_PNG_SIZE_BYTES > MULTIPLIED_DIMS
+	    || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS
+	    || COLOR_TYPE != INDEXED_COLOR_TYPE
+	    || MIN_NAME_LENGTH > INZIP_NAME_LENGTH) {
 		const std::string
 			HEADER_ERR_MSG = "Header Error: File does not appear to be a valid",
 			IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. See 'pdvzip --info' for more details.\n\n",
