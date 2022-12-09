@@ -1,4 +1,4 @@
-//	PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP) v1.1. Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
+//	PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.2). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
 #include <fstream>
 #include <algorithm>
@@ -6,8 +6,6 @@
 #include <string>
 #include <vector>
 #include "ScriptVec.hpp"
-
-using namespace std;
 
 // The following code to compute IDAT CRC was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
 //___________________________________________________________________________________________________________________
@@ -65,34 +63,34 @@ unsigned long crc(unsigned char* buf, const size_t& len)
 void openFiles(char* []);
 
 // Check size of PNG image and ZIP file. Display error and terminate program if any file exceeds size limits.
-void checkFileSize(ifstream&, ifstream&, const string&, const string&);
+void checkFileSize(std::ifstream&, std::ifstream&, const std::string&, const std::string&);
 
 // Store PNG image & ZIP file into separate vectors, "ImageVec" and "ZipVec".
-void readFilesIntoVectors(const string&, const string&, const ptrdiff_t&, const ptrdiff_t&);
+void readFilesIntoVectors(const std::string&, const std::string&, const ptrdiff_t&, const ptrdiff_t&);
 
 // Check files for required specifications. Display error message and terminate program if requirement checks fail.
-void checkFileRequirements(vector<unsigned char>&, vector<unsigned char>&);
+void checkFileRequirements(std::vector<unsigned char>&, std::vector<unsigned char>&);
 
 // Find and remove chunks in the PNG image. 
-void eraseChunks(vector<unsigned char>&);
+void eraseChunks(std::vector<unsigned char>&);
 
 // Find and replace problem characters in the PLTE chunk that will break the Linux extraction shell script.
-void fixPaletteChunk(vector<unsigned char>&);
+void fixPaletteChunk(std::vector<unsigned char>&);
 
 // Select and insert correct string elements from "ExtApp" vector into vector "ScriptVec", in order to create a working extraction script.
-void completeScript(vector<unsigned char>&);
+void completeScript(std::vector<unsigned char>&);
 
 // Combine three vectors into one.
-void combineVectors(vector<unsigned char>&, vector<unsigned char>&, vector<unsigned char>&);
+void combineVectors(std::vector<unsigned char>&, std::vector<unsigned char>&, std::vector<unsigned char>&);
 
 // Update ZIP file record offsets to their new location.
-void fixZipOffset(vector<unsigned char>&, const ptrdiff_t&);
+void fixZipOffset(std::vector<unsigned char>&, const ptrdiff_t&);
 
 // Write out to file complete PNG vector (Image + Script + ZIP). Display error and terminate program if write fails.
-void writeFile(vector<unsigned char>&, const string&);
+void writeFile(std::vector<unsigned char>&, const std::string&);
 
 // Inserts updated chunk length, CRC and ZIP offset values into relevant vector index locations.
-void insertChunkLength(vector<unsigned char>&, ptrdiff_t, const size_t&, int, bool);
+void insertChunkLength(std::vector<unsigned char>&, ptrdiff_t, const size_t&, int, bool);
 
 // Display program infomation
 void displayInfo();
@@ -103,7 +101,7 @@ int main(int argc, char** argv) {
 		displayInfo();
 	}
 	else if (argc < 3 || argc > 3) {
-		cout << "\nUsage:  pdvzip  <png_image>  <zip_file>\n\tpdvzip  --info\n\n";
+		std::cout << "\nUsage:  pdvzip  <png_image>  <zip_file>\n\tpdvzip  --info\n\n";
 	}
 	else {
 		openFiles(argv);
@@ -113,28 +111,29 @@ int main(int argc, char** argv) {
 
 void openFiles(char* argv[]) {
 
-	const string
+	const std::string
 		IMG_FILE = argv[1],
 		ZIP_FILE = argv[2];
 
-	ifstream
-		readImg(IMG_FILE, ios::binary),
-		readZip(ZIP_FILE, ios::binary);
+	std::ifstream
+		readImg(IMG_FILE, std::ios::binary),
+		readZip(ZIP_FILE, std::ios::binary);
 
 	if (!readImg || !readZip) {
 
 		// Open file failure, display relevant error message and terminate program.
-		const string READ_ERR_MSG = "Read Error: Unable to open/read file: ";
-		string errMsg = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
-		cerr << errMsg;
+		const std::string READ_ERR_MSG = "Read Error: Unable to open/read file: ";
+
+		std::string errMsg = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
+		std::cerr << errMsg;
 		terminate();
 	}
-	
+
 	// Open file success, now check file size requirements.
 	checkFileSize(readImg, readZip, IMG_FILE, ZIP_FILE);
 }
 
-void checkFileSize(ifstream& readImg, ifstream& readZip, const string& IMG_FILE, const string& ZIP_FILE) {
+void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::string& IMG_FILE, const std::string& ZIP_FILE) {
 
 	const int
 		MAX_PNG_SIZE_BYTES = 5242880,		// Twitter's 5MB PNG file size limit.
@@ -142,12 +141,12 @@ void checkFileSize(ifstream& readImg, ifstream& readZip, const string& IMG_FILE,
 
 	// Open files success. Now get size of files.
 	readImg.seekg(0, readImg.end),
-	readZip.seekg(0, readZip.end);
+		readZip.seekg(0, readZip.end);
 
 	const ptrdiff_t
 		IMG_SIZE = readImg.tellg(),
 		ZIP_SIZE = readZip.tellg(),
-	    	COMBINED_SIZE = IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES;
+		COMBINED_SIZE = IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES;
 
 	if ((IMG_SIZE + MAX_SCRIPT_SIZE_BYTES) > MAX_PNG_SIZE_BYTES
 		|| ZIP_SIZE > MAX_PNG_SIZE_BYTES
@@ -157,36 +156,36 @@ void checkFileSize(ifstream& readImg, ifstream& readZip, const string& IMG_FILE,
 		const ptrdiff_t
 			EXCEED_SIZE = (IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES) - MAX_PNG_SIZE_BYTES,
 			AVAILABLE_SIZE = MAX_PNG_SIZE_BYTES - (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES);
-		
-		const string
-			SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n",
-			COMBINED_SIZE_ERR_MSG = "\nSize Error: " + to_string(COMBINED_SIZE) +
-			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds Twitter's 5MB size limit by "
-			+ to_string(EXCEED_SIZE) + " bytes. Available ZIP file size is " + to_string(AVAILABLE_SIZE) + " bytes.\n\n";
 
-		const string ERROR_MESSAGE = (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES > MAX_PNG_SIZE_BYTES) ? "\nPNG " + SIZE_ERR_MSG 
+		const std::string
+			SIZE_ERR_MSG = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n",
+			COMBINED_SIZE_ERR_MSG = "\nSize Error: " + std::to_string(COMBINED_SIZE) +
+			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds Twitter's 5MB size limit by "
+			+ std::to_string(EXCEED_SIZE) + " bytes. Available ZIP file size is " + std::to_string(AVAILABLE_SIZE) + " bytes.\n\n";
+
+		const std::string ERROR_MESSAGE = (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES > MAX_PNG_SIZE_BYTES) ? "\nPNG " + SIZE_ERR_MSG
 			: (ZIP_SIZE > MAX_PNG_SIZE_BYTES ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR_MSG);
 
-		cerr << ERROR_MESSAGE;
+		std::cerr << ERROR_MESSAGE;
 		terminate();
 	}
-	
+
 	// File size check success, now store files into vectors.
 	readFilesIntoVectors(IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
 }
 
-void readFilesIntoVectors(const string& IMG_FILE, const string& ZIP_FILE, const ptrdiff_t& IMG_SIZE, const ptrdiff_t& ZIP_SIZE) {
+void readFilesIntoVectors(const std::string& IMG_FILE, const std::string& ZIP_FILE, const ptrdiff_t& IMG_SIZE, const ptrdiff_t& ZIP_SIZE) {
 
 	// Vector "ZipVec" is where we will store the user ZIP file. "ZipVec" will later be inserted into the vector "ImageVec" as the last IDAT chunk. 
 	// We will need to update both the CRC, last 4 bytes, currently zero, and the chunk length field, first 4 bytes, also zero, within this vector. 
-	vector<unsigned char>ZipVec{ 0,0,0,0,73,68,65,84,0,0,0,0 };
+	std::vector<unsigned char>ZipVec{ 0,0,0,0,73,68,65,84,0,0,0,0 };
 
 	// Vector "ImageVec" is where we will store the user PNG image, later combining it with the vectors "ScriptVec" and "ZipVec", before writing it out to file.
-	vector<unsigned char>ImageVec(0 / sizeof(unsigned char));
+	std::vector<unsigned char>ImageVec(0 / sizeof(unsigned char));
 
-	ifstream
-		readImg(IMG_FILE, ios::binary),
-		readZip(ZIP_FILE, ios::binary);
+	std::ifstream
+		readImg(IMG_FILE, std::ios::binary),
+		readZip(ZIP_FILE, std::ios::binary);
 
 	// Read PNG image file into vector "ImageVec", begining at index location 0.
 	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
@@ -222,17 +221,17 @@ void readFilesIntoVectors(const string& IMG_FILE, const string& ZIP_FILE, const 
 	writeFile(ImageVec, ZIP_FILE);
 }
 
-void checkFileRequirements(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec) {
+void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<unsigned char>& ZipVec) {
 
-	const string
+	const std::string
 		PNG_ID = "\x89PNG",
 		ZIP_ID = "PK\x03\x04",
 		IMG_HDR(ImageVec.begin(), ImageVec.begin() + PNG_ID.length()),		// Get file header from vector "ImageVec". 
 		ZIP_HDR(ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length());	// Get file header from vector "ZipVec".
-	
+
 	const unsigned int
 		// Get image dimensions from vector "ImageVec" and multiply Width x Height.
-		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])), 
+		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])),
 		MAX_MULTIPLIED_DIMS = 5500000,		// Maximum multiplied Width x Height dimensions value;
 		MAX_PNG_SIZE_BYTES = 5242880,		// Twitter's 5MB PNG file size limit;
 		COLOR_TYPE = ImageVec[25],		// Get image colour type value from vector "ImageVec".
@@ -248,33 +247,33 @@ void checkFileRequirements(vector<unsigned char>& ImageVec, vector<unsigned char
 		|| MIN_NAME_LENGTH > INZIP_NAME_LENGTH) {
 
 		// File requirements check failure, display relevant error message and terminate program.
-		const string
+		const std::string
 			HEADER_ERR_MSG = "Header Error: File does not appear to be a valid",
 			IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. See 'pdvzip --info' for more details.\n\n",
 			IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements. See 'pdvzip --info' for more details.\n\n",
 			ZIP_ERR_MSG = "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)."
 			"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n";
-		
-		const string ERROR_MESSAGE = (IMG_HDR != PNG_ID) ? "\nPNG " + HEADER_ERR_MSG + " PNG image.\n\n" 
+
+		const std::string ERROR_MESSAGE = (IMG_HDR != PNG_ID) ? "\nPNG " + HEADER_ERR_MSG + " PNG image.\n\n"
 			: (ZIP_HDR != ZIP_ID) ? "\nZIP " + HEADER_ERR_MSG + " ZIP archive.\n\n"
 			: (MAX_PNG_SIZE_BYTES > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) ? IMAGE_ERR_MSG1
 			: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
 
-		cerr << ERROR_MESSAGE;
+		std::cerr << ERROR_MESSAGE;
 		terminate();
 	}
 }
 
-void eraseChunks(vector<unsigned char>& ImageVec) {
+void eraseChunks(std::vector<unsigned char>& ImageVec) {
 
-	const string
+	const std::string
 		IDAT_ID = "IDAT",
 		CHUNKS_TO_REMOVE[14] = { "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
-		
+
 	// Get first IDAT chunk index location. Don't remove chunks after this point.
 	const ptrdiff_t FIRST_IDAT_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4;
 
-	int chunk = sizeof(CHUNKS_TO_REMOVE) / sizeof(string);
+	int chunk = sizeof(CHUNKS_TO_REMOVE) / sizeof(std::string);
 
 	// Remove chunks. Make sure we check for multiple occurrences of each chunk we remove.
 	while (chunk--) {
@@ -287,13 +286,13 @@ void eraseChunks(vector<unsigned char>& ImageVec) {
 	}
 }
 
-void fixPaletteChunk(vector<unsigned char>& ImageVec) {
+void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 
 	// Linux issue: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will break the script.
 	// The main 'for loop' contains a number of fixes for this issue.
 	// For Imgur support, the PLTE chunk has to be before the hIST chunk (extraction shell script). The function would be unnecessary if I did not support Imgur.
 
-	const string PLTE_ID = "PLTE";
+	const std::string PLTE_ID = "PLTE";
 
 	// After modify the PLTE chunk, we need to update its CRC value.
 	// Search for index location of PLTE chunk name within vector "ImageVec". When calculating CRC, we include the 4 byte chunk name field + data field.
@@ -311,13 +310,13 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 	int twoCount = 0;
 
 	for (ptrdiff_t i = PLTE_CHUNK_START_INDEX; i < (PLTE_CHUNK_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
-		
+
 		ImageVec[i] = (ImageVec[i] == BAD_CHAR[0]) ? GOOD_CHAR[1]
-			: (ImageVec[i] == BAD_CHAR[1]) ? GOOD_CHAR[1] 
+			: (ImageVec[i] == BAD_CHAR[1]) ? GOOD_CHAR[1]
 			: (ImageVec[i] == BAD_CHAR[2]) ? GOOD_CHAR[1]
-			: (ImageVec[i] == BAD_CHAR[3]) ? GOOD_CHAR[4] 
+			: (ImageVec[i] == BAD_CHAR[3]) ? GOOD_CHAR[4]
 			: (ImageVec[i] == BAD_CHAR[4]) ? GOOD_CHAR[0]
-			: (ImageVec[i] == BAD_CHAR[5]) ? GOOD_CHAR[5] 
+			: (ImageVec[i] == BAD_CHAR[5]) ? GOOD_CHAR[5]
 			: ((ImageVec[i] == BAD_CHAR[6]) ? GOOD_CHAR[6] : ImageVec[i]);
 
 		// Character combinations that will break the shell extraction script. Replace relevant character to prevent script failure. 
@@ -333,21 +332,21 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 			|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
 			|| (ImageVec[i] == '<' && ImageVec[i + 1] == ')'))
 		{
-			if (ImageVec[i] == '\x0a') 
+			if (ImageVec[i] == '\x0a')
 				ImageVec[i + 1] = GOOD_CHAR[0];
-			else 
+			else
 				ImageVec[i] = ImageVec[i] == '<' ? GOOD_CHAR[2] : GOOD_CHAR[0];
 		}
-		
+
 		// Two (or more) characters of "&" or "|" in a row will break the script. Replace one of these characters.
 		if (ImageVec[i] == '&' || ImageVec[i] == '|') {
 			twoCount++;
-			if (twoCount > 1) 
+			if (twoCount > 1)
 				ImageVec[i] = (ImageVec[i] == '&' ? GOOD_CHAR[0] : GOOD_CHAR[3]);
-		} 
-		else 
+		}
+		else
 			twoCount = 0;
-		
+
 		// Character '<' followed by a number (or a sequence of numbers) and ending with the same character '<' will break the script. 
 		// Replace character '<' at the beginning of the sequence (of up to 11 digits).
 		int j = 1, k = 2;
@@ -362,7 +361,7 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 			}
 		}
 	}
-	
+
 	int modCrcVal = 255;
 	bool redoCrc;
 
@@ -399,24 +398,20 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 	} while (redoCrc);
 }
 
-void completeScript(vector<unsigned char>& ZipVec) {
+void completeScript(std::vector<unsigned char>& ZipVec) {
 
 	/* Vector "ScriptVec" (See seperate file "ScriptVec.hpp").
-
 	hIST is a valid PNG chunk type. It does not require a correct CRC value. First four bytes is the chunk length field.
 	This vector stores the shell/batch script commands used for extracting and opening the zipped media file.
-
 	The barebones script is about 300 bytes. The script size limit is 750 bytes, which should be more than enough to account for the later addition
 	of filenames, app+arg strings & other required script commands. Real size is updated when script is complete.
-
 	Script supports both Linux & Windows. The completed script will unzip the media file from the PNG image & attempt to open/play
 	the in-zip media file using an application command based on a matched file extension, or if no match found, defaulting to the
 	operating system making the choice, if possible. The media file needs to be compatible with the operating system you are running it on.
-
 	The completed "hIST" chunk will be inserted after the PLTE chunk of the PNG image, which is stored in the vector "ImageVec" */
 
 	// String vector of file extensions for some popular media types along with several default application commands (+ args) that support those extensions.
-	vector<string> ExtApp{ "aac","mp3","mp4","avi","asf","flv","ebm","mkv","peg","wav","wmv","wma","mov","3gp","ogg","pdf",".py","ps1","exe",
+	std::vector<std::string> ExtApp{ "aac","mp3","mp4","avi","asf","flv","ebm","mkv","peg","wav","wmv","wma","mov","3gp","ogg","pdf",".py","ps1","exe",
 			".sh","vlc --play-and-exit --no-video-title-show ","evince ","python3 ","pwsh ","./","xdg-open ","powershell;Invoke-Item ", " &> /dev/null","start /b \"\"","pause&","powershell","chmod +x ",";" };
 
 	const int
@@ -426,17 +421,17 @@ void completeScript(vector<unsigned char>& ZipVec) {
 		MAX_SCRIPT_SIZE_BYTES = 750,
 
 		// ExtApp vector index element values. Some ExtApp elements are added later (push_back), so don't currently appear in the above ExtApp vector.
-		VIDEO_AUDIO = 20,		
-		PDF = 21, 
+		VIDEO_AUDIO = 20,
+		PDF = 21,
 		PYTHON = 22,
-		LINUX_PWSH = 23, 
+		LINUX_PWSH = 23,
 		EXECUTABLE = 24,
-		BASH_XDG_OPEN = 25, 
+		BASH_XDG_OPEN = 25,
 		FOLDER_INVOKE_ITEM = 26,
-		WIN_POWERSHELL = 30, 
+		WIN_POWERSHELL = 30,
 		MOD_INZIP_FILENAME = 36;
 
-	string
+	std::string
 		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH),	// Get in-zip media filename from vector "ZipVec".
 		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),	// Get file extension from in-zip media filename.
 		argsLinux, argsWindows;						// Optional user arguments string variables.
@@ -446,13 +441,12 @@ void completeScript(vector<unsigned char>& ZipVec) {
 	// Copy inzipName to ExtApp vector (33)
 	ExtApp.push_back(inzipName);
 
-	/* When inserting string elements from "ExtApp" into the script within vector "ScriptVec", we are inserting items in the order of last to first.	
-
+	/* When inserting string elements from "ExtApp" into the script within vector "ScriptVec", we are inserting items in the order of last to first.
 	[0](259) Windows: index insert location for "pause&" ExtApp 29, which is only used when file is python, powershell or exe.
 	[1](237) Windows: index insert location for optional command-line args string, (added later into ExtApp, 35). Used with .py, .ps1, .sh and .exe file types.
-	[2](236) Windows: index insert location for inzip media filename (added later into ExtApp, 33). 
+	[2](236) Windows: index insert location for inzip media filename (added later into ExtApp, 33).
 			 File name used with "start /b" ExtApp 28, "python3" 22, "powershell" 30 & "powershell;Invoke-Item" 26.
-			
+
 	[3](234) Windows: index insert location for "start /b" ExtApp 28. Location also used for "python3" 22, "powershell" 30 & "powershell;Invoke-Item" 26.
 	[4](116) Linux: index insert location for "Dev Null" ExtApp 27, used with vlc. Location also used for optional Linux command-line args string, (added into ExtApp, 34).
 	[5](115) Linux: index insert location for inzip media filename (added later into ExtApp, 33).
@@ -461,16 +455,16 @@ void completeScript(vector<unsigned char>& ZipVec) {
 	// Array InsertSequence contains sequences of ScriptVec index insert location values (high numbers) and the corresponding ExtApp element index values (low numbers).
 	// For example, in the first sequence, insert location index 236 (insertIndex) corresponds with (extAppElement) ExtApp element 33 (inzip media filename).
 
-	int InsertSequence[52] = { 
+	int InsertSequence[52] = {
 				236,234,116,115,114, 33,28,27,33,20, 	// First sequence for case: VIDEO_AUDIO. 
 				236,234,115,114, 33,28,33,21,		// Second sequence for cases: PDF, FOLDER_INVOKE_ITEM, DEFAULT.
 				259,237,236,234,116,115,114, 29,35,33,22,34,33,22, // Third sequence for cases: PYTHON, LINUX_PWSH & WIN_POWERSHELL.
 				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31 }, // Fourth sequence for cases: EXECUTABLE & BASH_XDG_OPEN.
 
-		appIndex = 0, 
-		insertIndex = 0, 
-		extAppElement = 0, 
-		sequenceLimit = 0;
+				appIndex = 0,
+				insertIndex = 0,
+				extAppElement = 0,
+				sequenceLimit = 0;
 
 	// From a matched file extension "inzipNameExt" we can select which application string (+args) and commands
 	// to use in our script, and to open/play the extracted in-zip media file.
@@ -489,10 +483,10 @@ void completeScript(vector<unsigned char>& ZipVec) {
 
 	// Provide the option to give command-line arguments for .py, .ps1, .sh  and .exe file types.
 	if (appIndex > 21 && appIndex < 26) {
-		cout << "\nFor this file type you can provide command-line arguments here, if required.\n\nLinux: ";
-		getline(cin, argsLinux);
-		cout << "\nWindows: ";
-		getline(cin, argsWindows);
+		std::cout << "\nFor this file type you can provide command-line arguments here, if required.\n\nLinux: ";
+		std::getline(std::cin, argsLinux);
+		std::cout << "\nWindows: ";
+		std::getline(std::cin, argsWindows);
 		argsLinux.insert(0, "\x20"), argsWindows.insert(0, "\x20");
 		ExtApp.push_back(argsLinux), ExtApp.push_back(argsWindows); // ExtApp (34), (35).
 	}
@@ -514,10 +508,10 @@ void completeScript(vector<unsigned char>& ZipVec) {
 			inzipName.insert(0, ".\\");	//  ".\"  required for Windows PowerShell command:  powershell ".\filename.ps1", powershell.
 			ExtApp.push_back(inzipName);
 			InsertSequence[31] = LINUX_PWSH,
-			InsertSequence[28] = WIN_POWERSHELL;
+				InsertSequence[28] = WIN_POWERSHELL;
 			InsertSequence[27] = MOD_INZIP_FILENAME; // Modified inzipName (".\filename) for Windows powershell command. 
 		}
-			
+
 		break;
 	case EXECUTABLE:
 		insertIndex = 32, extAppElement = 42;
@@ -542,7 +536,7 @@ void completeScript(vector<unsigned char>& ZipVec) {
 		ScriptVec.insert(ScriptVec.begin() + InsertSequence[insertIndex], ExtApp[InsertSequence[extAppElement]].begin(), ExtApp[InsertSequence[extAppElement]].end());
 		insertIndex++, extAppElement++;
 	}
-	
+
 	bool redoChunkLength;
 
 	do {
@@ -555,10 +549,10 @@ void completeScript(vector<unsigned char>& ZipVec) {
 
 		// Make sure script does not exceed maximum size
 		if (HIST_CHUNK_LENGTH > MAX_SCRIPT_SIZE_BYTES) {
-			cerr << "\nScript Error: Script exceeds maximum size of 750 bytes.\n\n";
+			std::cerr << "\nScript Error: Script exceeds maximum size of 750 bytes.\n\n";
 			terminate();
 		}
-		
+
 		// "ScriptVec" vector's index insert location for chunk length field.
 		int histChunkLengthInsertIndex = 2;
 
@@ -567,26 +561,26 @@ void completeScript(vector<unsigned char>& ZipVec) {
 		insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
 
 		// Check the first byte of the hIST chunk length field to make sure it does not contain a character that will break the Linux extraction script.
-		if (ScriptVec[3] == '(' 
-			|| ScriptVec[3] == ')' 
-			|| ScriptVec[3] == '\'' 
-			|| ScriptVec[3] == '`' 
-			|| ScriptVec[3] == '"' 
-			|| ScriptVec[3] == '>' 
+		if (ScriptVec[3] == '('
+			|| ScriptVec[3] == ')'
+			|| ScriptVec[3] == '\''
+			|| ScriptVec[3] == '`'
+			|| ScriptVec[3] == '"'
+			|| ScriptVec[3] == '>'
 			|| ScriptVec[3] == ';') {
-				
+
 			// Found a bad character, so insert a byte at the end of ScriptVec to increase chunk length, then update chunk length field again. 
 			// Recheck for bad characters, repeat byte insertion if required until no bad character is generated by the chunk length update.
-			ScriptVec.insert(ScriptVec.begin() + (HIST_CHUNK_LENGTH + 10), '.'); 
+			ScriptVec.insert(ScriptVec.begin() + (HIST_CHUNK_LENGTH + 10), '.');
 
 			redoChunkLength = true;
 		}
 	} while (redoChunkLength);
 }
 
-void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec, vector<unsigned char>& ScriptVec) {
+void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned char>& ZipVec, std::vector<unsigned char>& ScriptVec) {
 
-	const string 
+	const std::string
 		IDAT_ID = "IDAT",
 		IDAT_ZIP_ID = "IDATPK";
 
@@ -594,7 +588,7 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 	// "ImageVec" vector's index insert location for vector "ScriptVec", just before first IDAT chunk and after PLTE chunk. 
 	// This location for the hIST chunk (extraction script) is required for Imgur support. 
 	// For Imgur to work correctly, the PLTE chunk must be located before the hIST chunk. 
-	const ptrdiff_t 
+	const ptrdiff_t
 		FIRST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4,
 		HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
 
@@ -610,7 +604,7 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 	// Search for index location of last IDAT chunk (ZIP file) within vector "ImageVec".
 	// Get last IDAT chunk length for update CRC. (Chunk name, 4 bytes + data field length).
 	// The last 16 bytes that we exclude from the IDAT CRC calculation consists of the 4 byte IDAT CRC field & the remaining 12 bytes of the PNG footer.
-	const ptrdiff_t 
+	const ptrdiff_t
 		LAST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ZIP_ID.begin(), IDAT_ZIP_ID.end()) - ImageVec.begin(),
 		LAST_IDAT_LENGTH = ImageVec.size() - (LAST_IDAT_START_INDEX + 16);
 
@@ -627,9 +621,9 @@ void combineVectors(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 	insertChunkLength(ImageVec, lastIdatCrcInsertIndex, LAST_IDAT_CRC, 32, true);
 }
 
-void fixZipOffset(vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_INDEX) {
+void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_INDEX) {
 
-	const string
+	const std::string
 		START_CENTRAL_ID = "PK\x01\x02",
 		END_CENTRAL_ID = "PK\x05\x06",
 		ZIP_ID = "PK\x03\x04";
@@ -666,27 +660,27 @@ void fixZipOffset(vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_IN
 	insertChunkLength(ImageVec, commentLengthInsertIndex, commentLength, 16, false);
 }
 
-void writeFile(vector<unsigned char>& ImageVec, const string& ZIP_FILE) {
+void writeFile(std::vector<unsigned char>& ImageVec, const std::string& ZIP_FILE) {
 
 	const size_t SLASH_POS = ZIP_FILE.find_last_of("\\/") + 1;
 
 	// Create new filename for output file, e.g. "my_music_file.zip" = "pdv_my_music_file.zip.png"
-	const string COMPLETE_PDV_FILE = ZIP_FILE.substr(0, SLASH_POS) + "pdv" + "_" + ZIP_FILE.substr(SLASH_POS, ZIP_FILE.length()) + ".png";
+	const std::string COMPLETE_PDV_FILE = ZIP_FILE.substr(0, SLASH_POS) + "pdv" + "_" + ZIP_FILE.substr(SLASH_POS, ZIP_FILE.length()) + ".png";
 
-	ofstream writeFinal(COMPLETE_PDV_FILE, ios::binary);
+	std::ofstream writeFinal(COMPLETE_PDV_FILE, std::ios::binary);
 
 	if (!writeFinal) {
-		cerr << "\nWrite Error: Unable to write to file.\n\n";
+		std::cerr << "\nWrite Error: Unable to write to file.\n\n";
 		terminate();
 	}
 
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
 	writeFinal.close();
 
-	cout << "\nCreated output file " << "'" << COMPLETE_PDV_FILE << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
+	std::cout << "\nCreated output file " << "'" << COMPLETE_PDV_FILE << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
 }
 
-void insertChunkLength(vector<unsigned char>& vec, ptrdiff_t lengthInsertIndex, const size_t& CHUNK_LENGTH, int bits, bool isBig) {
+void insertChunkLength(std::vector<unsigned char>& vec, ptrdiff_t lengthInsertIndex, const size_t& CHUNK_LENGTH, int bits, bool isBig) {
 
 	if (isBig)
 		while (bits) vec.at(lengthInsertIndex++) = (CHUNK_LENGTH >> (bits -= 8)) & 0xff;
@@ -696,8 +690,8 @@ void insertChunkLength(vector<unsigned char>& vec, ptrdiff_t lengthInsertIndex, 
 
 void displayInfo() {
 
-	cout << R"(
-PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP) v1.1. Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
+	std::cout << R"(
+PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.2). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 
 PDVZIP enables you to embed a ZIP archive containing a small media file within a tweetable PNG image.
 Twitter will retain the arbitrary data embedded inside the image. Twitter's PNG size limit is 5MB per image.
