@@ -539,7 +539,7 @@ void completeScript(vector<unsigned char>& ZipVec) {
 	sequenceLimit = appIndex == BASH_XDG_OPEN ? extAppElement - 1 : extAppElement;
 
 	while (insertIndex < sequenceLimit) {
-		ScriptVec.insert(ScriptVec.begin() + InsertSequence[insertIndex], ExtApp[InsertSequence[extAppElement++]].begin(), ExtApp[InsertSequence[extAppElement]].end());
+		ScriptVec.insert(ScriptVec.begin() + InsertSequence[insertIndex], ExtApp[InsertSequence[extAppElement]].begin(), ExtApp[InsertSequence[extAppElement]].end());
 		insertIndex++, extAppElement++;
 	}
 	
