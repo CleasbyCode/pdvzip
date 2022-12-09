@@ -206,25 +206,24 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 	int twoCount = 0;
 	for (ptrdiff_t i = PLTE_CHUNK_START_INDEX; i < (PLTE_CHUNK_START_INDEX + (PLTE_CHUNK_LENGTH + 4)); i++) {
 		ImageVec[i] = (ImageVec[i] == BAD_CHAR[0]) ? GOOD_CHAR[1]
-			: (ImageVec[i] == BAD_CHAR[1]) ? GOOD_CHAR[1]
-			: (ImageVec[i] == BAD_CHAR[2]) ? GOOD_CHAR[1]
-			: (ImageVec[i] == BAD_CHAR[3]) ? GOOD_CHAR[4]
-			: (ImageVec[i] == BAD_CHAR[4]) ? GOOD_CHAR[0]
-			: (ImageVec[i] == BAD_CHAR[5]) ? GOOD_CHAR[5]
-			: ((ImageVec[i] == BAD_CHAR[6]) ? GOOD_CHAR[6] : ImageVec[i]);
+				: (ImageVec[i] == BAD_CHAR[1]) ? GOOD_CHAR[1]
+				: (ImageVec[i] == BAD_CHAR[2]) ? GOOD_CHAR[1]
+				: (ImageVec[i] == BAD_CHAR[3]) ? GOOD_CHAR[4]
+				: (ImageVec[i] == BAD_CHAR[4]) ? GOOD_CHAR[0]
+				: (ImageVec[i] == BAD_CHAR[5]) ? GOOD_CHAR[5]
+				: ((ImageVec[i] == BAD_CHAR[6]) ? GOOD_CHAR[6] : ImageVec[i]);
 
 		if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
-			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '}')
-			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '{')
-			|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == ')')
-			|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '(')
-			|| (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '&')
-			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '\x0')
-			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '#')
-			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '|')
-			|| (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
-			|| (ImageVec[i] == '<' && ImageVec[i + 1] == ')')) {
-			
+		    || (ImageVec[i] == '&' && ImageVec[i + 1] == '}')
+		    || (ImageVec[i] == '&' && ImageVec[i + 1] == '{')
+		    || (ImageVec[i] == '\x0a' && ImageVec[i + 1] == ')')
+		    || (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '(')
+		    || (ImageVec[i] == '\x0a' && ImageVec[i + 1] == '&')
+		    || (ImageVec[i] == '&' && ImageVec[i + 1] == '\x0')
+		    || (ImageVec[i] == '&' && ImageVec[i + 1] == '#')
+		    || (ImageVec[i] == '&' && ImageVec[i + 1] == '|')
+		    || (ImageVec[i] == '<' && ImageVec[i + 1] == '&')
+		    || (ImageVec[i] == '<' && ImageVec[i + 1] == ')')) {
 			if (ImageVec[i] == '\x0a') {
 				ImageVec[i + 1] = GOOD_CHAR[0];
 			}
@@ -246,8 +245,7 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 		int j = 1, k = 2;
 		if (ImageVec[i] == '<') {
 			while (j < 12) {
-				if (ImageVec[i + j] > 47 && ImageVec[i + j] < 58 && ImageVec[i + k] == '<')
-				{
+				if (ImageVec[i + j] > 47 && ImageVec[i + j] < 58 && ImageVec[i + k] == '<') {
 					ImageVec[i] = GOOD_CHAR[2];
 					j = 12;
 				}
@@ -265,7 +263,7 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 		ptrdiff_t
 			plteCrcInsertIndex = PLTE_CHUNK_START_INDEX + (PLTE_CHUNK_LENGTH + 4),
 			plteModCrcInsertIndex = plteCrcInsertIndex - 1;
-		insertChunkLength(ImageVec, plteCrcInsertIndex, PLTE_CHUNK_CRC, 32, true);
+			insertChunkLength(ImageVec, plteCrcInsertIndex, PLTE_CHUNK_CRC, 32, true);
 		
 		for (int i = 0; i < 5; i++) {
 			for (int j = 0; j < 7; j++) {
@@ -284,8 +282,8 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 void completeScript(std::vector<unsigned char>& ZipVec) {
 	
 	std::vector<std::string> ExtApp{ "aac","mp3","mp4","avi","asf","flv","ebm","mkv","peg","wav","wmv","wma","mov","3gp","ogg","pdf",".py","ps1","exe",
-			".sh","vlc --play-and-exit --no-video-title-show ","evince ","python3 ","pwsh ","./","xdg-open ",
-			"powershell;Invoke-Item ", " &> /dev/null","start /b \"\"","pause&","powershell","chmod +x ",";" };
+					".sh","vlc --play-and-exit --no-video-title-show ","evince ","python3 ","pwsh ","./","xdg-open ",
+					"powershell;Invoke-Item ", " &> /dev/null","start /b \"\"","pause&","powershell","chmod +x ",";" };
 	const int
 		INZIP_NAME_LENGTH_INDEX = 34,				
 		INZIP_NAME_INDEX = 38,					
@@ -352,7 +350,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 			inzipName.insert(0, ".\\");	
 			ExtApp.push_back(inzipName);
 			InsertSequence[31] = LINUX_PWSH,
-				InsertSequence[28] = WIN_POWERSHELL;
+			InsertSequence[28] = WIN_POWERSHELL;
 			InsertSequence[27] = MOD_INZIP_FILENAME; 
 		}
 
@@ -394,12 +392,12 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 		insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
 
 		if (ScriptVec[3] == '('
-			|| ScriptVec[3] == ')'
-			|| ScriptVec[3] == '\''
-			|| ScriptVec[3] == '`'
-			|| ScriptVec[3] == '"'
-			|| ScriptVec[3] == '>'
-			|| ScriptVec[3] == ';') {
+		    || ScriptVec[3] == ')'
+		    || ScriptVec[3] == '\''
+		    || ScriptVec[3] == '`'
+		    || ScriptVec[3] == '"'
+		    || ScriptVec[3] == '>'
+		    || ScriptVec[3] == ';') {
 			ScriptVec.insert(ScriptVec.begin() + (HIST_CHUNK_LENGTH + 10), '.');
 			redoChunkLength = true;
 		}
