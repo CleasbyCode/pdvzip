@@ -126,7 +126,7 @@ void openFiles(char* argv[]) {
 
 		std::string errMsg = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
 		std::cerr << errMsg;
-		terminate();
+		std::terminate();
 	}
 
 	// Open file success, now check file size requirements.
@@ -167,7 +167,7 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 			: (ZIP_SIZE > MAX_PNG_SIZE_BYTES ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR_MSG);
 
 		std::cerr << ERROR_MESSAGE;
-		terminate();
+		std::terminate();
 	}
 
 	// File size check success, now store files into vectors.
@@ -260,7 +260,7 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 			: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
 
 		std::cerr << ERROR_MESSAGE;
-		terminate();
+		std::terminate();
 	}
 }
 
