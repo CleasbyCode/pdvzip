@@ -736,6 +736,6 @@ Make sure ZIP file is a standard ZIP archive, compatible with Linux unzip & Wind
 Use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.
 A file without an extension will be treated as a Linux executable.
 Paint.net application is recommended for easily creating compatible PNG image files.
-
+ 
 )";
 }
