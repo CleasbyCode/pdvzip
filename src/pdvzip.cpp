@@ -551,7 +551,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 		// Make sure script does not exceed maximum size
 		if (HIST_CHUNK_LENGTH > MAX_SCRIPT_SIZE_BYTES) {
 			std::cerr << "\nScript Error: Script exceeds maximum size of 750 bytes.\n\n";
-			terminate();
+			std::terminate();
 		}
 
 		// "ScriptVec" vector's index insert location for chunk length field.
