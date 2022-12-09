@@ -1,5 +1,5 @@
 # pdvzip
-PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP).
+PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.2).
 
 Embed a ZIP file of up to ≈5MB within a tweetable and '*executable*' PNG polyglot image.
 
