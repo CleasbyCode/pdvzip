@@ -42,7 +42,7 @@ void makeCrcTable()
 unsigned long updateCrc(const unsigned long& crc, unsigned char* buf, const size_t& len)
 {
 	unsigned long c = crc;
-	int n;
+	size_t n;
 
 	if (!crcTableComputed)
 		makeCrcTable();
@@ -80,7 +80,7 @@ void eraseChunks(vector<unsigned char>&);
 void fixPaletteChunk(vector<unsigned char>&);
 
 // Select and insert correct string elements from "ExtApp" vector into vector "ScriptVec", in order to create a working extraction script.
-void completeScript(vector<unsigned char>&, vector<unsigned char>&);
+void completeScript(vector<unsigned char>&);
 
 // Combine three vectors into one.
 void combineVectors(vector<unsigned char>&, vector<unsigned char>&, vector<unsigned char>&);
@@ -213,7 +213,7 @@ void readFilesIntoVectors(const string& IMG_FILE, const string& ZIP_FILE, const 
 	insertChunkLength(ZipVec, idatZipChunkLengthIndex, ZIP_SIZE, 24, true);
 
 	// Finish build of extraction script.
-	completeScript(ImageVec, ZipVec);
+	completeScript(ZipVec);
 
 	// Insert contents of vectors ScriptVec and ZipVec into vector ImageVec.
 	combineVectors(ImageVec, ZipVec, ScriptVec);
@@ -399,7 +399,7 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 	} while (redoCrc);
 }
 
-void completeScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipVec) {
+void completeScript(vector<unsigned char>& ZipVec) {
 
 	/* Vector "ScriptVec" (See seperate file "ScriptVec.hpp").
 
@@ -434,9 +434,6 @@ void completeScript(vector<unsigned char>& ImageVec, vector<unsigned char>& ZipV
 		BASH_XDG_OPEN = 25, 
 		FOLDER_INVOKE_ITEM = 26,
 		WIN_POWERSHELL = 30, 
-		INZIP_FILENAME = 33,
-		LINUX_ARGS = 34, 
-		WINDOWS_ARGS = 35,
 		MOD_INZIP_FILENAME = 36;
 
 	string
