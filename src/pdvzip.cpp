@@ -439,7 +439,7 @@ void completeScript(vector<unsigned char>& ZipVec) {
 	string
 		inzipName(ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH),	// Get in-zip media filename from vector "ZipVec".
 		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),	// Get file extension from in-zip media filename.
-		argsLinux, argsWindows;																					// Optional user arguments string variables.
+		argsLinux, argsWindows;						// Optional user arguments string variables.
 
 	size_t findExtension = inzipName.find_last_of('.');
 
