@@ -291,7 +291,7 @@ void fixPaletteChunk(vector<unsigned char>& ImageVec) {
 
 	// Linux issue: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will break the script.
 	// The main 'for loop' contains a number of fixes for this issue.
-	// For Imgur support, the PLTE chunk has to be before the hIST chunk (extraction shell script). The following would be unnecessary if I did not support Imgur.
+	// For Imgur support, the PLTE chunk has to be before the hIST chunk (extraction shell script). The function would be unnecessary if I did not support Imgur.
 
 	const string PLTE_ID = "PLTE";
 
@@ -461,15 +461,14 @@ void completeScript(vector<unsigned char>& ZipVec) {
 	// Array InsertSequence contains sequences of ScriptVec index insert location values (high numbers) and the corresponding ExtApp element index values (low numbers).
 	// For example, in the first sequence, insert location index 236 (insertIndex) corresponds with (extAppElement) ExtApp element 33 (inzip media filename).
 
-	int 
-		InsertSequence[52] = { 
+	int InsertSequence[52] = { 
 				236,234,116,115,114, 33,28,27,33,20, 	// First sequence for case: VIDEO_AUDIO. 
 				236,234,115,114, 33,28,33,21,		// Second sequence for cases: PDF, FOLDER_INVOKE_ITEM, DEFAULT.
 				259,237,236,234,116,115,114, 29,35,33,22,34,33,22, // Third sequence for cases: PYTHON, LINUX_PWSH & WIN_POWERSHELL.
 				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31 }, // Fourth sequence for cases: EXECUTABLE & BASH_XDG_OPEN.
 
 		appIndex = 0, 
-		insertIndex = -1, 
+		insertIndex = 0, 
 		extAppElement = 0, 
 		sequenceLimit = 0;
 
@@ -504,12 +503,12 @@ void completeScript(vector<unsigned char>& ZipVec) {
 					// [0] = 236, ScriptVec's index insert location, [5] = ExtApp index 33, vector element inzip media filename.
 		break;
 	case PDF:					// evince for Linux and start /b (default viewer) for Windows.
-		insertIndex = 9, extAppElement = 14;	// Start InsertSequence from index positions [9] (insertIndex) and [14] (extAppElement).
+		insertIndex = 10, extAppElement = 14;	// Start InsertSequence from index positions [10] (insertIndex) and [14] (extAppElement).
 		break;
 	case PYTHON:			// python3 for Linux & Windows.
 	case LINUX_PWSH:		// pwsh for Linux, powershell for Windows.
-		insertIndex = 17, extAppElement = 25;	// Start InsertSequence from index positions [17] (insertIndex) and [25] (extAppElement).
-							// [17] = 259 ScriptVec index insert location, [25] = ExtApp index 29, vector element "pause&".
+		insertIndex = 18, extAppElement = 25;	// Start InsertSequence from index positions [18] (insertIndex) and [25] (extAppElement).
+							// [18] = 259 ScriptVec index insert location, [25] = ExtApp index 29, vector element "pause&".
 
 		if (appIndex == LINUX_PWSH) {		// Case POWERSHELL is almost identical to case PYTHON, switch Extapp index elements to PowerShell (ExtApp 23 & 30).
 			inzipName.insert(0, ".\\");	//  ".\"  required for Windows PowerShell command:  powershell ".\filename.ps1", powershell.
@@ -518,28 +517,31 @@ void completeScript(vector<unsigned char>& ZipVec) {
 			InsertSequence[28] = WIN_POWERSHELL;
 			InsertSequence[27] = MOD_INZIP_FILENAME; // Modified inzipName (".\filename) for Windows powershell command. 
 		}
+			
 		break;
 	case EXECUTABLE:
-		insertIndex = 31, extAppElement = 42;
+		insertIndex = 32, extAppElement = 42;
 		break;
 	case BASH_XDG_OPEN:
-		insertIndex = 32, extAppElement = 43;
+		insertIndex = 33, extAppElement = 43;
 		break;
 	case FOLDER_INVOKE_ITEM:
 		// If inzipName points to a folder and not a file, just open the folder displaying unzipped file(s), 
 		// this is done with "xdg-open" <folder1/folder2/> (Linux) and "powershell;Invoke-Item" <folder1/folder2> (Windows).
-		insertIndex = 9, extAppElement = 14;
+		insertIndex = 10, extAppElement = 14;
 		InsertSequence[15] = FOLDER_INVOKE_ITEM, InsertSequence[17] = BASH_XDG_OPEN; // Case is almost identical to case PDF, just alter two element numbers.
 		break;
 	default:	// All other file types drop here. Linux xdg-open and Windows start /b. (Let operating system choose default program for file type).
-		insertIndex = 9, extAppElement = 14;
+		insertIndex = 10, extAppElement = 14;
 		InsertSequence[17] = BASH_XDG_OPEN;  // Case almost identical to case PDF, just alter one element number.
 	}
 
 	sequenceLimit = appIndex == BASH_XDG_OPEN ? extAppElement - 1 : extAppElement;
 
-	while (++insertIndex < sequenceLimit)
+	while (insertIndex < sequenceLimit) {
 		ScriptVec.insert(ScriptVec.begin() + InsertSequence[insertIndex], ExtApp[InsertSequence[extAppElement++]].begin(), ExtApp[InsertSequence[extAppElement]].end());
+		insertIndex++, extAppElement++;
+	}
 	
 	bool redoChunkLength;
 
@@ -573,7 +575,7 @@ void completeScript(vector<unsigned char>& ZipVec) {
 			|| ScriptVec[3] == '>' 
 			|| ScriptVec[3] == ';') {
 				
-			// We found a bad character, so insert a byte at the end of ScriptVec to increase chunk length, then update chunk length field again. 
+			// Found a bad character, so insert a byte at the end of ScriptVec to increase chunk length, then update chunk length field again. 
 			// Recheck for bad characters, repeat byte insertion if required until no bad character is generated by the chunk length update.
 			ScriptVec.insert(ScriptVec.begin() + (HIST_CHUNK_LENGTH + 10), '.'); 
 
