@@ -315,14 +315,13 @@ void completeScript(vector<unsigned char>& ZipVec) {
 		argsLinux, argsWindows;	
 	size_t findExtension = inzipName.find_last_of('.');
 	ExtApp.push_back(inzipName);
-	int 
-		InsertSequence[52] = { 
+	int InsertSequence[52] = { 
 				236,234,116,115,114, 33,28,27,33,20, 	
 				236,234,115,114, 33,28,33,21,		
 				259,237,236,234,116,115,114, 29,35,33,22,34,33,22, 
 				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31 }, 
 		appIndex = 0, 
-		insertIndex = -1, 
+		insertIndex = 0, 
 		extAppElement = 0, 
 		sequenceLimit = 0;
 	
@@ -351,11 +350,11 @@ void completeScript(vector<unsigned char>& ZipVec) {
 		extAppElement = 5;	
 		break;
 	case PDF:					
-		insertIndex = 9, extAppElement = 14;	
+		insertIndex = 10, extAppElement = 14;	
 		break;
 	case PYTHON:			
 	case LINUX_PWSH:		
-		insertIndex = 17, extAppElement = 25;	
+		insertIndex = 18, extAppElement = 25;	
 		if (appIndex == LINUX_PWSH) {		
 			inzipName.insert(0, ".\\");	
 			ExtApp.push_back(inzipName);
@@ -365,26 +364,25 @@ void completeScript(vector<unsigned char>& ZipVec) {
 		}
 		break;
 	case EXECUTABLE:
-		insertIndex = 31, extAppElement = 42;
+		insertIndex = 32, extAppElement = 42;
 		break;
 	case BASH_XDG_OPEN:
-		insertIndex = 32, extAppElement = 43;
+		insertIndex = 33, extAppElement = 43;
 		break;
 	case FOLDER_INVOKE_ITEM:
-		insertIndex = 9, extAppElement = 14;
+		insertIndex = 10, extAppElement = 14;
 		InsertSequence[15] = FOLDER_INVOKE_ITEM, InsertSequence[17] = BASH_XDG_OPEN; 
 		break;
 	default:	
-		insertIndex = 9, extAppElement = 14;
+		insertIndex = 10, extAppElement = 14;
 		InsertSequence[17] = BASH_XDG_OPEN;  
 	}
 
 	sequenceLimit = appIndex == BASH_XDG_OPEN ? extAppElement - 1 : extAppElement;
 
-	while (++insertIndex < sequenceLimit) {
-	
+	while (insertIndex < sequenceLimit) {
 		ScriptVec.insert(ScriptVec.begin() + InsertSequence[insertIndex], ExtApp[InsertSequence[extAppElement]].begin(), ExtApp[InsertSequence[extAppElement]].end());
-		extAppElement++;
+		insertIndex++, extAppElement++;
 	}
 	
 	bool redoChunkLength;
