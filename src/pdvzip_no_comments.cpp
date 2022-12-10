@@ -84,7 +84,7 @@ void openFiles(char* argv[]) {
 
 		std::string errMsg = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
 		std::cerr << errMsg;
-		std::terminate();
+		std::exit(EXIT_FAILURE);
 	}
 	
 	checkFileSize(readImg, readZip, IMG_FILE, ZIP_FILE);
@@ -115,7 +115,7 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 		const std::string ERROR_MESSAGE = (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES > MAX_PNG_SIZE_BYTES) ? "\nPNG " + SIZE_ERR_MSG
 			: (ZIP_SIZE > MAX_PNG_SIZE_BYTES ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR_MSG);
 		std::cerr << ERROR_MESSAGE;
-		std::terminate();
+		std::exit(EXIT_FAILURE);
 	}
 	
 	readFilesIntoVectors(readImg, readZip, IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
@@ -172,7 +172,7 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 			: (MAX_PNG_SIZE_BYTES > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) ? IMAGE_ERR_MSG1
 			: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
 		std::cerr << ERROR_MESSAGE;
-		std::terminate();
+		std::exit(EXIT_FAILURE);
 	}
 }
 void eraseChunks(std::vector<unsigned char>& ImageVec) {
@@ -384,7 +384,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 		
 		if (HIST_CHUNK_LENGTH > MAX_SCRIPT_SIZE_BYTES) {
 			std::cerr << "\nScript Error: Script exceeds maximum size of 750 bytes.\n\n";
-			std::terminate();
+			std::exit(EXIT_FAILURE);
 		}
 		
 		int histChunkLengthInsertIndex = 2;
@@ -456,7 +456,7 @@ void writeFile(std::vector<unsigned char>& ImageVec, const std::string& ZIP_FILE
 
 	if (!writeFinal) {
 		std::cerr << "\nWrite Error: Unable to write to file.\n\n";
-		std::terminate();
+		std::exit(EXIT_FAILURE);
 	}
 
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
