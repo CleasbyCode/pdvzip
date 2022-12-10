@@ -126,7 +126,7 @@ void openFiles(char* argv[]) {
 
 		std::string errMsg = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
 		std::cerr << errMsg;
-		std::terminate();
+		std::exit(EXIT_FAILURE);
 	}
 
 	// Open file success, now check file size requirements.
@@ -167,7 +167,7 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 			: (ZIP_SIZE > MAX_PNG_SIZE_BYTES ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR_MSG);
 
 		std::cerr << ERROR_MESSAGE;
-		std::terminate();
+		std::exit(EXIT_FAILURE);
 	}
 
 	// File size check success, now store files into vectors.
@@ -260,7 +260,7 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 			: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
 
 		std::cerr << ERROR_MESSAGE;
-		std::terminate();
+		std::exit(EXIT_FAILURE);
 	}
 }
 
@@ -551,7 +551,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 		// Make sure script does not exceed maximum size
 		if (HIST_CHUNK_LENGTH > MAX_SCRIPT_SIZE_BYTES) {
 			std::cerr << "\nScript Error: Script exceeds maximum size of 750 bytes.\n\n";
-			std::terminate();
+			std::exit(EXIT_FAILURE);
 		}
 
 		// "ScriptVec" vector's index insert location for chunk length field.
@@ -670,7 +670,7 @@ void writeFile(std::vector<unsigned char>& ImageVec, const std::string& ZIP_FILE
 
 	if (!writeFinal) {
 		std::cerr << "\nWrite Error: Unable to write to file.\n\n";
-		std::terminate();
+		std::exit(EXIT_FAILURE);
 	}
 
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
