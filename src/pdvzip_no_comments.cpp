@@ -46,7 +46,7 @@ unsigned long crc(unsigned char* buf, const size_t& len)
 
 void openFiles(char* []);
 void checkFileSize(std::ifstream&, std::ifstream&, const std::string&, const std::string&);
-void readFilesIntoVectors(const std::string&, const std::string&, const ptrdiff_t&, const ptrdiff_t&);
+void readFilesIntoVectors(std::ifstream&, std::ifstream&, const std::string&, const std::string&, const ptrdiff_t&, const ptrdiff_t&);
 void checkFileRequirements(std::vector<unsigned char>&, std::vector<unsigned char>&);
 void eraseChunks(std::vector<unsigned char>&);
 void fixPaletteChunk(std::vector<unsigned char>&);
@@ -118,15 +118,14 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 		std::terminate();
 	}
 	
-	readFilesIntoVectors(IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
+	readFilesIntoVectors(readImg, readZip, IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
 }
-void readFilesIntoVectors(const std::string& IMG_FILE, const std::string& ZIP_FILE, const ptrdiff_t& IMG_SIZE, const ptrdiff_t& ZIP_SIZE) {
+void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const std::string& IMG_FILE, const std::string& ZIP_FILE, const ptrdiff_t& IMG_SIZE, const ptrdiff_t& ZIP_SIZE) {
 	
 	std::vector<unsigned char>ZipVec{ 0,0,0,0,73,68,65,84,0,0,0,0 };
 	std::vector<unsigned char>ImageVec(0 / sizeof(unsigned char));
-	std::ifstream
-		readImg(IMG_FILE, std::ios::binary),
-		readZip(ZIP_FILE, std::ios::binary);
+	readImg.seekg(0, readImg.beg),
+	readZip.seekg(0, readZip.beg);
 	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
 	readImg.read((char*)&ImageVec[0], IMG_SIZE);
 	ZipVec.resize(ZIP_SIZE + ZipVec.size() / sizeof(unsigned char));
