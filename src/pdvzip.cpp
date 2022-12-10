@@ -66,7 +66,7 @@ void openFiles(char* []);
 void checkFileSize(std::ifstream&, std::ifstream&, const std::string&, const std::string&);
 
 // Store PNG image & ZIP file into separate vectors, "ImageVec" and "ZipVec".
-void readFilesIntoVectors(const std::string&, const std::string&, const ptrdiff_t&, const ptrdiff_t&);
+void readFilesIntoVectors(std::ifstream&, std::ifstream&, const std::string&, const std::string&, const ptrdiff_t&, const ptrdiff_t&);
 
 // Check files for required specifications. Display error message and terminate program if requirement checks fail.
 void checkFileRequirements(std::vector<unsigned char>&, std::vector<unsigned char>&);
@@ -139,9 +139,9 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 		MAX_PNG_SIZE_BYTES = 5242880,		// Twitter's 5MB PNG file size limit.
 		MAX_SCRIPT_SIZE_BYTES = 750;		// Pdvzip's extraction script size limit.
 
-	// Open files success. Now get size of files.
+	// Get size of files.
 	readImg.seekg(0, readImg.end),
-		readZip.seekg(0, readZip.end);
+	readZip.seekg(0, readZip.end);
 
 	const ptrdiff_t
 		IMG_SIZE = readImg.tellg(),
@@ -171,10 +171,10 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 	}
 
 	// File size check success, now store files into vectors.
-	readFilesIntoVectors(IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
+	readFilesIntoVectors(readImg, readZip, IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
 }
 
-void readFilesIntoVectors(const std::string& IMG_FILE, const std::string& ZIP_FILE, const ptrdiff_t& IMG_SIZE, const ptrdiff_t& ZIP_SIZE) {
+void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const std::string& IMG_FILE, const std::string& ZIP_FILE, const ptrdiff_t& IMG_SIZE, const ptrdiff_t& ZIP_SIZE) {
 
 	// Vector "ZipVec" is where we will store the user ZIP file. "ZipVec" will later be inserted into the vector "ImageVec" as the last IDAT chunk. 
 	// We will need to update both the CRC, last 4 bytes, currently zero, and the chunk length field, first 4 bytes, also zero, within this vector. 
@@ -183,9 +183,9 @@ void readFilesIntoVectors(const std::string& IMG_FILE, const std::string& ZIP_FI
 	// Vector "ImageVec" is where we will store the user PNG image, later combining it with the vectors "ScriptVec" and "ZipVec", before writing it out to file.
 	std::vector<unsigned char>ImageVec(0 / sizeof(unsigned char));
 
-	std::ifstream
-		readImg(IMG_FILE, std::ios::binary),
-		readZip(ZIP_FILE, std::ios::binary);
+	// Reset position of files. 
+	readImg.seekg(0, readImg.beg),
+	readZip.seekg(0, readZip.beg);
 
 	// Read PNG image file into vector "ImageVec", begining at index location 0.
 	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
