@@ -682,10 +682,10 @@ void writeFile(std::vector<unsigned char>& ImageVec, const std::string& ZIP_FILE
 void insertChunkLength(std::vector<unsigned char>& vec, ptrdiff_t lengthInsertIndex, const size_t& CHUNK_LENGTH, int bits, bool isBig) {
 
 	if (isBig) {
-		while (bits) vec.at(lengthInsertIndex++) = (CHUNK_LENGTH >> (bits -= 8)) & 0xff;
+		while (bits) vec[lengthInsertIndex++] = (CHUNK_LENGTH >> (bits -= 8)) & 0xff;
 	}
 	else {
-		while (bits) vec.at(lengthInsertIndex--) = (CHUNK_LENGTH >> (bits -= 8)) & 0xff;
+		while (bits) vec[lengthInsertIndex--] = (CHUNK_LENGTH >> (bits -= 8)) & 0xff;
 	}
 }
 
