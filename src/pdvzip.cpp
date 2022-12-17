@@ -495,42 +495,43 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 	}
 
 	switch (appIndex) {
-	case VIDEO_AUDIO:		// vlc for Linux and start /b (default player) for Windows.
-		extAppElement = 5;	// Start InsertSequence from index positions [0] (insertIndex) and [5] (extAappElement). 
-					// [0] = 236, ScriptVec's index insert location, [5] = ExtApp index 33, vector element inzip media filename.
-		break;
-	case PDF:					// evince for Linux and start /b (default viewer) for Windows.
-		insertIndex = 10, extAppElement = 14;	// Start InsertSequence from index positions [10] (insertIndex) and [14] (extAppElement).
-		break;
-	case PYTHON:			// python3 for Linux & Windows.
-	case LINUX_PWSH:		// pwsh for Linux, powershell for Windows.
-		insertIndex = 18, extAppElement = 25;	// Start InsertSequence from index positions [18] (insertIndex) and [25] (extAppElement).
-							// [18] = 259 ScriptVec index insert location, [25] = ExtApp index 29, vector element "pause&".
+		case VIDEO_AUDIO:		// vlc for Linux and start /b (default player) for Windows.
+			extAppElement = 5;	// Start InsertSequence from index positions [0] (insertIndex) and [5] (extAappElement). 
+						// [0] = 236, ScriptVec's index insert location, [5] = ExtApp index 33, vector element inzip media filename.
+			break;
+		case PDF:					// evince for Linux and start /b (default viewer) for Windows.
+			insertIndex = 10, extAppElement = 14;	// Start InsertSequence from index positions [10] (insertIndex) and [14] (extAppElement).
+			break;
+		case PYTHON:			// python3 for Linux & Windows.
+		case LINUX_PWSH:		// pwsh for Linux, powershell for Windows.
+			insertIndex = 18, extAppElement = 25;	// Start InsertSequence from index positions [18] (insertIndex) and [25] (extAppElement).
+								// [18] = 259 ScriptVec index insert location, [25] = ExtApp index 29, vector element "pause&".
+			// Case POWERSHELL is almost identical to case PYTHON, switch Extapp index elements to PowerShell (ExtApp 23 & 30).
+			if (appIndex == LINUX_PWSH) {	
+				inzipName.insert(0, ".\\");	//  ".\"  required for Windows PowerShell command:  powershell ".\filename.ps1", powershell.
+				ExtApp.push_back(inzipName);
+				InsertSequence[31] = LINUX_PWSH,
+				InsertSequence[28] = WIN_POWERSHELL;
+				InsertSequence[27] = MOD_INZIP_FILENAME; // Modified inzipName (".\filename) for Windows powershell command. 
+			}
 
-		if (appIndex == LINUX_PWSH) {		// Case POWERSHELL is almost identical to case PYTHON, switch Extapp index elements to PowerShell (ExtApp 23 & 30).
-			inzipName.insert(0, ".\\");	//  ".\"  required for Windows PowerShell command:  powershell ".\filename.ps1", powershell.
-			ExtApp.push_back(inzipName);
-			InsertSequence[31] = LINUX_PWSH,
-			InsertSequence[28] = WIN_POWERSHELL;
-			InsertSequence[27] = MOD_INZIP_FILENAME; // Modified inzipName (".\filename) for Windows powershell command. 
-		}
-
-		break;
-	case EXECUTABLE:
-		insertIndex = 32, extAppElement = 42;
-		break;
-	case BASH_XDG_OPEN:
-		insertIndex = 33, extAppElement = 43;
-		break;
-	case FOLDER_INVOKE_ITEM:
-		// If inzipName points to a folder and not a file, just open the folder displaying unzipped file(s), 
-		// this is done with "xdg-open" <folder1/folder2/> (Linux) and "powershell;Invoke-Item" <folder1/folder2> (Windows).
-		insertIndex = 10, extAppElement = 14;
-		InsertSequence[15] = FOLDER_INVOKE_ITEM, InsertSequence[17] = BASH_XDG_OPEN; // Case is almost identical to case PDF, just alter two element numbers.
-		break;
-	default:	// All other file types drop here. Linux xdg-open and Windows start /b. (Let operating system choose default program for file type).
-		insertIndex = 10, extAppElement = 14;
-		InsertSequence[17] = BASH_XDG_OPEN;  // Case almost identical to case PDF, just alter one element number.
+			break;
+		case EXECUTABLE:
+			insertIndex = 32, extAppElement = 42;
+			break;
+		case BASH_XDG_OPEN:
+			insertIndex = 33, extAppElement = 43;
+			break;
+		case FOLDER_INVOKE_ITEM:
+			// If inzipName points to a folder and not a file, just open the folder displaying unzipped file(s), 
+			// this is done with "xdg-open" <folder1/folder2/> (Linux) and "powershell;Invoke-Item" <folder1/folder2> (Windows).
+			insertIndex = 10, extAppElement = 14;
+			// Case FOLDER is almost identical to case PDF, just alter two element numbers.
+			InsertSequence[15] = FOLDER_INVOKE_ITEM, InsertSequence[17] = BASH_XDG_OPEN; 
+			break;
+		default:	// All other file types drop here. Linux xdg-open and Windows start /b. (Let operating system choose default program for file type).
+			insertIndex = 10, extAppElement = 14;
+			InsertSequence[17] = BASH_XDG_OPEN;  // Case almost identical to case PDF, just alter one element number.
 	}
 
 	// Reduce sequence limit value by 1 if appIndex is BASH_XDG_OPEN (25).
