@@ -3,6 +3,7 @@ PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.2).
 
 Embed a ZIP file of up to ≈5MB within a tweetable and '*executable*' PNG polyglot image.
 
+(Demo image below, embedding with MP3 music file).
 ![Snowman Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/snowman.png)
 
 Based on a similar idea from the original Python program ['***tweetable-polyglot-png***'](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by David Buchanan, pdvzip uses different methods for storing and accessing arbitrary data within a PNG image file.
