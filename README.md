@@ -78,11 +78,11 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 **Video Examples (YouTube)**
 
-[Embedding & Tweeting Multiple Files](https://www.youtube.com/watch_popup?v=VTYP3OdEzRM)
+[Embedding, Tweeting & Extracting Multiple Files](https://www.youtube.com/watch_popup?v=VTYP3OdEzRM)
 
-[Time.py Embedding and Running Python Program](https://www.youtube.com/watch_popup?v=1VoQ-iIvGeQ)
+[Embedding & Running Python Program](https://www.youtube.com/watch_popup?v=Ns64VF0dciw)
 
-[Embedding PDF Document](https://www.youtube.com/watch_popup?v=mUkg8jSMpJs)
+[Embedding & Viewing PDF Document](https://www.youtube.com/watch_popup?v=mUkg8jSMpJs)
 
 
 ## PNG Image Requirements for Arbitrary Data Preservation
