@@ -82,7 +82,6 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 [Embedding & Running Python Program](https://www.youtube.com/watch_popup?v=Ns64VF0dciw)
 
-[Embedding & Viewing PDF Document](https://www.youtube.com/watch_popup?v=mUkg8jSMpJs)
 
 
 ## PNG Image Requirements for Arbitrary Data Preservation
