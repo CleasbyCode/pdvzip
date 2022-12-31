@@ -86,6 +86,10 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
+**Note: While this program still works fine with Twitter, it seems things have changed with the way Twitter is dealing with images(?), as a result of that,
+the information currently presented here regarding dimensions/storage capacity, is no longer relevant. I will update this information properly at a later date and I'll also
+add support to the program for the option of using 32-bit & 24-bit PNG images. In the meantime continue to use pdvzip as it is.**
+
 Bit depth 8-bit or lower (4,2,1) Indexed colour (PNG colour type value 3).  
 
 Image's multiplied dimensions value must be between 5,242,880 and 5,500,000.
