@@ -118,8 +118,4 @@ The less detailed your image, the more space available for the ZIP.
   A file without an extension will be treated as a Linux executable.      
 * Paint.net application is recommended for easily creating compatible PNG image files.
 
-**Video Example**
-
-[Paint.net: Configure Correct PNG Image Settings for PDVZIP](https://www.youtube.com/watch_popup?v=nMlUNdiaS88)
-
 ##
