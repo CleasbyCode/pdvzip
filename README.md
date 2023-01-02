@@ -88,7 +88,8 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 **PNG File Size:**
 
-PNG file size (image + embedded content) must not exceed 5MB (5,242,880 bytes) or image will be converted to jpg.
+        PNG file size (image + embedded content) must not exceed 5MB (5,242,880 bytes).
+        Above this size, Twitter will convert image to jpg.
 
 **Dimensions:**
 
