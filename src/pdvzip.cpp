@@ -102,7 +102,7 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 
 	// Get size of files.
 	readImg.seekg(0, readImg.end),
-		readZip.seekg(0, readZip.end);
+	readZip.seekg(0, readZip.end);
 
 	const ptrdiff_t
 		IMG_SIZE = readImg.tellg(),
@@ -146,7 +146,7 @@ void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const 
 
 	// Reset position of files. 
 	readImg.seekg(0, readImg.beg),
-		readZip.seekg(0, readZip.beg);
+	readZip.seekg(0, readZip.beg);
 
 	// Read PNG image file into vector "ImageVec", begining at index location 0.
 	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
@@ -200,9 +200,9 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		PNG_MIN_DIMS = 65,	// 65 x 65 (Approx.) is the minimum supported dimensions size for PNG. Below this, Twitter will convert image to webp.
 		COLOR_TYPE = ImageVec[25],	// Get image colour type value from vector "ImageVec".
 		INZIP_NAME_LENGTH = ZipVec[34], // Get length of in-zip media filename from vector "ZipVec".
-		PNG8 = 3,			// PNG8, Indexed colour.
-		PNG24 = 2,			// PNG24, Truecolor. 
-		PNG32 = 6,			// PNG32, Truecolor with alpha.
+		PNG8 = 3,		// PNG8, Indexed colour.
+		PNG24 = 2,		// PNG24, Truecolor. 
+		PNG32 = 6,		// PNG32, Truecolor with alpha.
 		MIN_NAME_LENGTH = 4;	// Minimum filename length of inzip media file.
 
 	const bool	
@@ -244,7 +244,7 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 	}
 
 	const char
-		BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' };  // If any of these individual characters appear in the IHDR chunk they will break the Linux extraction script. 
+		BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' };  // If any of these individual characters appear in the IHDR chunk they will break the Linux extraction script.
 	
 	// Check a range of characters within the IHDR chunk to make sure we have no BAD_CHAR that will break the Linux extraction script.
 	// Manually modifying the dimensions of the image will usually resolve the issue if a BAD_CHAR is found.
@@ -686,7 +686,7 @@ void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_ID
 	// searching for ZIP file record offsets and updating them to their new location.
 	while (zipFileRecords--) {
 		newZipOffset = search(ImageVec.begin() + newZipOffset + 1, ImageVec.end(), ZIP_ID.begin(), ZIP_ID.end()) - ImageVec.begin(),
-			centralLocalInsertIndex = 45 + search(ImageVec.begin() + centralLocalInsertIndex, ImageVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ImageVec.begin();
+		centralLocalInsertIndex = 45 + search(ImageVec.begin() + centralLocalInsertIndex, ImageVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ImageVec.begin();
 		insertChunkLength(ImageVec, centralLocalInsertIndex, newZipOffset, 32, false);
 	}
 
