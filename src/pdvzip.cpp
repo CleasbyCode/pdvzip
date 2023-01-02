@@ -82,9 +82,9 @@ void openFiles(char* argv[]) {
 	if (!readImg || !readZip) {
 
 		// Open file failure, display relevant error message and terminate program.
-		const std::string 
+		const std::string
 			READ_ERR_MSG = "Read Error: Unable to open/read file: ",
-			ERR_MSG = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n" ;
+			ERR_MSG = !readImg ? "\nPNG " + READ_ERR_MSG + "'" + IMG_FILE + "'\n\n" : "\nZIP " + READ_ERR_MSG + "'" + ZIP_FILE + "'\n\n";
 
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
@@ -102,7 +102,7 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 
 	// Get size of files.
 	readImg.seekg(0, readImg.end),
-	readZip.seekg(0, readZip.end);
+		readZip.seekg(0, readZip.end);
 
 	const ptrdiff_t
 		IMG_SIZE = readImg.tellg(),
@@ -123,7 +123,7 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 			COMBINED_SIZE_ERR_MSG = "\nSize Error: " + std::to_string(COMBINED_SIZE) +
 			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds Twitter's 5MB size limit by "
 			+ std::to_string(EXCEED_SIZE) + " bytes. Available ZIP file size is " + std::to_string(AVAILABLE_SIZE) + " bytes.\n\n",
-			
+
 			ERR_MSG = (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES > MAX_PNG_SIZE_BYTES) ? "\nPNG " + SIZE_ERR_MSG
 			: (ZIP_SIZE > MAX_PNG_SIZE_BYTES ? "\nZIP " + SIZE_ERR_MSG : COMBINED_SIZE_ERR_MSG);
 
@@ -141,13 +141,13 @@ void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const 
 	// We will need to update both the CRC, last 4 bytes, currently zero, and the chunk length field, first 4 bytes, also zero, within this vector. 
 	// Vector "ImageVec" is where we will store the user PNG image, later combining it with the vectors "ScriptVec" and "ZipVec", before writing it out to file.
 	std::vector<unsigned char>
-		ZipVec {0,0,0,0,73,68,65,84,0,0,0,0},
-		ImageVec { 0 / sizeof(unsigned char) };
+		ZipVec{ 0,0,0,0,73,68,65,84,0,0,0,0 },
+		ImageVec{ 0 / sizeof(unsigned char) };
 
 	// Reset position of files. 
 	readImg.seekg(0, readImg.beg),
-	readZip.seekg(0, readZip.beg);
-	
+		readZip.seekg(0, readZip.beg);
+
 	// Read PNG image file into vector "ImageVec", begining at index location 0.
 	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
 	readImg.read((char*)&ImageVec[0], IMG_SIZE);
@@ -162,8 +162,10 @@ void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const 
 	// Find and remove unwanted PNG chunks.
 	eraseChunks(ImageVec);
 
-	// Check PLTE chunk for character issues that break the Linux extraction shell script.
-	fixPaletteChunk(ImageVec);
+	// If colour type indexed colour (3) PNG8, check PLTE chunk for character issues that break the Linux extraction shell script.
+	if (ImageVec[25] == 3) {
+		fixPaletteChunk(ImageVec);
+	}
 
 	// "ZipVec" vector's index insert location for IDAT chunk length field.
 	int idatZipChunkLengthIndex = 1;
@@ -187,41 +189,76 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 	const std::string
 		PNG_ID = "\x89PNG",
 		ZIP_ID = "PK\x03\x04",
-		IMG_HDR { ImageVec.begin(), ImageVec.begin() + PNG_ID.length() },	// Get file header from vector "ImageVec". 
-		ZIP_HDR { ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length() };	// Get file header from vector "ZipVec".
+		IMG_HDR{ ImageVec.begin(), ImageVec.begin() + PNG_ID.length() },	// Get file header from vector "ImageVec". 
+		ZIP_HDR{ ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length() };	// Get file header from vector "ZipVec".
 
-	const unsigned int
-		// Get image dimensions from vector "ImageVec" and multiply Width x Height.
-		MULTIPLIED_DIMS = ((ImageVec[18] << 8 | ImageVec[19]) * (ImageVec[22] << 8 | ImageVec[23])),
-		MAX_MULTIPLIED_DIMS = 5500000,		// Maximum multiplied Width x Height dimensions value;
-		MAX_PNG_SIZE_BYTES = 5242880,		// Twitter's 5MB PNG file size limit;
-		COLOR_TYPE = ImageVec[25],		// Get image colour type value from vector "ImageVec".
-		INZIP_NAME_LENGTH = ZipVec[34], 	// Get length of in-zip media filename from vector "ZipVec".
-		INDEXED_COLOR_TYPE = 3,			// PNG Indexed colour type has a set value of 3
-		MIN_NAME_LENGTH = 4;			// Minimum filename length of inzip media file.
+	const int
+		DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	// Get image dimensions Width & Hight from vector "ImageVec".
+		DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],
+		PNG24_MAX_DIMS = 900,	// 900 x 900 is the maximum supported dimension size for PNG_24 & PNG_32, any higher and Twitter will convert image to jpg. 
+		PNG8_MAX_DIMS = 4096,	// 4096 x 4096 is the maximum supported dimension size for PNG_8, any higher and Twitter will convert image to jpg. 
+		PNG_MIN_DIMS = 65,	// 65 x 65 (Approx.) is the minimum supported dimensions size for PNG. Below this, Twitter will convert image to webp.
+		COLOR_TYPE = ImageVec[25],	// Get image colour type value from vector "ImageVec".
+		INZIP_NAME_LENGTH = ZipVec[34], // Get length of in-zip media filename from vector "ZipVec".
+		PNG8 = 3,			// PNG8, Indexed colour.
+		PNG24 = 2,			// PNG24, Truecolor. 
+		PNG32 = 6,			// PNG32, Truecolor with alpha.
+		MIN_NAME_LENGTH = 4;	// Minimum filename length of inzip media file.
+
+	const bool	
+		VALID_COLOR_TYPE = (COLOR_TYPE == PNG8) ? true
+		: (COLOR_TYPE == PNG24) ? true
+		: ((COLOR_TYPE == PNG32) ? true : false),
+
+		VALID_IMAGE_DIMS = (COLOR_TYPE == PNG24 || COLOR_TYPE == PNG32
+			&& DIMS_WIDTH <= PNG24_MAX_DIMS
+			&& DIMS_HEIGHT <= PNG24_MAX_DIMS
+			&& DIMS_WIDTH >= PNG_MIN_DIMS
+			&& DIMS_HEIGHT >= PNG_MIN_DIMS) ? true
+		: ((COLOR_TYPE == PNG8 && DIMS_WIDTH <= PNG8_MAX_DIMS
+			&& DIMS_HEIGHT <= PNG8_MAX_DIMS
+			&& DIMS_WIDTH >= PNG_MIN_DIMS
+			&& DIMS_HEIGHT >= PNG_MIN_DIMS) ? true : false);
 
 	if (IMG_HDR != PNG_ID
 		|| ZIP_HDR != ZIP_ID
-		|| MAX_PNG_SIZE_BYTES > MULTIPLIED_DIMS
-		|| MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS
-		|| COLOR_TYPE != INDEXED_COLOR_TYPE
+		|| VALID_COLOR_TYPE != true
+		|| VALID_IMAGE_DIMS != true
 		|| MIN_NAME_LENGTH > INZIP_NAME_LENGTH) {
 
 		// File requirements check failure, display relevant error message and terminate program.
 		const std::string
 			HEADER_ERR_MSG = "Header Error: File does not appear to be a valid",
-			IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements. See 'pdvzip --info' for more details.\n\n",
-			IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements. See 'pdvzip --info' for more details.\n\n",
-			ZIP_ERR_MSG = 	"\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)."
-					"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n",
-			
+			IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements.\nSee 'pdvzip --info' for more details.\n\n",
+			IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements.\nSee 'pdvzip --info' for more details.\n\n",
+			ZIP_ERR_MSG = "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)."
+			"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n",
+
 			ERR_MSG = (IMG_HDR != PNG_ID) ? "\nPNG " + HEADER_ERR_MSG + " PNG image.\n\n"
-				: (ZIP_HDR != ZIP_ID) ? "\nZIP " + HEADER_ERR_MSG + " ZIP archive.\n\n"
-				: (MAX_PNG_SIZE_BYTES > MULTIPLIED_DIMS || MULTIPLIED_DIMS > MAX_MULTIPLIED_DIMS) ? IMAGE_ERR_MSG1
-				: ((COLOR_TYPE != INDEXED_COLOR_TYPE) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
+			: (ZIP_HDR != ZIP_ID) ? "\nZIP " + HEADER_ERR_MSG + " ZIP archive.\n\n"
+			: (VALID_IMAGE_DIMS != true) ? IMAGE_ERR_MSG1
+			: ((VALID_COLOR_TYPE != true) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
 
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
+	}
+
+	const char
+		BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' };  // If any of these individual characters appear in the IHDR chunk they will break the Linux extraction script. 
+	
+	// Check a range of characters within the IHDR chunk to make sure we have no BAD_CHAR that will break the Linux extraction script.
+	// Manually modifying the dimensions of the image will usually resolve the issue if a BAD_CHAR is found.
+	int pos = 18;
+	for (int i{}; i < 16; i++) {
+		for (int j{}; j < 7; j++) {
+			if (ImageVec[pos] == BAD_CHAR[j]) {
+				std::cerr << 
+					"\nError:  The IHDR header of this image contains a character that will break the Linux extraction script.\n"
+					"\tModifying the image dimensions (increase or decrease) may resolve the issue for this image.\n\n";
+				std::exit(EXIT_FAILURE);
+			}
+		}
+		pos++;
 	}
 }
 
@@ -229,7 +266,7 @@ void eraseChunks(std::vector<unsigned char>& ImageVec) {
 
 	const std::string
 		IDAT_ID = "IDAT",
-		CHUNKS_TO_REMOVE[14] { "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
+		CHUNKS_TO_REMOVE[14]{ "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
 
 	// Get first IDAT chunk index location. Don't remove chunks after this point.
 	const ptrdiff_t FIRST_IDAT_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4;
@@ -251,27 +288,27 @@ unsigned long updateCrc(const unsigned long& crc, unsigned char* buf, const size
 {
 
 	unsigned long crcTable[256]{ 0,1996959894,3993919788,2567524794,124634137,1886057615,3915621685,2657392035,249268274,2044508324,3772115230,2547177864,162941995,
-				    2125561021,3887607047,2428444049,498536548,1789927666,4089016648,2227061214,450548861,1843258603,4107580753,2211677639,325883990,
-				    1684777152,4251122042,2321926636,335633487,1661365465,4195302755,2366115317,997073096,1281953886,3579855332,2724688242,1006888145,
-				    1258607687,3524101629,2768942443,901097722,1119000684,3686517206,2898065728,853044451,1172266101,3705015759,2882616665,651767980,
-				    1373503546,3369554304,3218104598,565507253,1454621731,3485111705,3099436303,671266974,1594198024,3322730930,2970347812,795835527,
-				    1483230225,3244367275,3060149565,1994146192,31158534,2563907772,4023717930,1907459465,112637215,2680153253,3904427059,2013776290,
-				    251722036,2517215374,3775830040,2137656763,141376813,2439277719,3865271297,1802195444,476864866,2238001368,4066508878,1812370925,
-				    453092731,2181625025,4111451223,1706088902,314042704,2344532202,4240017532,1658658271,366619977,2362670323,4224994405,1303535960,
-				    984961486,2747007092,3569037538,1256170817,1037604311,2765210733,3554079995,1131014506,879679996,2909243462,3663771856,1141124467,
-				    855842277,2852801631,3708648649,1342533948,654459306,3188396048,3373015174,1466479909,544179635,3110523913,3462522015,1591671054,
-				    702138776,2966460450,3352799412,1504918807,783551873,3082640443,3233442989,3988292384,2596254646,62317068,1957810842,3939845945,
-				    2647816111,81470997,1943803523,3814918930,2489596804,225274430,2053790376,3826175755,2466906013,167816743,2097651377,4027552580,
-				    2265490386,503444072,1762050814,4150417245,2154129355,426522225,1852507879,4275313526,2312317920,282753626,1742555852,4189708143,
-				    2394877945,397917763,1622183637,3604390888,2714866558,953729732,1340076626,3518719985,2797360999,1068828381,1219638859,3624741850,
-				    2936675148,906185462,1090812512,3747672003,2825379669,829329135,1181335161,3412177804,3160834842,628085408,1382605366,3423369109,
-				    3138078467,570562233,1426400815,3317316542,2998733608,733239954,1555261956,3268935591,3050360625,752459403,1541320221,2607071920,
-				    3965973030,1969922972,40735498,2617837225,3943577151,1913087877,83908371,2512341634,3803740692,2075208622,213261112,2463272603,
-				    3855990285,2094854071,198958881,2262029012,4057260610,1759359992,534414190,2176718541,4139329115,1873836001,414664567,2282248934,
-				    4279200368,1711684554,285281116,2405801727,4167216745,1634467795,376229701,2685067896,3608007406,1308918612,956543938,2808555105,
-				    3495958263,1231636301,1047427035,2932959818,3654703836,1088359270,936918000,2847714899,3736837829,1202900863,817233897,3183342108,
-				    3401237130,1404277552,615818150,3134207493,3453421203,1423857449,601450431,3009837614,3294710456,1567103746,711928724,3020668471,
-				    3272380065,1510334235,755167117 };
+					2125561021,3887607047,2428444049,498536548,1789927666,4089016648,2227061214,450548861,1843258603,4107580753,2211677639,325883990,
+					1684777152,4251122042,2321926636,335633487,1661365465,4195302755,2366115317,997073096,1281953886,3579855332,2724688242,1006888145,
+					1258607687,3524101629,2768942443,901097722,1119000684,3686517206,2898065728,853044451,1172266101,3705015759,2882616665,651767980,
+					1373503546,3369554304,3218104598,565507253,1454621731,3485111705,3099436303,671266974,1594198024,3322730930,2970347812,795835527,
+					1483230225,3244367275,3060149565,1994146192,31158534,2563907772,4023717930,1907459465,112637215,2680153253,3904427059,2013776290,
+					251722036,2517215374,3775830040,2137656763,141376813,2439277719,3865271297,1802195444,476864866,2238001368,4066508878,1812370925,
+					453092731,2181625025,4111451223,1706088902,314042704,2344532202,4240017532,1658658271,366619977,2362670323,4224994405,1303535960,
+					984961486,2747007092,3569037538,1256170817,1037604311,2765210733,3554079995,1131014506,879679996,2909243462,3663771856,1141124467,
+					855842277,2852801631,3708648649,1342533948,654459306,3188396048,3373015174,1466479909,544179635,3110523913,3462522015,1591671054,
+					702138776,2966460450,3352799412,1504918807,783551873,3082640443,3233442989,3988292384,2596254646,62317068,1957810842,3939845945,
+					2647816111,81470997,1943803523,3814918930,2489596804,225274430,2053790376,3826175755,2466906013,167816743,2097651377,4027552580,
+					2265490386,503444072,1762050814,4150417245,2154129355,426522225,1852507879,4275313526,2312317920,282753626,1742555852,4189708143,
+					2394877945,397917763,1622183637,3604390888,2714866558,953729732,1340076626,3518719985,2797360999,1068828381,1219638859,3624741850,
+					2936675148,906185462,1090812512,3747672003,2825379669,829329135,1181335161,3412177804,3160834842,628085408,1382605366,3423369109,
+					3138078467,570562233,1426400815,3317316542,2998733608,733239954,1555261956,3268935591,3050360625,752459403,1541320221,2607071920,
+					3965973030,1969922972,40735498,2617837225,3943577151,1913087877,83908371,2512341634,3803740692,2075208622,213261112,2463272603,
+					3855990285,2094854071,198958881,2262029012,4057260610,1759359992,534414190,2176718541,4139329115,1873836001,414664567,2282248934,
+					4279200368,1711684554,285281116,2405801727,4167216745,1634467795,376229701,2685067896,3608007406,1308918612,956543938,2808555105,
+					3495958263,1231636301,1047427035,2932959818,3654703836,1088359270,936918000,2847714899,3736837829,1202900863,817233897,3183342108,
+					3401237130,1404277552,615818150,3134207493,3453421203,1423857449,601450431,3009837614,3294710456,1567103746,711928724,3020668471,
+					3272380065,1510334235,755167117 };
 
 	unsigned long c = crc;
 
@@ -304,8 +341,8 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 		PLTE_CHUNK_LENGTH = (ImageVec[PLTE_CHUNK_LENGTH_INDEX + 2] << 8) | ImageVec[PLTE_CHUNK_LENGTH_INDEX + 3];
 
 	const char
-		BAD_CHAR[7] {'(', ')', '\'', '`', '"', '>', ';'},  // These individual characters in the PLTE chunk will break the shell extraction script. 
-		GOOD_CHAR[7] {'*', '&', '=', '}', 'a', '?', ':'};  // Replace them with these characters. 
+		BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' },  // These individual characters in the PLTE chunk will break the shell extraction script. 
+		GOOD_CHAR[7]{ '*', '&', '=', '}', 'a', '?', ':' };  // Replace them with these characters. 
 
 	int twoCount{};
 
@@ -435,7 +472,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 		MOD_INZIP_FILENAME = 36;
 
 	std::string
-		inzipName { ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH },	// Get in-zip media filename from vector "ZipVec".
+		inzipName{ ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH },	// Get in-zip media filename from vector "ZipVec".
 		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),	// Get file extension from in-zip media filename.
 		argsLinux{}, argsWindows{};					// Optional user arguments string variables.
 
@@ -449,7 +486,6 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 	[1](237) Windows: index insert location for optional command-line args string, (added later into ExtApp, 35). Used with .py, .ps1, .sh and .exe file types.
 	[2](236) Windows: index insert location for inzip media filename (added later into ExtApp, 33).
 			File name used with "start /b" ExtApp 28, "python3" 22, "powershell" 30 & "powershell;Invoke-Item" 26.
-
 	[3](234) Windows: index insert location for "start /b" ExtApp 28. Location also used for "python3" 22, "powershell" 30 & "powershell;Invoke-Item" 26.
 	[4](116) Linux: index insert location for "Dev Null" ExtApp 27, used with vlc. Location also used for optional Linux command-line args string, (added into ExtApp, 34).
 	[5](115) Linux: index insert location for inzip media filename (added later into ExtApp, 33).
@@ -458,11 +494,11 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 	// Array InsertSequence contains sequences of ScriptVec index insert location values (high numbers) and the corresponding ExtApp element index values (low numbers).
 	// For example, in the first sequence, insert location index 236 (insertIndex) corresponds with (extAppElement) ExtApp element 33 (inzip media filename).
 
-	int InsertSequence[52] {
+	int InsertSequence[52]{
 				236,234,116,115,114, 33,28,27,33,20, 	// First sequence for case: VIDEO_AUDIO. 
 				236,234,115,114, 33,28,33,21,		// Second sequence for cases: PDF, FOLDER_INVOKE_ITEM, DEFAULT.
 				259,237,236,234,116,115,114, 29,35,33,22,34,33,22, // Third sequence for cases: PYTHON, LINUX_PWSH & WIN_POWERSHELL.
-				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31}, // Fourth sequence for cases: EXECUTABLE & BASH_XDG_OPEN.
+				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31 }, // Fourth sequence for cases: EXECUTABLE & BASH_XDG_OPEN.
 
 				appIndex{},
 				insertIndex{},
@@ -495,43 +531,43 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 	}
 
 	switch (appIndex) {
-		case VIDEO_AUDIO:		// vlc for Linux and start /b (default player) for Windows.
-			extAppElement = 5;	// Start InsertSequence from index positions [0] (insertIndex) and [5] (extAappElement). 
-						// [0] = 236, ScriptVec's index insert location, [5] = ExtApp index 33, vector element inzip media filename.
-			break;
-		case PDF:					// evince for Linux and start /b (default viewer) for Windows.
-			insertIndex = 10, extAppElement = 14;	// Start InsertSequence from index positions [10] (insertIndex) and [14] (extAppElement).
-			break;
-		case PYTHON:			// python3 for Linux & Windows.
-		case LINUX_PWSH:		// pwsh for Linux, powershell for Windows.
-			insertIndex = 18, extAppElement = 25;	// Start InsertSequence from index positions [18] (insertIndex) and [25] (extAppElement).
-								// [18] = 259 ScriptVec index insert location, [25] = ExtApp index 29, vector element "pause&".
-			// Case POWERSHELL is almost identical to case PYTHON, switch Extapp index elements to PowerShell (ExtApp 23 & 30).
-			if (appIndex == LINUX_PWSH) {	
-				inzipName.insert(0, ".\\");	//  ".\"  required for Windows PowerShell command:  powershell ".\filename.ps1", powershell.
-				ExtApp.push_back(inzipName);
-				InsertSequence[31] = LINUX_PWSH,
-				InsertSequence[28] = WIN_POWERSHELL;
-				InsertSequence[27] = MOD_INZIP_FILENAME; // Modified inzipName (".\filename) for Windows powershell command. 
-			}
+	case VIDEO_AUDIO:		// vlc for Linux and start /b (default player) for Windows.
+		extAppElement = 5;	// Start InsertSequence from index positions [0] (insertIndex) and [5] (extAappElement). 
+					// [0] = 236, ScriptVec's index insert location, [5] = ExtApp index 33, vector element inzip media filename.
+		break;
+	case PDF:					// evince for Linux and start /b (default viewer) for Windows.
+		insertIndex = 10, extAppElement = 14;	// Start InsertSequence from index positions [10] (insertIndex) and [14] (extAppElement).
+		break;
+	case PYTHON:			// python3 for Linux & Windows.
+	case LINUX_PWSH:		// pwsh for Linux, powershell for Windows.
+		insertIndex = 18, extAppElement = 25;	// Start InsertSequence from index positions [18] (insertIndex) and [25] (extAppElement).
+							// [18] = 259 ScriptVec index insert location, [25] = ExtApp index 29, vector element "pause&".
+		// Case POWERSHELL is almost identical to case PYTHON, switch Extapp index elements to PowerShell (ExtApp 23 & 30).
+		if (appIndex == LINUX_PWSH) {
+			inzipName.insert(0, ".\\");	//  ".\"  required for Windows PowerShell command:  powershell ".\filename.ps1", powershell.
+			ExtApp.push_back(inzipName);
+			InsertSequence[31] = LINUX_PWSH,
+			InsertSequence[28] = WIN_POWERSHELL;
+			InsertSequence[27] = MOD_INZIP_FILENAME; // Modified inzipName (".\filename) for Windows powershell command. 
+		}
 
-			break;
-		case EXECUTABLE:
-			insertIndex = 32, extAppElement = 42;
-			break;
-		case BASH_XDG_OPEN:
-			insertIndex = 33, extAppElement = 43;
-			break;
-		case FOLDER_INVOKE_ITEM:
-			// If inzipName points to a folder and not a file, just open the folder displaying unzipped file(s), 
-			// this is done with "xdg-open" <folder1/folder2/> (Linux) and "powershell;Invoke-Item" <folder1/folder2> (Windows).
-			insertIndex = 10, extAppElement = 14;
-			// Case FOLDER is almost identical to case PDF, just alter two element numbers.
-			InsertSequence[15] = FOLDER_INVOKE_ITEM, InsertSequence[17] = BASH_XDG_OPEN; 
-			break;
-		default:	// All other file types drop here. Linux xdg-open and Windows start /b. (Let operating system choose default program for file type).
-			insertIndex = 10, extAppElement = 14;
-			InsertSequence[17] = BASH_XDG_OPEN;  // Case almost identical to case PDF, just alter one element number.
+		break;
+	case EXECUTABLE:
+		insertIndex = 32, extAppElement = 42;
+		break;
+	case BASH_XDG_OPEN:
+		insertIndex = 33, extAppElement = 43;
+		break;
+	case FOLDER_INVOKE_ITEM:
+		// If inzipName points to a folder and not a file, just open the folder displaying unzipped file(s), 
+		// this is done with "xdg-open" <folder1/folder2/> (Linux) and "powershell;Invoke-Item" <folder1/folder2> (Windows).
+		insertIndex = 10, extAppElement = 14;
+		// Case FOLDER is almost identical to case PDF, just alter two element numbers.
+		InsertSequence[15] = FOLDER_INVOKE_ITEM, InsertSequence[17] = BASH_XDG_OPEN;
+		break;
+	default:	// All other file types drop here. Linux xdg-open and Windows start /b. (Let operating system choose default program for file type).
+		insertIndex = 10, extAppElement = 14;
+		InsertSequence[17] = BASH_XDG_OPEN;  // Case almost identical to case PDF, just alter one element number.
 	}
 
 	// Reduce sequence limit value by 1 if appIndex is BASH_XDG_OPEN (25).
@@ -650,7 +686,7 @@ void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_ID
 	// searching for ZIP file record offsets and updating them to their new location.
 	while (zipFileRecords--) {
 		newZipOffset = search(ImageVec.begin() + newZipOffset + 1, ImageVec.end(), ZIP_ID.begin(), ZIP_ID.end()) - ImageVec.begin(),
-		centralLocalInsertIndex = 45 + search(ImageVec.begin() + centralLocalInsertIndex, ImageVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ImageVec.begin();
+			centralLocalInsertIndex = 45 + search(ImageVec.begin() + centralLocalInsertIndex, ImageVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ImageVec.begin();
 		insertChunkLength(ImageVec, centralLocalInsertIndex, newZipOffset, 32, false);
 	}
 
@@ -720,10 +756,21 @@ For any other media type/file extension, Linux & Windows will rely on the operat
 
 PNG Image Requirements
 
-Bit depth, 8-bit or lower (4,2,1) Indexed colour (PNG colour type value: 3).
+	PNG_32 and PNG_24 (Truecolour with alpha [6] / Truecolour [2]) 
 
-Image's multiplied dimensions value must be between 5,242,880 & 5,500,000.
-Suggested Width x Height Dimensions: 2900 x 1808 = 5,243,200. Example Two: 2290 x 2290 = 5,244,100, etc.
+		Max. 900 x 900
+		Above this size, Twitter will convert image to jpg (or if PNG file size exceeds 5MB).
+            
+        Min. 65 x 65 (Approx.)
+        Below this size, Twitter will convert image to webp.
+            
+	PNG_8 (Indexed-colour [3])
+
+        Max. 4096 x 4096
+        Above this size, Twitter will convert image to jpg (or if file size exceeds 5MB).
+    
+        Min 65 x 65 (Approx.)
+        Below this size, Twitter will convert image to webp.
 
 ZIP File Size & Other Information
 
