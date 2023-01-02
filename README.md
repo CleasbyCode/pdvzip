@@ -86,22 +86,36 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
-**Note: While this program still works fine with Twitter, it seems things have changed with the way Twitter is dealing with images(?), as a result of that,
-the information currently presented here regarding dimensions/storage capacity, is no longer relevant. I will update this information properly at a later date and I'll also
-add support to the program for the option of using 32-bit & 24-bit PNG images. In the meantime continue to use pdvzip as it is.**
+**PNG File Size:**
 
-Bit depth 8-bit or lower (4,2,1) Indexed colour (PNG colour type value 3).  
+        Overall PNG file size (PNG image + embedded content) must not exceed 5MB (5,242,880 bytes) or image will be converted to jpg.
 
-Image's multiplied dimensions value must be between 5,242,880 and 5,500,000.
-Suggested Width x Height Dimensions: 2900 x 1808 = 5,243,200. Example Two: 2290 x 2290 = 5,244,100, etc.
+**Dimensions:**
 
-Valid PNG chunk types that Twitter will preserve arbitrary data: ***bKGD, cHRM, gAMA, hIST, iCCP, pHYs, sBIT, sPLT, sRGB, tRNS***. We can also use an ***IDAT*** chunk type after the last image data IDAT chunk.  This program uses **hIST** & **IDAT** chunk types and removes the others.
+        PNG_32 and PNG_24 (Truecolour with alpha [6] / Truecolour [2]) 
 
-* Dimensions provide the storage capacity for our PNG image + arbitrary data. For example, 2900 x 1808 is 5,243,200, slightly over 5MB. This covers us for up to Twitter's 5MB size limit, same with other similar range dimension combinations (e.g. 2290 x 2290). Its pointless going too far over 5,242,880 for W x H dimensions, considering the 5MB PNG size limit.
+                Max. 900 x 900
+                Above this size, Twitter will convert image to jpg (or if PNG file size exceeds 5MB).
+                
+                Min. 65 x 65 (Approx.)
+                Below this size, Twitter will convert image to webp.
+                
+        PNG_8 (Indexed-colour [3])
 
-* Bit depth setting of 8-bit or lower (4,2,1) Indexed colour (PNG colour type value 3), '*enables*' preservation of arbitrary data in the above 11 PNG chunk types.
+                Max. 4096 x 4096
+                Above this size, Twitter will convert image to jpg (or if file size exceeds 5MB).
+        
+                Min 65 x 65 (Approx.)
+                Below this size, Twitter will convert image to webp.
+        
+**Chunks:**
 
-These settings are mostly the result of trial and error tinkering with PNG image files. As we can't see how the Twitter code is handling image configurations, we are unable to say why this works the way it does.
+        bKGD, cHRM, gAMA, hIST, iCCP,
+        IDAT, (Use as last IDAT chunk, after final image IDAT chunk).
+        pHYs, sBIT, sPLT, sRGB, 
+        tRNS. (Not recommended as it will distort image).
+ 
+        This program uses hIST & IDAT chunk names and removes the others (if found).
 
 ## ZIP File Size & Other Important Information
 
