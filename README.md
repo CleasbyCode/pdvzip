@@ -91,7 +91,8 @@ Twitter will convert image to ***jpg*** if you exceed this size.
 
 **Dimensions:**
 
-**PNG_32** (Truecolour with alpha [6]) & **PNG_24** (Truecolour [2]) 
+**PNG_32** (Truecolour with alpha [6])  
+**PNG_24** (Truecolour [2]) 
 
 Image dimensions can be set between a maximum of ***900 x 900*** and a minimum of ***65 x 65*** (Approx.).  
 
