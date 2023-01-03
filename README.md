@@ -86,37 +86,35 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
-**PNG File Size:**
-
-        PNG file size (image + embedded content) must not exceed 5MB (5,242,880 bytes).
-        Above this size, Twitter will convert image to jpg.
+PNG file size (image + embedded content) must not exceed 5MB (5,242,880 bytes).  
+Twitter will convert image to ***jpg*** if you exceed this size.
 
 **Dimensions:**
 
-        PNG_32 and PNG_24 (Truecolour with alpha [6] / Truecolour [2]) 
+**PNG_32** (Truecolour with alpha [6]) & **PNG_24** (Truecolour [2]) 
 
-                Max. 900 x 900
-                Above this size, Twitter will convert image to jpg (or if PNG file size exceeds 5MB).
-                
-                Min. 65 x 65 (Approx.)
-                Below this size, Twitter will convert image to webp.
-                
-        PNG_8 (Indexed-colour [3])
+Image dimensions can be set between a maximum of ***900 x 900*** and a minimum of ***65 x 65*** (Approx.).  
 
-                Max. 4096 x 4096
-                Above this size, Twitter will convert image to jpg (or if file size exceeds 5MB).
+Twitter will convert the image to ***jpg*** if you exceed the maximum, or if PNG file size exceeds 5MB.  
+Twitter will convert the image to ***webp*** if you go below the minimum. 
+    
+**PNG_8 (Indexed-colour [3])**
+
+Image dimensions can be set between a maximum of ***4096 x 4096*** and a minimum of ***65 x 65*** (Approx.).  
+
+Twitter will convert the image to ***jpg*** if you exceed the maximum, or if PNG file size exceeds 5MB.  
+Twitter will convert the image to ***webp*** if you go below the minimum.
         
-                Min 65 x 65 (Approx.)
-                Below this size, Twitter will convert image to webp.
-        
-**Chunks:**
+**Chunks:**  
 
-        bKGD, cHRM, gAMA, hIST, iCCP,
-        IDAT, (Use as last IDAT chunk, after final image IDAT chunk).
-        pHYs, sBIT, sPLT, sRGB, 
-        tRNS. (Not recommended as it will distort image).
- 
-        This program uses hIST & IDAT chunk names and removes the others (if found).
+PNG chunk types that Twitter will preserve arbitrary data.  
+
+***bKGD, cHRM, gAMA, hIST, iCCP,***  
+***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
+***pHYs, sBIT, sPLT, sRGB,***  
+***tRNS.*** (Not recommended as it will distort image).  
+
+This program uses hIST & IDAT chunk names and removes the others (if found).
 
 ## ZIP File Size & Other Important Information
 
