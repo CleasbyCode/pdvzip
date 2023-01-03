@@ -389,7 +389,6 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 
 	size_t findExtension = inzipName.find_last_of('.');
 
-	// Copy inzipName to ExtApp vector (33)
 	ExtApp.push_back(inzipName);
 	
 	int InsertSequence[52]{
@@ -420,7 +419,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 		std::cout << "\nWindows: ";
 		std::getline(std::cin, argsWindows);
 		argsLinux.insert(0, "\x20"), argsWindows.insert(0, "\x20");
-		ExtApp.push_back(argsLinux), ExtApp.push_back(argsWindows); // ExtApp (34), (35).
+		ExtApp.push_back(argsLinux), ExtApp.push_back(argsWindows); 
 	}
 
 	switch (appIndex) {
