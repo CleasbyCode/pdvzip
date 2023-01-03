@@ -17,7 +17,7 @@ unsigned long updateCrc(const unsigned long&, unsigned char*, const size_t&);
 // Return the CRC of the bytes buf[0..len-1].
 unsigned long crc(unsigned char*, const size_t&);
 
-//  End of CRC functions.
+// End of CRC functions.
 
 // Open user files for reading. Display error and terminate program if any file fails to open.
 void openFiles(char* []);
@@ -244,7 +244,8 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 	}
 
 	const char
-		BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' };  // If any of these individual characters appear in the IHDR chunk they will break the Linux extraction script.
+		// If any of these individual characters appear in the IHDR chunk they will break the Linux extraction script.
+		BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' };  
 	
 	// Check a range of characters within the IHDR chunk to make sure we have no BAD_CHAR that will break the Linux extraction script.
 	// Manually modifying the dimensions of the image will usually resolve the issue if a BAD_CHAR is found.
@@ -754,23 +755,27 @@ PowerShell '.ps1', Linux uses the 'pwsh' command (if PowerShell installed), Wind
 
 For any other media type/file extension, Linux & Windows will rely on the operating system's set default application.
 
-PNG Image Requirements
+PNG Image Requirements for Arbitrary Data Preservation
 
-	PNG_32 and PNG_24 (Truecolour with alpha [6] / Truecolour [2]) 
+PNG file size (image + embedded content) must not exceed 5MB (5,242,880 bytes).
+Twitter will convert image to jpg if you exceed this size.
 
-		Max. 900 x 900
-		Above this size, Twitter will convert image to jpg (or if PNG file size exceeds 5MB).
-            
-        Min. 65 x 65 (Approx.)
-        Below this size, Twitter will convert image to webp.
-            
-	PNG_8 (Indexed-colour [3])
+Dimensions:
 
-        Max. 4096 x 4096
-        Above this size, Twitter will convert image to jpg (or if file size exceeds 5MB).
-    
-        Min 65 x 65 (Approx.)
-        Below this size, Twitter will convert image to webp.
+PNG_32 (Truecolour with alpha [6])
+PNG_24 (Truecolour [2])
+
+Image dimensions can be set between a maximum of 900 x 900 and a minimum of 65 x 65 (Approx.).
+
+Twitter will convert the image to jpg if you exceed the maximum, or if PNG file size exceeds 5MB.
+Twitter will convert the image to webp if you go below the minimum.
+
+PNG_8 (Indexed-colour [3])
+
+Image dimensions can be set between a maximum of 4096 x 4096 and a minimum of 65 x 65 (Approx.).
+
+Twitter will convert the image to jpg if you exceed the maximum, or if PNG file size exceeds 5MB.
+Twitter will convert the image to webp if you go below the minimum.
 
 ZIP File Size & Other Information
 
