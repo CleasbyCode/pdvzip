@@ -276,7 +276,7 @@ void eraseChunks(std::vector<unsigned char>& ImageVec) {
 
 	// Remove chunks. Make sure we check for multiple occurrences of each chunk we remove.
 	while (chunk--) {
-		const ptrdiff_t CHUNK_INDEX = search(ImageVec.begin(), ImageVec.end(), CHUNKS_TO_REMOVE[chunk].begin(), CHUNKS_TO_REMOVE[chunk].end()) - ImageVec.begin() - 4;
+		const ptrdiff_t CHUNK_INDEX = search(ImageVec.begin(), ImageVec.end(), CHUNKS_TO_REMOVE[chunk].begin(), CHUNKS_TO_REMOVE[chunk].end())-ImageVec.begin()-4;
 		if (FIRST_IDAT_INDEX > CHUNK_INDEX) {
 			int chunkLength = (ImageVec[CHUNK_INDEX + 2] << 8) | ImageVec[CHUNK_INDEX + 3];
 			ImageVec.erase(ImageVec.begin() + CHUNK_INDEX, ImageVec.begin() + CHUNK_INDEX + (chunkLength + 12));
@@ -484,13 +484,14 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 
 	/* When inserting string elements from "ExtApp" into the script within vector "ScriptVec", we are inserting items in the order of last to first.
 	[0](259) Windows: index insert location for "pause&" ExtApp 29, which is only used when file is python, powershell or exe.
-	[1](237) Windows: index insert location for optional command-line args string, (added later into ExtApp, 35). Used with .py, .ps1, .sh and .exe file types.
+	[1](237) Windows: index insert location for command-line args string, (added later into ExtApp, 35). Used with .py, .ps1, .sh and .exe file types.
 	[2](236) Windows: index insert location for inzip media filename (added later into ExtApp, 33).
 			File name used with "start /b" ExtApp 28, "python3" 22, "powershell" 30 & "powershell;Invoke-Item" 26.
 	[3](234) Windows: index insert location for "start /b" ExtApp 28. Location also used for "python3" 22, "powershell" 30 & "powershell;Invoke-Item" 26.
-	[4](116) Linux: index insert location for "Dev Null" ExtApp 27, used with vlc. Location also used for optional Linux command-line args string, (added into ExtApp, 34).
+	[4](116) Linux: index insert location for "Dev Null" ExtApp 27, used with vlc. Location also used for Linux command-line args string, (added into ExtApp, 34).
 	[5](115) Linux: index insert location for inzip media filename (added later into ExtApp, 33).
-	[6](114) Linux: index insert location for "vlc" ExtApp 20. Location also used for "evince" 21, "python3" 22, "pwsh" 23, "./" 24, "xdg-open" 25, "chmod +x" 31 and ";" 32. */
+	[6](114) Linux: index insert location for "vlc" ExtApp 20. 
+			Location also used for "evince" 21, "python3" 22, "pwsh" 23, "./" 24, "xdg-open" 25, "chmod +x" 31 & ";" 32. */
 
 	// Array InsertSequence contains sequences of ScriptVec index insert location values (high numbers) and the corresponding ExtApp element index values (low numbers).
 	// For example, in the first sequence, insert location index 236 (insertIndex) corresponds with (extAppElement) ExtApp element 33 (inzip media filename).
