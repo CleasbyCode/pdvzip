@@ -319,8 +319,7 @@ unsigned long updateCrc(const unsigned long& crc, unsigned char* buf, const size
 	return c;
 }
 
-unsigned long crc(unsigned char* buf, const size_t& len)
-{
+unsigned long crc(unsigned char* buf, const size_t& len) {
 	return updateCrc(0xffffffffL, buf, len) ^ 0xffffffffL;
 }
 
@@ -778,6 +777,17 @@ Image dimensions can be set between a maximum of 4096 x 4096 and a minimum of 65
 
 Twitter will convert the image to jpg if you exceed the maximum, or if PNG file size exceeds 5MB.
 Twitter will convert the image to webp if you go below the minimum.
+
+Chunks:
+
+PNG chunk types that Twitter will preserve arbitrary data.
+
+bKGD, cHRM, gAMA, hIST, iCCP,
+IDAT, (Use as last IDAT chunk, after the final image IDAT chunk).
+pHYs, sBIT, sPLT, sRGB,
+tRNS. (Not recommended as it will distort image).
+
+This program uses hIST & IDAT chunk names and removes the others (if found).
 
 ZIP File Size & Other Information
 
