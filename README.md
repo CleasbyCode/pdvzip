@@ -86,6 +86,7 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
+ 
 PNG file size (image + embedded content) must not exceed 5MB (5,242,880 bytes).  
 Twitter will convert image to ***jpg*** if you exceed this size.
 
@@ -94,17 +95,17 @@ Twitter will convert image to ***jpg*** if you exceed this size.
 **PNG_32** (Truecolour with alpha [6])  
 **PNG_24** (Truecolour [2]) 
 
-Image dimensions can be set between a maximum of ***900 x 900*** and a minimum of ***65 x 65*** (Approx.).  
+Image dimensions can be set between a maximum of ***900 x 900*** (Exct.) and a minimum of ***65 x 65*** (Approx.).  
 
-Twitter will convert the image to ***jpg*** if you exceed the maximum, or if PNG file size exceeds 5MB.  
-Twitter will convert the image to ***webp*** if you go below the minimum. 
+Twitter will convert the image to ***jpg*** if you exceed the maximum dimensions, and/or the PNG file size exceeds 5MB.  
+Twitter will convert the image to ***webp*** if you go below the minimum dimensions. 
     
 **PNG_8 (Indexed-colour [3])**
 
-Image dimensions can be set between a maximum of ***4096 x 4096*** and a minimum of ***65 x 65*** (Approx.).  
+Image dimensions can be set between a maximum of ***4096 x 4096*** (Exct.) and a minimum of ***65 x 65*** (Approx.).  
 
-Twitter will convert the image to ***jpg*** if you exceed the maximum, or if PNG file size exceeds 5MB.  
-Twitter will convert the image to ***webp*** if you go below the minimum.
+Twitter will convert the image to ***jpg*** if you exceed the maximum dimensions, and/or the PNG file size exceeds 5MB.  
+Twitter will convert the image to ***webp*** if you go below the minimum dimensions.
         
 **Chunks:**  
 
