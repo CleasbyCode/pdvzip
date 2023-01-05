@@ -67,7 +67,7 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 		MAX_SCRIPT_SIZE_BYTES = 750;	
 
 	readImg.seekg(0, readImg.end),
-		readZip.seekg(0, readZip.end);
+	readZip.seekg(0, readZip.end);
 
 	const ptrdiff_t
 		IMG_SIZE = readImg.tellg(),
@@ -208,20 +208,20 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 }
 
 void eraseChunks(std::vector<unsigned char>& ImageVec) {
-
+	
 	const std::string
 		IDAT_ID = "IDAT",
-		CHUNKS_TO_REMOVE[14]{ "bKGD", "cHRM", "gAMA", "hIST", "iCCP", "pHYs", "sBIT", "sRGB", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
+		CHUNKS_TO_REMOVE[14]{ "bKGD", "cHRM", "sRGB", "hIST", "iCCP", "pHYs", "sBIT", "gAMA", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
 
-	const ptrdiff_t FIRST_IDAT_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4;
-
+	ptrdiff_t firstIdatIndex = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4;
 	int chunk = sizeof(CHUNKS_TO_REMOVE) / sizeof(std::string);
 
 	while (chunk--) {
-		const ptrdiff_t CHUNK_INDEX = search(ImageVec.begin(), ImageVec.end(), CHUNKS_TO_REMOVE[chunk].begin(), CHUNKS_TO_REMOVE[chunk].end())-ImageVec.begin()-4;
-		if (FIRST_IDAT_INDEX > CHUNK_INDEX) {
+		const ptrdiff_t CHUNK_INDEX = search(ImageVec.begin(), ImageVec.end(), CHUNKS_TO_REMOVE[chunk].begin(), CHUNKS_TO_REMOVE[chunk].end()) - ImageVec.begin() - 4;
+		if (firstIdatIndex > CHUNK_INDEX) {
 			int chunkLength = (ImageVec[CHUNK_INDEX + 2] << 8) | ImageVec[CHUNK_INDEX + 3];
 			ImageVec.erase(ImageVec.begin() + CHUNK_INDEX, ImageVec.begin() + CHUNK_INDEX + (chunkLength + 12));
+			firstIdatIndex = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4;
 			chunk++;
 		}
 	}
