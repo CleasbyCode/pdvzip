@@ -617,22 +617,15 @@ Dimensions:
 PNG_32 (Truecolour with alpha [6])
 PNG_24 (Truecolour [2])
 
-Image dimensions can be set between a minimum of 65 x 65 (Approx.) and a maximum of 900 x 900 (Exct).
-
-Twitter will convert the image to jpg if you exceed the maximum dimensions, and/or the PNG file size exceeds 5MB.
-Twitter will convert the image to webp if you go below the minimum dimensions.
-Twitter will convert images with 256 colours or less to PNG_8 (indexed-colour, 8bit).
+Image dimensions can be set between a minimum of 68 x 68 and a maximum of 899 x 899.
 
 PNG_8 (Indexed-colour [3])
 
-Image dimensions can be set between a minimum of 65 x 65 (Approx.) and a maximum of 4096 x 4096 (Exct).
-
-Twitter will convert the image to jpg if you exceed the maximum dimensions, and/or the PNG file size exceeds 5MB.
-Twitter will convert the image to webp if you go below the minimum dimensions.
+Image dimensions can be set between a minimum of 68 x 68 and a maximum of 4096 x 4096.
 
 Chunks:
 
-PNG chunk types that Twitter will preserve arbitrary data.
+PNG chunk types that you can insert arbitrary data, which Twitter will preserve (in conjuction with above dimensions & file size limits).
 
 bKGD, cHRM, gAMA, hIST, iCCP,
 IDAT, (Use as last IDAT chunk, after the final image IDAT chunk).
