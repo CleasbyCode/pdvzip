@@ -141,32 +141,31 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		ZIP_HDR{ ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length() };
 
 	const int
-		DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	
-		DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],
-		PNG24_MAX_DIMS = 900,			
-		PNG8_MAX_DIMS = 4096,			
-		PNG_MIN_DIMS = 65,			
-		COLOR_TYPE = ImageVec[25],		
+		IMAGE_DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	
+		IMAGE_DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],
+		PNG_TRUECOLOR_MAX_DIMS = 899,	
+		PNG_INDEXED_MAX_DIMS = 4096,	
+		PNG_MIN_DIMS = 68,		
+		COLOR_TYPE = ImageVec[25] == 6 ? 2 : ImageVec[25],				
 		INZIP_NAME_LENGTH = ZipVec[34], 
-		PNG8 = 3,				
-		PNG24 = 2,				
-		PNG32 = 6,				
-		MIN_NAME_LENGTH = 4;	
+		PNG_INDEXED = 3,		
+		PNG_TRUECOLOR = 2,		
+		MIN_NAME_LENGTH = 4;		
+	
+	const bool
+		VALID_COLOR_TYPE = (COLOR_TYPE == PNG_INDEXED) ? true
+		: ((COLOR_TYPE == PNG_TRUECOLOR) ? true : false),
 
-	const bool	
-		VALID_COLOR_TYPE = (COLOR_TYPE == PNG8) ? true
-		: (COLOR_TYPE == PNG24) ? true
-		: ((COLOR_TYPE == PNG32) ? true : false),
-
-		VALID_IMAGE_DIMS = (COLOR_TYPE == PNG24 || COLOR_TYPE == PNG32
-			&& DIMS_WIDTH <= PNG24_MAX_DIMS
-			&& DIMS_HEIGHT <= PNG24_MAX_DIMS
-			&& DIMS_WIDTH >= PNG_MIN_DIMS
-			&& DIMS_HEIGHT >= PNG_MIN_DIMS) ? true
-		: ((COLOR_TYPE == PNG8 && DIMS_WIDTH <= PNG8_MAX_DIMS
-			&& DIMS_HEIGHT <= PNG8_MAX_DIMS
-			&& DIMS_WIDTH >= PNG_MIN_DIMS
-			&& DIMS_HEIGHT >= PNG_MIN_DIMS) ? true : false);
+		VALID_IMAGE_DIMS = (COLOR_TYPE == PNG_TRUECOLOR
+			&& IMAGE_DIMS_WIDTH <= PNG_TRUECOLOR_MAX_DIMS
+			&& IMAGE_DIMS_HEIGHT <= PNG_TRUECOLOR_MAX_DIMS
+			&& IMAGE_DIMS_WIDTH >= PNG_MIN_DIMS
+			&& IMAGE_DIMS_HEIGHT >= PNG_MIN_DIMS) ? true
+		: ((COLOR_TYPE == PNG_INDEXED
+			&& IMAGE_DIMS_WIDTH <= PNG_INDEXED_MAX_DIMS
+			&& IMAGE_DIMS_HEIGHT <= PNG_INDEXED_MAX_DIMS
+			&& IMAGE_DIMS_WIDTH >= PNG_MIN_DIMS
+			&& IMAGE_DIMS_HEIGHT >= PNG_MIN_DIMS ) ? true : false);
 
 	if (IMG_HDR != PNG_ID
 		|| ZIP_HDR != ZIP_ID
