@@ -193,32 +193,32 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		ZIP_HDR{ ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length() };	// Get file header from vector "ZipVec".
 
 	const int
-		DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	// Get image dimensions Width & Hight from vector "ImageVec".
-		DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],
-		PNG24_MAX_DIMS = 900,	// 900 x 900 is the maximum supported dimension size for PNG_24 & PNG_32, any higher and Twitter will convert image to jpg. 
-		PNG8_MAX_DIMS = 4096,	// 4096 x 4096 is the maximum supported dimension size for PNG_8, any higher and Twitter will convert image to jpg. 
-		PNG_MIN_DIMS = 65,	// 65 x 65 (Approx.) is the minimum supported dimensions size for PNG. Below this, Twitter will convert image to webp.
-		COLOR_TYPE = ImageVec[25],	// Get image colour type value from vector "ImageVec".
+		IMAGE_DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	// Get image dimensions Width & Hight from vector "ImageVec".
+		IMAGE_DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],
+		PNG_TRUECOLOR_MAX_DIMS = 899,	// 899 x 899 maximum supported dimension size for PNG_TRUECOLOR (2,6), for this program. 
+		PNG_INDEXED_MAX_DIMS = 4096,	// 4096 x 4096 maximum supported dimension size for PNG_INDEXED (3), for this program. 
+		PNG_MIN_DIMS = 68,		// 68 x 68 minimum supported dimensions size for PNG, for this program. 
+		COLOR_TYPE = ImageVec[25] == 6 ? 2 : ImageVec[25],	// Get image colour type value from vector "ImageVec". 
+									// If it is 6 (Truecolor with alpha, change the value to 2 (Truecolor).
 		INZIP_NAME_LENGTH = ZipVec[34], // Get length of in-zip media filename from vector "ZipVec".
-		PNG8 = 3,		// PNG8, Indexed colour.
-		PNG24 = 2,		// PNG24, Truecolor. 
-		PNG32 = 6,		// PNG32, Truecolor with alpha.
-		MIN_NAME_LENGTH = 4;	// Minimum filename length of inzip media file.
+		PNG_INDEXED = 3,		// PNG8, Indexed colour.
+		PNG_TRUECOLOR = 2,		// PNG24, Truecolor. (We also use this for Truecolor with alpha (6).)
+		MIN_NAME_LENGTH = 4;		// Minimum filename length of inzip media file.
+	
+	const bool
+		VALID_COLOR_TYPE = (COLOR_TYPE == PNG_INDEXED) ? true
+		: ((COLOR_TYPE == PNG_TRUECOLOR) ? true : false),
 
-	const bool	
-		VALID_COLOR_TYPE = (COLOR_TYPE == PNG8) ? true
-		: (COLOR_TYPE == PNG24) ? true
-		: ((COLOR_TYPE == PNG32) ? true : false),
-
-		VALID_IMAGE_DIMS = (COLOR_TYPE == PNG24 || COLOR_TYPE == PNG32
-			&& DIMS_WIDTH <= PNG24_MAX_DIMS
-			&& DIMS_HEIGHT <= PNG24_MAX_DIMS
-			&& DIMS_WIDTH >= PNG_MIN_DIMS
-			&& DIMS_HEIGHT >= PNG_MIN_DIMS) ? true
-		: ((COLOR_TYPE == PNG8 && DIMS_WIDTH <= PNG8_MAX_DIMS
-			&& DIMS_HEIGHT <= PNG8_MAX_DIMS
-			&& DIMS_WIDTH >= PNG_MIN_DIMS
-			&& DIMS_HEIGHT >= PNG_MIN_DIMS) ? true : false);
+		VALID_IMAGE_DIMS = (COLOR_TYPE == PNG_TRUECOLOR
+			&& IMAGE_DIMS_WIDTH <= PNG_TRUECOLOR_MAX_DIMS
+			&& IMAGE_DIMS_HEIGHT <= PNG_TRUECOLOR_MAX_DIMS
+			&& IMAGE_DIMS_WIDTH >= PNG_MIN_DIMS
+			&& IMAGE_DIMS_HEIGHT >= PNG_MIN_DIMS) ? true
+		: ((COLOR_TYPE == PNG_INDEXED
+			&& IMAGE_DIMS_WIDTH <= PNG_INDEXED_MAX_DIMS
+			&& IMAGE_DIMS_HEIGHT <= PNG_INDEXED_MAX_DIMS
+			&& IMAGE_DIMS_WIDTH >= PNG_MIN_DIMS
+			&& IMAGE_DIMS_HEIGHT >= PNG_MIN_DIMS ) ? true : false); 
 
 	if (IMG_HDR != PNG_ID
 		|| ZIP_HDR != ZIP_ID
@@ -768,22 +768,15 @@ Dimensions:
 PNG_32 (Truecolour with alpha [6])
 PNG_24 (Truecolour [2])
 
-Image dimensions can be set between a minimum of 65 x 65 (Approx.) and a maximum of 900 x 900 (Exct).
-
-Twitter will convert the image to jpg if you exceed the maximum dimensions, and/or the PNG file size exceeds 5MB.
-Twitter will convert the image to webp if you go below the minimum dimensions.
-Twitter will convert images with 256 colours or less to PNG_8 (indexed-colour, 8bit).
+Image dimensions can be set between a minimum of 68 x 68 and a maximum of 899 x 899.
 
 PNG_8 (Indexed-colour [3])
 
-Image dimensions can be set between a minimum of 65 x 65 (Approx.) and a maximum of 4096 x 4096 (Exct).
-
-Twitter will convert the image to jpg if you exceed the maximum dimensions, and/or the PNG file size exceeds 5MB.
-Twitter will convert the image to webp if you go below the minimum dimensions.
+Image dimensions can be set between a minimum of 68 x 68 and a maximum of 4096 x 4096.
 
 Chunks:
 
-PNG chunk types that Twitter will preserve arbitrary data.
+PNG chunk types that you can insert arbitrary data, which Twitter will preserve (in conjuction with above dimensions & file size limits).
 
 bKGD, cHRM, gAMA, hIST, iCCP,
 IDAT, (Use as last IDAT chunk, after the final image IDAT chunk).
