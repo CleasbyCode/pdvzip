@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include "ScriptVec.hpp"
-	
+
 unsigned long updateCrc(const unsigned long&, unsigned char*, const size_t&);
 unsigned long crc(unsigned char*, const size_t&);
 void openFiles(char* []);
@@ -56,7 +56,7 @@ void openFiles(char* argv[]) {
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
 	}
-	
+
 	checkFileSize(readImg, readZip, IMG_FILE, ZIP_FILE);
 }
 
@@ -94,7 +94,7 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
 	}
-	
+
 	readFilesIntoVectors(readImg, readZip, IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
 }
 
@@ -105,7 +105,7 @@ void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const 
 		ImageVec{ 0 / sizeof(unsigned char) };
 
 	readImg.seekg(0, readImg.beg),
-		readZip.seekg(0, readZip.beg);
+	readZip.seekg(0, readZip.beg);
 
 	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
 	readImg.read((char*)&ImageVec[0], IMG_SIZE);
@@ -120,13 +120,13 @@ void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const 
 	if (ImageVec[25] == 3) {
 		fixPaletteChunk(ImageVec);
 	}
-	
+
 	int idatZipChunkLengthIndex = 1;
 	
 	insertChunkLength(ZipVec, idatZipChunkLengthIndex, ZIP_SIZE, 24, true);
 
 	completeScript(ZipVec);
-	
+
 	combineVectors(ImageVec, ZipVec, ScriptVec);
 
 	writeFile(ImageVec, ZIP_FILE);
@@ -138,7 +138,7 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		PNG_ID = "\x89PNG",
 		ZIP_ID = "PK\x03\x04",
 		IMG_HDR{ ImageVec.begin(), ImageVec.begin() + PNG_ID.length() },	
-		ZIP_HDR{ ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length() };
+		ZIP_HDR{ ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_ID.length() };	
 
 	const int
 		IMAGE_DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	
@@ -146,7 +146,8 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		PNG_TRUECOLOR_MAX_DIMS = 899,	
 		PNG_INDEXED_MAX_DIMS = 4096,	
 		PNG_MIN_DIMS = 68,		
-		COLOR_TYPE = ImageVec[25] == 6 ? 2 : ImageVec[25],				
+		COLOR_TYPE = ImageVec[25] == 6 ? 2 : ImageVec[25],	
+									
 		INZIP_NAME_LENGTH = ZipVec[34], 
 		PNG_INDEXED = 3,		
 		PNG_TRUECOLOR = 2,		
@@ -165,12 +166,12 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 			&& IMAGE_DIMS_WIDTH <= PNG_INDEXED_MAX_DIMS
 			&& IMAGE_DIMS_HEIGHT <= PNG_INDEXED_MAX_DIMS
 			&& IMAGE_DIMS_WIDTH >= PNG_MIN_DIMS
-			&& IMAGE_DIMS_HEIGHT >= PNG_MIN_DIMS ) ? true : false);
+			&& IMAGE_DIMS_HEIGHT >= PNG_MIN_DIMS ) ? true : false); 
 
 	if (IMG_HDR != PNG_ID
 		|| ZIP_HDR != ZIP_ID
-		|| VALID_COLOR_TYPE != true
-		|| VALID_IMAGE_DIMS != true
+		|| !VALID_COLOR_TYPE
+		|| !VALID_IMAGE_DIMS
 		|| MIN_NAME_LENGTH > INZIP_NAME_LENGTH) {
 
 		const std::string
@@ -182,8 +183,8 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 
 			ERR_MSG = (IMG_HDR != PNG_ID) ? "\nPNG " + HEADER_ERR_MSG + " PNG image.\n\n"
 			: (ZIP_HDR != ZIP_ID) ? "\nZIP " + HEADER_ERR_MSG + " ZIP archive.\n\n"
-			: (VALID_IMAGE_DIMS != true) ? IMAGE_ERR_MSG1
-			: ((VALID_COLOR_TYPE != true) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
+			: (!VALID_COLOR_TYPE) ? IMAGE_ERR_MSG2
+			: ((!VALID_IMAGE_DIMS) ? IMAGE_ERR_MSG1 : ZIP_ERR_MSG);
 
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
@@ -210,8 +211,8 @@ void eraseChunks(std::vector<unsigned char>& ImageVec) {
 	
 	const std::string
 		IDAT_ID = "IDAT",
-		CHUNKS_TO_REMOVE[14]{ "bKGD", "cHRM", "sRGB", "hIST", "iCCP", "pHYs", "sBIT", "gAMA", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
-
+		CHUNKS_TO_REMOVE[13]{ "bKGD", "cHRM", "sRGB", "hIST", "pHYs", "sBIT", "gAMA", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
+	
 	ptrdiff_t firstIdatIndex = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4;
 	int chunk = sizeof(CHUNKS_TO_REMOVE) / sizeof(std::string);
 
@@ -274,8 +275,8 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 		PLTE_CHUNK_LENGTH = (ImageVec[PLTE_CHUNK_LENGTH_INDEX + 2] << 8) | ImageVec[PLTE_CHUNK_LENGTH_INDEX + 3];
 
 	const char
-		BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' }, 
-		GOOD_CHAR[7]{ '*', '&', '=', '}', 'a', '?', ':' }; 
+		BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' },  
+		GOOD_CHAR[7]{ '*', '&', '=', '}', 'a', '?', ':' };  
 
 	int twoCount{};
 
@@ -288,7 +289,7 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 			: (ImageVec[i] == BAD_CHAR[4]) ? GOOD_CHAR[0]
 			: (ImageVec[i] == BAD_CHAR[5]) ? GOOD_CHAR[5]
 			: ((ImageVec[i] == BAD_CHAR[6]) ? GOOD_CHAR[6] : ImageVec[i]);
-		
+
 		if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')
 			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '}')
 			|| (ImageVec[i] == '&' && ImageVec[i + 1] == '{')
@@ -308,7 +309,7 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 				ImageVec[i] = ImageVec[i] == '<' ? GOOD_CHAR[2] : GOOD_CHAR[0];
 			}
 		}
-		
+
 		if (ImageVec[i] == '&' || ImageVec[i] == '|') {
 			twoCount++;
 			if (twoCount > 1) {
@@ -318,7 +319,7 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 		else {
 			twoCount = 0;
 		}
-		
+
 		int j = 1, k = 2;
 		if (ImageVec[i] == '<') {
 			while (j < 12) {
@@ -336,7 +337,7 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 
 	do {
 		redoCrc = false;
-		
+
 		const uint32_t PLTE_CHUNK_CRC = crc(&ImageVec[PLTE_CHUNK_START_INDEX], PLTE_CHUNK_LENGTH + 4);
 
 		ptrdiff_t
@@ -344,7 +345,7 @@ void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 			plteModCrcInsertIndex = plteCrcInsertIndex - 1;
 		
 		insertChunkLength(ImageVec, plteCrcInsertIndex, PLTE_CHUNK_CRC, 32, true);
-		
+
 		for (int i{}; i < 5; i++) {
 			for (int j{}; j < 7; j++) {
 				if (i > 3) break;
@@ -389,7 +390,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 	size_t findExtension = inzipName.find_last_of('.');
 
 	ExtApp.push_back(inzipName);
-	
+
 	int InsertSequence[52]{
 				236,234,116,115,114, 33,28,27,33,20, 	
 				236,234,115,114, 33,28,33,21,		
@@ -407,11 +408,11 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 			break;						
 		}
 	}
-	
+
 	if (findExtension == 0 || findExtension > inzipName.length()) {
 		appIndex = ZipVec[INZIP_NAME_INDEX + INZIP_NAME_LENGTH - 1] == '/' ? FOLDER_INVOKE_ITEM : EXECUTABLE;
 	}
-
+	
 	if (appIndex > 21 && appIndex < 26) {
 		std::cout << "\nFor this file type you can provide command-line arguments here, if required.\n\nLinux: ";
 		std::getline(std::cin, argsLinux);
@@ -431,13 +432,15 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 	case PYTHON:			
 	case LINUX_PWSH:		
 		insertIndex = 18, extAppElement = 25;	
+			
 		if (appIndex == LINUX_PWSH) {
 			inzipName.insert(0, ".\\");	
 			ExtApp.push_back(inzipName);
 			InsertSequence[31] = LINUX_PWSH,
-				InsertSequence[28] = WIN_POWERSHELL;
+			InsertSequence[28] = WIN_POWERSHELL;
 			InsertSequence[27] = MOD_INZIP_FILENAME; 
 		}
+
 		break;
 	case EXECUTABLE:
 		insertIndex = 32, extAppElement = 42;
@@ -451,7 +454,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 		break;
 	default:	
 		insertIndex = 10, extAppElement = 14;
-		InsertSequence[17] = BASH_XDG_OPEN; 
+		InsertSequence[17] = BASH_XDG_OPEN;  
 	}
 	
 	sequenceLimit = { appIndex == BASH_XDG_OPEN ? extAppElement - 1 : extAppElement };
@@ -478,7 +481,7 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 		int histChunkLengthInsertIndex = 2;
 		
 		insertChunkLength(ScriptVec, histChunkLengthInsertIndex, HIST_CHUNK_LENGTH, 16, true);
-		
+
 		if (ScriptVec[3] == '('
 			|| ScriptVec[3] == ')'
 			|| ScriptVec[3] == '\''
@@ -486,8 +489,9 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 			|| ScriptVec[3] == '"'
 			|| ScriptVec[3] == '>'
 			|| ScriptVec[3] == ';') {
-			
+
 			ScriptVec.insert(ScriptVec.begin() + (HIST_CHUNK_LENGTH + 10), '.');
+
 			redoChunkLength = true;
 		}
 	} while (redoChunkLength);
@@ -496,19 +500,22 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned char>& ZipVec, std::vector<unsigned char>& ScriptVec) {
 
 	const std::string
+		ICCP_ID = "iCCP",
 		IDAT_ID = "IDAT",
 		IDAT_ZIP_ID = "IDATPK";
 	
 	const ptrdiff_t
+		ICCP_START_INDEX = search(ImageVec.begin(), ImageVec.end(), ICCP_ID.begin(), ICCP_ID.end()) - ImageVec.begin() - 4,
 		FIRST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4,
-		HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
 	
-	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end());
-	
-	const ptrdiff_t LAST_IDAT_CHUNK_INSERT_INDEX = ImageVec.size() - 12;
-	
-	ImageVec.insert((ImageVec.begin() + LAST_IDAT_CHUNK_INSERT_INDEX), ZipVec.begin(), ZipVec.end());
+		HIST_SCRIPT_CHUNK_INSERT_INDEX = ICCP_START_INDEX > FIRST_IDAT_START_INDEX ? FIRST_IDAT_START_INDEX : ICCP_START_INDEX;
 
+	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end());
+
+	const ptrdiff_t LAST_IDAT_CHUNK_INSERT_INDEX = ImageVec.size() - 12;
+
+	ImageVec.insert((ImageVec.begin() + LAST_IDAT_CHUNK_INSERT_INDEX), ZipVec.begin(), ZipVec.end());
+	
 	const ptrdiff_t
 		LAST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ZIP_ID.begin(), IDAT_ZIP_ID.end()) - ImageVec.begin(),
 		LAST_IDAT_LENGTH = ImageVec.size() - (LAST_IDAT_START_INDEX + 16);
@@ -518,7 +525,7 @@ void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned c
 	const uint32_t LAST_IDAT_CRC = crc(&ImageVec[LAST_IDAT_START_INDEX], LAST_IDAT_LENGTH);
 
 	ptrdiff_t lastIdatCrcInsertIndex = ImageVec.size() - 16;
-	
+
 	insertChunkLength(ImageVec, lastIdatCrcInsertIndex, LAST_IDAT_CRC, 32, true);
 }
 
@@ -528,7 +535,7 @@ void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_ID
 		START_CENTRAL_ID = "PK\x01\x02",
 		END_CENTRAL_ID = "PK\x05\x06",
 		ZIP_ID = "PK\x03\x04";
-	
+
 	const ptrdiff_t
 		START_CENTRAL_DIR_INDEX = search(ImageVec.begin() + LAST_IDAT_INDEX, ImageVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ImageVec.begin(),
 		END_CENTRAL_DIR_INDEX = search(ImageVec.begin() + START_CENTRAL_DIR_INDEX, ImageVec.end(), END_CENTRAL_ID.begin(), END_CENTRAL_ID.end()) - ImageVec.begin();
@@ -546,7 +553,7 @@ void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_ID
 		centralLocalInsertIndex = 45 + search(ImageVec.begin() + centralLocalInsertIndex, ImageVec.end(), START_CENTRAL_ID.begin(), START_CENTRAL_ID.end()) - ImageVec.begin();
 		insertChunkLength(ImageVec, centralLocalInsertIndex, newZipOffset, 32, false);
 	}
-	
+
 	insertChunkLength(ImageVec, endCentralStartInsertIndex, START_CENTRAL_DIR_INDEX, 32, false);
 	
 	int commentLength = 16 + (ImageVec[commentLengthInsertIndex] << 8) | ImageVec[commentLengthInsertIndex - 1];
@@ -588,6 +595,7 @@ void displayInfo() {
 	std::cout << R"(
 PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.2). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 
+
 PDVZIP enables you to embed a ZIP archive containing a small media file within a tweetable PNG image.
 Twitter will retain the arbitrary data embedded inside the image. Twitter's PNG size limit is 5MB per image.
 
@@ -613,6 +621,8 @@ Twitter will convert image to jpg if you exceed this size.
 
 Dimensions:
 
+The following dimension size limits are specific to pdvzip and not necessarily the extact Twitter size limits.
+
 PNG_32 (Truecolour with alpha [6])
 PNG_24 (Truecolour [2])
 
@@ -624,14 +634,15 @@ Image dimensions can be set between a minimum of 68 x 68 and a maximum of 4096 x
 
 Chunks:
 
-PNG chunk types that you can insert arbitrary data, which Twitter will preserve (in conjuction with above dimensions & file size limits).
+PNG chunks that you can insert arbitrary data, in which Twitter will preserve in conjuction with the above dimensions & file size limits.
 
-bKGD, cHRM, gAMA, hIST, iCCP,
+bKGD, cHRM, gAMA, hIST,
 IDAT, (Use as last IDAT chunk, after the final image IDAT chunk).
+PLTE, (Use only with PNG_32 & PNG_24).
 pHYs, sBIT, sPLT, sRGB,
 tRNS. (Not recommended as it will distort image).
 
-This program uses hIST & IDAT chunk names and removes the others (if found).
+This program uses hIST & IDAT chunks for storing arbitrary data and removes the others, apart from iCCP, if found.
 
 ZIP File Size & Other Information
 
