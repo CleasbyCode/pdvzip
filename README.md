@@ -88,10 +88,12 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 Note: As I'm still testing the following, information presented here may change frequently. 
 
-PNG file size (image + embedded content) must not exceed 5MB (5,242,880 bytes).  
+PNG file size (image + embedded content) must not exceed **5MB** (5,242,880 bytes).  
 Twitter will convert image to ***jpg*** if you exceed this size.
 
 **Dimensions:**
+
+The following dimension size limits are specific to **pdvzip** and not necessarily the extact Twitter size limits.
 
 **PNG_32** (Truecolour with alpha [6])  
 **PNG_24** (Truecolour [2]) 
@@ -104,7 +106,7 @@ Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of 
         
 **Chunks:**  
 
-PNG chunk types that you can insert arbitrary data, which Twitter will preserve in conjuction with the above dimensions & file size limits.  
+PNG chunks that you can insert arbitrary data, in which Twitter will preserve in conjuction with the above dimensions & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,***  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
@@ -112,7 +114,7 @@ PNG chunk types that you can insert arbitrary data, which Twitter will preserve 
 ***pHYs, sBIT, sPLT, sRGB,***  
 ***tRNS.*** (Not recommended as it will distort image).  
 
-This program uses hIST & IDAT chunk names and removes the others (if found).
+This program uses hIST & IDAT chunks for storing arbitrary data and removes the others, apart from iCCP, if found.
 
 ## ZIP File Size & Other Important Information
 
@@ -127,6 +129,6 @@ The less detailed your image, the more space available for the ZIP.
 * Use file extensions for your media file within the ZIP archive: *my_doc.pdf*, *my_video.mp4*, *my_program.py*, etc.
   
   A file without an extension will be treated as a Linux executable.      
-* Paint.net application is recommended for easily creating compatible PNG image files.
+* **Paint.net** application is recommended for easily creating compatible PNG image files.
 
 ##
