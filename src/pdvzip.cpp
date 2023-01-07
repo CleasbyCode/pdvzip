@@ -222,8 +222,8 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 
 	if (IMG_HDR != PNG_ID
 		|| ZIP_HDR != ZIP_ID
-		|| VALID_COLOR_TYPE != true
-		|| VALID_IMAGE_DIMS != true
+		|| !VALID_COLOR_TYPE
+		|| !VALID_IMAGE_DIMS
 		|| MIN_NAME_LENGTH > INZIP_NAME_LENGTH) {
 
 		// File requirements check failure, display relevant error message and terminate program.
@@ -236,8 +236,8 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 
 			ERR_MSG = (IMG_HDR != PNG_ID) ? "\nPNG " + HEADER_ERR_MSG + " PNG image.\n\n"
 			: (ZIP_HDR != ZIP_ID) ? "\nZIP " + HEADER_ERR_MSG + " ZIP archive.\n\n"
-			: (VALID_IMAGE_DIMS != true) ? IMAGE_ERR_MSG1
-			: ((VALID_COLOR_TYPE != true) ? IMAGE_ERR_MSG2 : ZIP_ERR_MSG);
+			: (!VALID_COLOR_TYPE) ? IMAGE_ERR_MSG2
+			: ((!VALID_IMAGE_DIMS) ? IMAGE_ERR_MSG1 : ZIP_ERR_MSG);
 
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
@@ -267,7 +267,7 @@ void eraseChunks(std::vector<unsigned char>& ImageVec) {
 	
 	const std::string
 		IDAT_ID = "IDAT",
-		CHUNKS_TO_REMOVE[14]{ "bKGD", "cHRM", "sRGB", "hIST", "iCCP", "pHYs", "sBIT", "gAMA", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
+		CHUNKS_TO_REMOVE[13]{ "bKGD", "cHRM", "sRGB", "hIST", "pHYs", "sBIT", "gAMA", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
 	
 	// Get first IDAT chunk index location. Don't remove chunks after this point.
 	ptrdiff_t firstIdatIndex = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4;
@@ -327,9 +327,9 @@ unsigned long crc(unsigned char* buf, const size_t& len) {
 
 void fixPaletteChunk(std::vector<unsigned char>& ImageVec) {
 
-	// Linux issue: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will break the script.
-	// The main 'for loop' contains a number of fixes for this issue.
-	// For Imgur support, the PLTE chunk has to be before the hIST chunk (extraction shell script). The function would be unnecessary if I did not support Imgur.
+	// PNG_8, Linux issue: Some individual characters, sequence or combination of certain characters that may appear in the PLTE chunk will break the script.
+	// Function contains a number of fixes for this problem.
+	// For PNG_8, Imgur support, the PLTE chunk has to be before the hIST chunk (extraction shell script).
 
 	const std::string PLTE_ID = "PLTE";
 
@@ -626,18 +626,22 @@ void completeScript(std::vector<unsigned char>& ZipVec) {
 void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned char>& ZipVec, std::vector<unsigned char>& ScriptVec) {
 
 	const std::string
+		ICCP_ID = "iCCP",
 		IDAT_ID = "IDAT",
 		IDAT_ZIP_ID = "IDATPK";
 
-	// Search for index location of first IDAT chunk within vector "ImageVec".
-	// "ImageVec" vector's index insert location for vector "ScriptVec", just before first IDAT chunk and after PLTE chunk. 
-	// This location for the hIST chunk (extraction script) is required for Imgur support. 
-	// For Imgur to work correctly, the PLTE chunk must be located before the hIST chunk. 
-	const ptrdiff_t
-		FIRST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4,
-		HIST_SCRIPT_CHUNK_INSERT_INDEX = FIRST_IDAT_START_INDEX;
+	// Search for index locations of iCCP chunk and the first IDAT chunk within vector "ImageVec".
+	// "ImageVec" vector's index insert location for vector "ScriptVec", just before iCCP chunk if it is found,
+	// or the first IDAT chunk and after PLTE chunk (if PNG_8). 
+	// For Imgur to work correctly (if PNG_8), the PLTE chunk must be located before the hIST chunk. 
 
-	// After the PLTE chunk, insert contents of vector "ScriptVec" into vector "ImageVec", combining hIST chunk (extraction script) with PNG image.
+	const ptrdiff_t
+		ICCP_START_INDEX = search(ImageVec.begin(), ImageVec.end(), ICCP_ID.begin(), ICCP_ID.end()) - ImageVec.begin() - 4,
+		FIRST_IDAT_START_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4,
+	
+		HIST_SCRIPT_CHUNK_INSERT_INDEX = ICCP_START_INDEX > FIRST_IDAT_START_INDEX ? FIRST_IDAT_START_INDEX : ICCP_START_INDEX;
+
+	// Insert contents of vector "ScriptVec" into vector "ImageVec", combining hIST chunk (extraction script) with PNG image.
 	ImageVec.insert((ImageVec.begin() + HIST_SCRIPT_CHUNK_INSERT_INDEX), ScriptVec.begin(), ScriptVec.end());
 
 	// "ImageVec" vector's index insert location for vector "ZipVec", last 12 bytes of the PNG image.
