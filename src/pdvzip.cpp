@@ -765,6 +765,8 @@ Twitter will convert image to jpg if you exceed this size.
 
 Dimensions:
 
+The following dimension size limits are specific to pdvzip and not necessarily the extact Twitter size limits.
+
 PNG_32 (Truecolour with alpha [6])
 PNG_24 (Truecolour [2])
 
@@ -776,14 +778,15 @@ Image dimensions can be set between a minimum of 68 x 68 and a maximum of 4096 x
 
 Chunks:
 
-PNG chunk types that you can insert arbitrary data, which Twitter will preserve (in conjuction with above dimensions & file size limits).
+PNG chunks that you can insert arbitrary data, in which Twitter will preserve in conjuction with the above dimensions & file size limits.
 
-bKGD, cHRM, gAMA, hIST, iCCP,
+bKGD, cHRM, gAMA, hIST,
 IDAT, (Use as last IDAT chunk, after the final image IDAT chunk).
+PLTE, (Use only with PNG_32 & PNG_24).
 pHYs, sBIT, sPLT, sRGB,
 tRNS. (Not recommended as it will distort image).
 
-This program uses hIST & IDAT chunk names and removes the others (if found).
+This program uses hIST & IDAT chunks for storing arbitrary data and removes the others, apart from iCCP, if found.
 
 ZIP File Size & Other Information
 
