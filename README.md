@@ -74,7 +74,7 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 **Image Examples**  
 
-[Twitter. Four images. Embedded with (TL) PDF, (TR) 12 JPG Images, (BL) MP3, (BR) MP4](https://twitter.com/CleasbyCode/status/1599074588175933441)
+[Twitter. Four images. Embedded with Python, PDF, MP4 & MP3](https://twitter.com/CleasbyCode/status/1611557512553046019)
 
 **Video Examples (YouTube)**
 
