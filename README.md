@@ -87,7 +87,7 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
-Note: As I'm still testing the following, information presented here may change frequently. 
+Note: As I'm still testing, the following information presented here may change frequently. 
 
 PNG file size (image + embedded content) must not exceed **5MB** (5,242,880 bytes).  
 Twitter will convert image to ***jpg*** if you exceed this size.
