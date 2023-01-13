@@ -79,7 +79,7 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 **Video Examples (YouTube)**
 
-[Embedding, Tweeting & Extracting Multiple Files](https://www.youtube.com/watch_popup?v=VTYP3OdEzRM)
+[Image ZIP File](https://www.youtube.com/watch_popup?v=M2-YNEnu_zQ)
 
 [Embedding & Running Python Program](https://www.youtube.com/watch_popup?v=Ns64VF0dciw)
 
