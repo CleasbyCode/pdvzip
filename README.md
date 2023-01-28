@@ -130,6 +130,7 @@ The less detailed your image, the more space available for the ZIP.
 * Use file extensions for your media file within the ZIP archive: *my_doc.pdf*, *my_video.mp4*, *my_program.py*, etc.
   
   A file without an extension will be treated as a Linux executable.      
-* **Paint.net** application is recommended for easily creating compatible PNG image files.
+* **Paint.net** application is recommended for easily creating compatible PNG image files.  
 
+Other editions of **pdv** you may find useful: [pdvrdt - PNG Data Vehicle for Reddit](https://github.com/CleasbyCode/pdvrdt) & [pdvps - PNG Data Vehicle for Twitter, PowerShell Edition](https://github.com/CleasbyCode/pdvps)
 ##
