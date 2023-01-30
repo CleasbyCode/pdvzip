@@ -219,7 +219,7 @@ void eraseChunks(std::vector<unsigned char>& ImageVec) {
 	while (chunk--) {
 		const ptrdiff_t CHUNK_INDEX = search(ImageVec.begin(), ImageVec.end(), CHUNKS_TO_REMOVE[chunk].begin(), CHUNKS_TO_REMOVE[chunk].end())-ImageVec.begin()-4;
 		if (firstIdatIndex > CHUNK_INDEX) {
-			int chunkLength = (ImageVec[CHUNK_INDEX + 2] << 8) | ImageVec[CHUNK_INDEX + 3];
+			int chunkLength = (ImageVec[CHUNK_INDEX + 1] << 16) | ImageVec[CHUNK_INDEX + 2] << 8 | ImageVec[CHUNK_INDEX + 3];
 			ImageVec.erase(ImageVec.begin() + CHUNK_INDEX, ImageVec.begin() + CHUNK_INDEX + (chunkLength + 12));
 			firstIdatIndex = search(ImageVec.begin(), ImageVec.end(), IDAT_ID.begin(), IDAT_ID.end()) - ImageVec.begin() - 4;
 			chunk++;
