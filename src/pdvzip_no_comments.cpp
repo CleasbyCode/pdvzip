@@ -94,6 +94,9 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
 	}
+	
+	readImg.seekg(0, readImg.beg),
+	readZip.seekg(0, readZip.beg);
 
 	readFilesIntoVectors(readImg, readZip, IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
 }
@@ -102,14 +105,8 @@ void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const 
 
 	std::vector<unsigned char>
 		ZipVec{ 0,0,0,0,73,68,65,84,0,0,0,0 },
-		ImageVec{ 0 / sizeof(unsigned char) };
-
-	readImg.seekg(0, readImg.beg),
-	readZip.seekg(0, readZip.beg);
-
-	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
-	readImg.read((char*)&ImageVec[0], IMG_SIZE);
-
+		ImageVec((std::istreambuf_iterator<char>(readImg)), std::istreambuf_iterator<char>());
+	
 	ZipVec.resize(ZIP_SIZE + ZipVec.size() / sizeof(unsigned char));
 	readZip.read((char*)&ZipVec[8], ZIP_SIZE);
 
