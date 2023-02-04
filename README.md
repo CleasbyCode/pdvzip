@@ -55,6 +55,9 @@ G:\demo>
 G:\demo> .\pdv_your_image_file.cmd
 
 ```
+
+[**Twitter demo - Four images embedded with pdf, mp3, mp4 and python**](https://twitter.com/CleasbyCode/status/1621927741384695809) 
+
 Opening the cmd file from the desktop, on its first run, Windows may display a security warning. Clear this by clicking '***More info***' then select '***Run anyway***'. To avoid security warnings, run the image file from a Windows command terminal, as shown in the above example.
 
 For some common video & audio files, Linux requires the '***vlc (VideoLAN)***' application, Windows uses the set default media player.  
