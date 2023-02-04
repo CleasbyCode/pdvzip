@@ -131,6 +131,10 @@ void checkFileSize(std::ifstream& readImg, std::ifstream& readZip, const std::st
 		std::exit(EXIT_FAILURE);
 	}
 
+	// Reset read position of files. 
+	readImg.seekg(0, readImg.beg),
+	readZip.seekg(0, readZip.beg);
+	
 	// File size check success, now store files into vectors.
 	readFilesIntoVectors(readImg, readZip, IMG_FILE, ZIP_FILE, IMG_SIZE, ZIP_SIZE);
 }
@@ -139,19 +143,11 @@ void readFilesIntoVectors(std::ifstream& readImg, std::ifstream& readZip, const 
 
 	// Vector "ZipVec" is where we will store the user ZIP file. "ZipVec" will later be inserted into the vector "ImageVec" as the last IDAT chunk. 
 	// We will need to update both the CRC, last 4 bytes, currently zero, and the chunk length field, first 4 bytes, also zero, within this vector. 
-	// Vector "ImageVec" is where we will store the user PNG image, later combining it with the vectors "ScriptVec" and "ZipVec", before writing it out to file.
+	// Vector "ImageVec" is where we store the user PNG image, later combining it with the vectors "ScriptVec" and "ZipVec", before writing it out to file.
 	std::vector<unsigned char>
 		ZipVec{ 0,0,0,0,73,68,65,84,0,0,0,0 },
-		ImageVec{ 0 / sizeof(unsigned char) };
-
-	// Reset position of files. 
-	readImg.seekg(0, readImg.beg),
-	readZip.seekg(0, readZip.beg);
-
-	// Read PNG image file into vector "ImageVec", begining at index location 0.
-	ImageVec.resize(IMG_SIZE / sizeof(unsigned char));
-	readImg.read((char*)&ImageVec[0], IMG_SIZE);
-
+		ImageVec((std::istreambuf_iterator<char>(readImg)), std::istreambuf_iterator<char>());
+	
 	// Read ZIP file into vector "ZipVec", beginning at index location 8, right after the "IDAT" chunk name.
 	ZipVec.resize(ZIP_SIZE + ZipVec.size() / sizeof(unsigned char));
 	readZip.read((char*)&ZipVec[8], ZIP_SIZE);
