@@ -103,9 +103,8 @@ PNG chunks that you can insert arbitrary data, in which Twitter will preserve in
 ***bKGD, cHRM, gAMA, hIST,***  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
 ***PLTE,*** (Use only with PNG_32 & PNG_24).  
-***pHYs, sBIT, sPLT, sRGB,***  
-***tRNS.*** (Not recommended as it will distort image).  
-
+***pHYs, sBIT, sPLT, sRGB.***  
+  
 This program uses hIST & IDAT chunks for storing arbitrary data and removes the others, apart from iCCP, if found.
 
 ## ZIP File Size & Other Important Information
