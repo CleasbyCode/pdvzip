@@ -73,9 +73,6 @@ Here is a video example of using **pdvzip** with a simple Shell script (.sh) wit
   
 To just get access to the file(s) within the ZIP archive, rename the '*.png*' file extension to '*.zip*'. Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.
 
-**Twitter Image Examples**  
-
-[Four images. Embedded with Python, PDF, MP4 & MP3](https://twitter.com/CleasbyCode/status/1612386245266604032)
 
 
 
