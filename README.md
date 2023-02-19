@@ -20,9 +20,9 @@ $ ./pdvzip
 Usage:  pdvzip  <png_image>  <zip_file>
         pdvzip  --info
 
-$ ./pdvzip snow_pic.png training_doc.pdf.zip
+$ ./pdvzip  joker.png  joker_mp4.zip
 
-Created output file 'pdv_training_doc.pdf.zip.png' 3414402 bytes.
+Created output file 'pdv_262141_image.png' 5232104 bytes.
 
 All Done!
 
