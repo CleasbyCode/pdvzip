@@ -41,18 +41,18 @@ You can also upload and share your PNG image to *some popular image hosting site
 Make sure image file has executable permissions.
 ```c
 
-$ chmod +x pdv_your_image_file.png
+$ chmod +x pdv_262141_image.png
 $
-$ ./pdv_your_image_file.png 
+$ ./pdv_262141_image.png
 
 ```  
 **Windows**   
 First, rename the '*.png*' file extension to '*.cmd*'.
 ```c
 
-G:\demo> ren pdv_your_image_file.png pdv_your_image_file.cmd
+G:\demo> ren  pdv_262141_image.png  pdv_262141_image.cmd
 G:\demo>
-G:\demo> .\pdv_your_image_file.cmd
+G:\demo> .\pdv_262141_image.cmd
 
 ```
  
