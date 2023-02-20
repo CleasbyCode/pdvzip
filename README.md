@@ -102,7 +102,7 @@ PNG chunks that you can insert arbitrary data, in which Twitter will preserve in
 ***bKGD, cHRM, gAMA, hIST,***  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
 ***PLTE,*** (Use only with PNG-32 & PNG-24 for arbitrary data).  
-***pHYs, sBIT, sPLT, sRGB.***  
+***pHYs, sBIT, sPLT, sRGB,***  
 ***tRNS. (Not recommended, may distort image).***
   
 This program uses hIST & IDAT chunk names for storing arbitrary data.
