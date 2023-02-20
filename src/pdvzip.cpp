@@ -162,7 +162,7 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		IMAGE_DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],
 		PNG_TRUECOLOUR_MAX_DIMS = 899,		// 899 x 899 maximum supported dimension size for PNG truecolour (PNG-32/PNG-24, Colour types 2 & 6).
 		PNG_INDEXCOLOUR_MAX_DIMS = 4096,	// 4096 x 4096 maximum supported dimension size for PNG indexed-colour (PNG-8, Colour type 3).
-		PNG_MIN_DIMS = 68,					// 68 x 68 minimum supported dimensions size for PNG indexed-colour and truecolour.
+		PNG_MIN_DIMS = 68,			// 68 x 68 minimum supported dimensions size for PNG indexed-colour and truecolour.
 
 		// Get image colour type value from vector ImageVec. If value is 6 (Truecolour with alpha), set the value to 2 (Truecolour).
 		COLOUR_TYPE = ImageVec[25] == 6 ? 2 : ImageVec[25],
