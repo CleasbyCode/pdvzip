@@ -1,7 +1,7 @@
 # pdvzip
 PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.3)
 
-Embed a ZIP file of up to ~5MB within a tweetable and '*executable*' PNG image.
+Embed a ZIP file of up to ~5MB within a tweetable and "*executable*" PNG image.
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/Demo_Image/demo_image.png)  
 {***Image demo: Download and*** [**run me**](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) ***to play embedded video clip***}  
