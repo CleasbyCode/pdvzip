@@ -2,7 +2,6 @@
 // PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.2). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
 #include <algorithm>
-#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -383,21 +382,21 @@ void insertValue(std::vector<unsigned char>& vec, ptrdiff_t valueInsertIndex, co
 
 void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned char>& ImageVec, const char(&BAD_CHAR)[]) {
 
-/* Vector "ScriptVec" (See seperate file "script_info.txt" in this repo).
+	/* Vector "ScriptVec" (See "script_info.txt" in this repo).
 	 
-First four bytes of the vector is the chunk length field, followed by chunk name (hIST) then our barebones extraction script.
-"hIST" is a valid PNG chunk type. It does not require a correct crc value, so no update needed.
+	First four bytes of the vector is the chunk length field, followed by chunk name (hIST) then our barebones extraction script.
+	"hIST" is a valid PNG chunk type. It does not require a correct crc value, so no update needed.
 
-This vector stores the shell/batch script used for extracting and opening the embedded zipped media file.
-The barebones script is about 300 bytes. The script size limit is 750 bytes, which should be more than enough to account 
-for the later addition of filenames, application and argument strings & other required script commands. 
+	This vector stores the shell/batch script used for extracting and opening the embedded zipped media file.
+	The barebones script is about 300 bytes. The script size limit is 750 bytes, which should be more than enough to account 
+	for the later addition of filenames, application and argument strings & other required script commands. 
 	
-Script supports both Linux & Windows. The completed script, when executed, will unzip the media file from 
-the PNG image & attempt to open/play/run (depending on file type) the in-zip media file using an application 
-command based on a matched file extension, or if no match found, defaulting to the operating system making the choice.
+	Script supports both Linux & Windows. The completed script, when executed, will unzip the media file from 
+	the PNG image & attempt to open/play/run (depending on file type) the in-zip media file, using an application 
+	command based on a matched file extension, or if no match found, defaulting to the operating system making the choice.
 
-The media file needs to be compatible with the operating system you are running it on.
-The completed script within the hIST chunk will later be inserted into the vector "ImageVec" which contains the user PNG image file */
+	The media file needs to be compatible with the operating system you are running it on.
+	The completed script within the hIST chunk will later be inserted into the vector "ImageVec" which contains the user PNG image file */
 
 	std::vector<unsigned char>ScriptVec{
 	0x00, 0x00, 0x00, 0xFD, 0x68, 0x49, 0x53, 0x54, 0x0D, 0x52, 0x45, 0x4D,
@@ -439,22 +438,23 @@ The completed script within the hIST chunk will later be inserted into the vecto
 
 		// AppVec vector element index values. 
 		// Some AppVec string elements are added later (push_back), so don't currently appear in the above vector.
-		VIDEO_AUDIO = 20, // vlc
-		PDF = 21,
-		PYTHON = 22,
-		POWERSHELL = 23,
-		EXECUTABLE = 24,
-		BASH_XDG_OPEN = 25,
-		FOLDER_INVOKE_ITEM = 26,
-		WIN_POWERSHELL = 30,
-		MOD_INZIP_FILENAME = 36;
+		VIDEO_AUDIO = 20,	// "vlc" app command for Linux. 
+		PDF = 21,		// "evince" app command for Linux. 
+		PYTHON = 22,		// "python3" app command for Linux & Windows.
+		POWERSHELL = 23,	// "pwsh" app command for Linux, for starting PowerShell scripts.
+		EXECUTABLE = 24,	// "./" prepended to filename. Required when running Linux executables.
+		BASH_XDG_OPEN = 25,	// "xdg-open" linux command, runs shell scripts (.sh), opens folders & unknown file extensions.
+		FOLDER_INVOKE_ITEM = 26,	// "powershell;Invoke-Item" command used in Windows for opening folders.
+		START_B = 28,			// "start /b" Windows command used to open most file types. (uses Windows set default app for file type).
+		WIN_POWERSHELL = 30,		// "powershell" commmand used by Windows for running PowerShell scripts.
+		MOD_INZIP_FILENAME = 36;	// inzipName with ".\" prepend characters. Required for Windows PowerShell, e.g. powershell ".\filename.ps1".
 
 	std::string
 		// Get the in-zip media filename string from vector ZipVec.
 		inzipName{ ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH },
 		// Get the file extension from in-zip media filename.
 		inzipNameExt = inzipName.substr(inzipName.length() - 3, 3),
-		// String variables for optional user arguments.
+		// Variables for optional command-line arguments.
 		argsLinux{}, 
 		argsWindows{};
 
@@ -465,10 +465,10 @@ The completed script within the hIST chunk will later be inserted into the vecto
 
 	// When inserting string elements from vector AppVec into the script (within vector ScriptVec), we are adding items in 
 	// the order of last to first. The Windows script is completed first, followed by Linux. 
-	// This order prevents the vector insert locations from changing every time we add a new string element into the string/vector.
+	// This order prevents the vector insert locations from changing every time we add a new string element into the vector.
 
-	// The array "sequence" is split into four sequences of ScriptVec index values (high numbers) used by the 
-	// "insertIndex" variable & the corresponding AppVec index values (low numbers) used by the "appIndex" variable.
+	// The array "sequence" can be split into four sequences containing ScriptVec index values (high numbers) used by the 
+	// "insertIndex" variable and the corresponding AppVec index values (low numbers) used by the "appIndex" variable.
 	
 	// For example, in the 1st sequence, sequence[0] = index 236 of ScriptVec ("insertIndex") corresponds with
 	// sequence[5] = AppVec index 33 ("appIndex"), which is the inzip media filename string element. 
@@ -477,38 +477,39 @@ The completed script within the hIST chunk will later be inserted into the vecto
 	int sequence[52]{
 				236,234,116,115,114, 33,28,27,33,20,	// 1st sequence for case "VIDEO_AUDIO".
 				236,234,115,114, 33,28,33,21,		// 2nd sequence for cases "PDF, FOLDER_INVOKE_ITEM, DEFAULT".
-				259,237,236,234,116,115,114, 29,35,33,22,34,33,22,	// 3rd sequence for cases "PYTHON, LINUX_PWSH & WIN_POWERSHELL".
+				259,237,236,234,116,115,114, 29,35,33,22,34,33,22,	// 3rd sequence for cases "PYTHON, POWERSHELL".
 				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31 }, // 4th sequence for cases "EXECUTABLE & BASH_XDG_OPEN".
 
 				appIndex{},		// Uses the AppVec index values from the sequence array.
 				insertIndex{},		// Uses the ScriptVec index values from the sequence array.
-				sequenceLimit{};	// Will store the length limit of each of the four sequences.
+				sequenceLimit{};	// Stores the length limit of each of the four sequences. 
 
 	/*  	[sequence](insertIndex)[sequence](appIndex)
 		Build script example below is using the first sequence (see "sequence" array above). 
 
+		VIDEO_AUDIO:
 		[0]>(236)[5]>(33) Windows: 236 insert index for in-zip media filename, (push_back) AppVec 33.
-		[1]>(234)[6]>(28) Windows: 234 insert index for "start /b" AppVec 28. 
-		[2]>(116)[7]>(27) Linux: 116 insert index for "Dev Null" AppVec 27.
+		[1]>(234)[6]>(28) Windows: 234 insert index for "start /b", AppVec 28. 
+		[2]>(116)[7]>(27) Linux: 116 insert index for "Dev Null", AppVec 27.
 		[3]>(115)[8]>(33) Linux: 115 insert index for in-zip media filename, (push_back) AppVec 33.
 		[4]>(114)[9]>(20) Linux: 114 insert index for "vlc" AppVec 20.	
-		Sequence limit is 5 (set from first appIndex value of each sequence).
+		Sequence limit is 5 (value taken from first appIndex value for each sequence).
 
-		From a matched file extension "inzipNameExt" we can select which application string and commands to use
+		Matching a file extension from "inzipNameExt" with AppVec, we can select which application string and commands to use
 		in our extraction script, which, when executed, will open/play/run (depending on file type) the extracted in-zip media file.
 
-		Once the correct app extension has been matched by the For Loop, it passes the appIndex result to the switch statement below.
-		The relevant case sequence is then used in completing the extraction script within vector ScriptVec.	*/
+		Once the correct app extension has been matched by the For Loop below, it passes the appIndex result to the switch statement.
+		The relevant Case sequence is then used in completing the extraction script within vector ScriptVec.	*/
 
 	for (; appIndex != 26; appIndex++) {
 		if (AppVec[appIndex] == inzipNameExt) {
-			// After a file extension match, any appIndex value between 0 & 14 defaults to AppVec 20 (vlc),
-			// if over 14, we add 6 to its value. 15 + 6 = AppVec 21 (evince), 16 + 6 = AppVec 22 (python3), etc.
+			// After a file extension match, any appIndex value between 0 & 14 defaults to AppVec 20 (vlc / VIDEO_AUDIO).
+			// If over 14, we add 6 to the value. 15 + 6 = AppVec 21 (evince/PDF), 16 + 6 = AppVec 22 (python3/.py), etc.
 			appIndex = appIndex <= 14 ? 20 : appIndex += 6;
 			break;
 		}
 	}
-
+	
 	// If no file extension detected, check if "inzipName" points to a folder (/), else assume file is a Linux executable.
 	if (checkExtension == 0 || checkExtension > inzipName.length()) {
 		appIndex = ZipVec[INZIP_NAME_INDEX + INZIP_NAME_LENGTH - 1] == '/' ? FOLDER_INVOKE_ITEM : EXECUTABLE;
@@ -521,57 +522,50 @@ The completed script within the hIST chunk will later be inserted into the vecto
 		std::cout << "\nWindows: ";
 		std::getline(std::cin, argsWindows);
 		argsLinux.insert(0, "\x20"), argsWindows.insert(0, "\x20");
-		AppVec.push_back(argsLinux),  // AppVec (34).
-		AppVec.push_back(argsWindows); // AppVec (35).
+		AppVec.push_back(argsLinux),	// AppVec (34).
+		AppVec.push_back(argsWindows);	// AppVec (35).
 	}
 
 	switch (appIndex) {
-		case VIDEO_AUDIO:		// "vlc" for Linux and "start /b" (will use default player) for Windows.
-			appIndex = 5;		// Case uses 1st sequence: 236,234,116,115,114, 33,28,27,33,20.
+		case VIDEO_AUDIO:	// Case uses 1st sequence: 236,234,116,115,114, 33,28,27,33,20.
+			appIndex = 5;			
 			break;					
-		case PDF:			// "evince" for Linux and "start /b" (uses default viewer) for Windows.
-			insertIndex = 10,	// Case uses 2nd sequence: 236,234,115,114, 33,28,33,21
+		case PDF:		// These two Cases (with minor changes) use 2nd sequence: 236,234,115,114, 33,28,33,21.
+		case FOLDER_INVOKE_ITEM:	
+			sequence[15] = appIndex == FOLDER_INVOKE_ITEM ? FOLDER_INVOKE_ITEM : START_B;
+			sequence[17] = appIndex == FOLDER_INVOKE_ITEM ? BASH_XDG_OPEN : PDF;
+			insertIndex = 10,		
 			appIndex = 14;
 			break;
-		case PYTHON:			// "python3" for Linux & Windows.
-			insertIndex = 18,	// Case uses 3rd sequence: 259,237,236,234,116,115,114, 29,35,33,22,34,33,22,
+		case PYTHON:		// These two Cases (with some changes) use 3rd sequence: 259,237,236,234,116,115,114, 29,35,33,22,34,33,22.
+		case POWERSHELL:
+			if (appIndex == POWERSHELL) {
+				inzipName.insert(0, ".\\");		//  ".\" prepend to inzipName. Required for Windows PowerShell, e.g. powershell ".\filename.ps1".
+				AppVec.push_back(inzipName);		// add the modified filename to the AppVec vector (36).
+				sequence[31] = POWERSHELL,		// swap index number to Linux PowerShell (pwsh 23)
+				sequence[28] = WIN_POWERSHELL;		// swap index number to Windows PowerShell  (powershell 30)
+				sequence[27] = MOD_INZIP_FILENAME;	// swap index number to MOD_INZIP_FILENAME (36), used with Windows powershell command.
+			}
+			insertIndex = 18,		
 			appIndex = 25;
 			break;
-		case POWERSHELL:		// "pwsh" for Linux, "powershell" for Windows.
-			insertIndex = 18,	// Using 3rd sequence again, with some minor adjustments: 259,237,236,234,116,115,114, 29,35,33,22,34,33,22,
-			appIndex = 25;		// we just need to change sequence index elements to PowerShell (AppVec 23 & 30).
-			inzipName.insert(0, ".\\");	//  ".\" addition required for Windows PowerShell command:  powershell ".\filename.ps1".
-			AppVec.push_back(inzipName);	// add the modified filename to the AppVec vector.
-			sequence[31] = POWERSHELL,	// swap index number to Linux PowerShell (pwsh 23)
-			sequence[28] = WIN_POWERSHELL;	// swap index number to Windows PowerShell  (powershell 30)
-			sequence[27] = MOD_INZIP_FILENAME;	// swap index number to MOD_INZIP_FILENAME (30), used with Windows powershell command.
-			break;
-		case EXECUTABLE:
-			insertIndex = 32,	// Case uses 4th sequence: 259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31
-			appIndex = 42;		
-			break;
+		case EXECUTABLE:	// These two Cases (with minor changes) use 4th sequence: 259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31
 		case BASH_XDG_OPEN:
-			insertIndex = 33,	// Case uses 4th sequence, but starts from the 33rd index (237) instead of the 32nd (259).
-			appIndex = 43;		
+			insertIndex = appIndex == EXECUTABLE ? 32 : 33;
+			appIndex = insertIndex == 32 ? 42 : 43;
 			break;
-		case FOLDER_INVOKE_ITEM:	// If inzipName points to a folder and not a file, then just open the folder, displaying unzipped file(s). 
-			insertIndex =10,	// This is done with commands "xdg-open" (Linux) or "powershell;Invoke-Item" (Windows).					
-			appIndex = 14,		// Case uses 2nd sequence, we just need to alter two index numbers.
-			sequence[15] = FOLDER_INVOKE_ITEM,	// swap index number to FOLDER_INVOKE_ITEM (26)
-			sequence[17] = BASH_XDG_OPEN;		// swap index number to BASH_XDG_OPEN (25)
-			break;
-		default:				// All other file types. "xdg-open" (Linux) & "start /b" (Windows). OS selects default program for file type.
-			insertIndex = 10,		// Case uses 2nd sequence, we just need to alter one index number.
-			appIndex = 14;
+		default:			// No file extension match. Rely on operating system to use set default program for dealing with file type.
+			insertIndex = 10,	// Case uses 2nd sequence, we just need to alter one index number.
+			appIndex = 14;			
 			sequence[17] = BASH_XDG_OPEN;	// swap index number to BASH_XDG_OPEN (25)
 	}
 
-	// Set the sequenceLimit from the first appIndex value from each switch case sequence.
+	// Set the sequenceLimit using the first appIndex value from each switch case sequence.
 	// Reduce sequenceLimit value by 1 if insertIndex is 33 (case BASH_XDG_OPEN).
 	sequenceLimit = { insertIndex == 33 ? appIndex - 1 : appIndex };
 
 	// With just a single command within the While Loop, we can insert all the required strings into the extraction script (ScriptVec) 
-	// based on the sequence array, which is selected by the relevant case match from the above switch statement.
+	// based on the sequence array, which is selected by the relevant case, from the above switch statement after the extension match. 
 	while (sequenceLimit > insertIndex) {
 		ScriptVec.insert(ScriptVec.begin() + sequence[insertIndex], AppVec[sequence[appIndex]].begin(), AppVec[sequence[appIndex]].end());
 		insertIndex++, appIndex++;
@@ -619,10 +613,12 @@ The completed script within the hIST chunk will later be inserted into the vecto
 
 void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned char>& ZipVec, std::vector<unsigned char>& ScriptVec) {
 
-	const std::string IDAT_SIG = "IDAT";
+	const std::string 
+		IDAT_SIG = "IDAT",
+		PDV_FILENAME = "pdvzip_image.png"; // Output filename for the complete polyglot image.
 
 	const ptrdiff_t
-		// Search vector ImageVec for the index location of the first IDAT chunk.
+		// Search vector ImageVec for the index location of the first IDAT chunk (start of length field).
 		// This value will be used as the insert location within vector ImageVec for vector ScriptVec. 
 	
 		// The inserted vector will appear just before the first IDAT chunk and (if PNG-8) after the PLTE chunk. 
@@ -647,35 +643,23 @@ void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned c
 	// The +4 value points LAST IDAT index value to the chunk name location, which is where crc calculation needs to begin/include.
 	const uint32_t LAST_IDAT_CRC = crc(&ImageVec[LAST_IDAT_INDEX + 4], ZipVec.size() - 8);
 
-	ptrdiff_t 
-		crcInsertIndex = ImageVec.size() - 16,	// Get index location for last IDAT chunk's 4-byte crc field, from vector ImageVec.
-		ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); // Used in creating unique filename.
-
+	ptrdiff_t crcInsertIndex = ImageVec.size() - 16;	// Get index location for last IDAT chunk's 4-byte crc field, from vector ImageVec.
+		
 	// Call function to write new crc value into the last IDAT chunk's crc index field, within the vector ImageVec.
 	insertValue(ImageVec, crcInsertIndex, LAST_IDAT_CRC, 32, true);
 
-	std::string
-		unique_id = std::to_string(ms), // Convert milliseconds value to string.
-		pdv_filename;
-	
-	unique_id = std::string(unique_id.rbegin(), unique_id.rend()); // Reverse the string.
-	unique_id = unique_id.substr(0, 6); // Take 6 characters from this string to use as a unique part of the pdv_filename.
-
-	// Create unique filename for our pdv embedded image file.
-	pdv_filename = "pdv_" + unique_id + "_image" ".png";
-
-	std::ofstream writeFinal(pdv_filename, std::ios::binary);
+	std::ofstream writeFinal(PDV_FILENAME, std::ios::binary);
 
 	if (!writeFinal) {
 		std::cerr << "\nWrite Error: Unable to write to file.\n\n";
 		std::exit(EXIT_FAILURE);
 	}
 
-	// Write out to file the completed pdv embedded image (Image / Script / ZIP).
+	// Write out to file the completed polyglot image (Image / Script / ZIP).
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
 	writeFinal.close();
 
-	std::cout << "\nCreated output file " << "'" << pdv_filename << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
+	std::cout << "\nCreated output file " << "'" << PDV_FILENAME << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
 }
 
 void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_INDEX) {
