@@ -22,7 +22,7 @@ Usage:  pdvzip  <png_image>  <zip_file>
 
 $ ./pdvzip  joker.png  joker_mp4.zip
 
-Created output file 'pdv_262141_image.png' 5232104 bytes.
+Created output file 'pdvzip_image.png' 5232104 bytes.
 
 All Done!
 
@@ -41,18 +41,18 @@ You can also upload and share your PNG image to *some popular image hosting site
 Make sure image file has executable permissions.
 ```c
 
-$ chmod +x pdv_262141_image.png
+$ chmod +x pdvzip_image.png
 $
-$ ./pdv_262141_image.png
+$ ./pdvzip_image.png
 
 ```  
 **Windows**   
 First, rename the '*.png*' file extension to '*.cmd*'.
 ```c
 
-G:\demo> ren  pdv_262141_image.png  pdv_262141_image.cmd
+G:\demo> ren  pdvzip_image.png  pdvzip_image.cmd
 G:\demo>
-G:\demo> .\pdv_262141_image.cmd
+G:\demo> .\pdvzip_image.cmd
 
 ```
  
