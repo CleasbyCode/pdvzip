@@ -1,8 +1,7 @@
 
-// PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.2). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
+// PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.3). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
 #include <algorithm>
-#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -327,7 +326,7 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 	0x6E, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78, 0x30, 0x22,
 	0x20, 0x2A, 0x2E, 0x70, 0x6E, 0x67, 0x26, 0x65, 0x78, 0x69, 0x74, 0x0D,
 	0x0A };
-	
+
 	std::vector<std::string> AppVec{ "aac","mp3","mp4","avi","asf","flv","ebm","mkv","peg","wav","wmv","wma","mov","3gp","ogg","pdf",".py","ps1","exe",
 					".sh","vlc --play-and-exit --no-video-title-show ","evince ","python3 ","pwsh ","./","xdg-open ","powershell;Invoke-Item ",
 					" &> /dev/null","start /b \"\"","pause&","powershell","chmod +x ",";" };
@@ -336,15 +335,16 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 		INZIP_NAME_INDEX = 38,		
 		INZIP_NAME_LENGTH = ZipVec[INZIP_NAME_LENGTH_INDEX],	
 		MAX_SCRIPT_SIZE_BYTES = 750,	
-		VIDEO_AUDIO = 20, 
-		PDF = 21,
-		PYTHON = 22,
-		POWERSHELL = 23,
-		EXECUTABLE = 24,
-		BASH_XDG_OPEN = 25,
-		FOLDER_INVOKE_ITEM = 26,
-		WIN_POWERSHELL = 30,
-		MOD_INZIP_FILENAME = 36;
+		VIDEO_AUDIO = 20,	
+		PDF = 21,		
+		PYTHON = 22,		
+		POWERSHELL = 23,	
+		EXECUTABLE = 24,	
+		BASH_XDG_OPEN = 25,	
+		FOLDER_INVOKE_ITEM = 26,	
+		START_B = 28,			
+		WIN_POWERSHELL = 30,		
+		MOD_INZIP_FILENAME = 36;	
 
 	std::string
 		inzipName{ ZipVec.begin() + INZIP_NAME_INDEX, ZipVec.begin() + INZIP_NAME_INDEX + INZIP_NAME_LENGTH },
@@ -353,7 +353,7 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 		argsWindows{};
 
 	size_t checkExtension = inzipName.find_last_of('.');
-
+	
 	AppVec.push_back(inzipName);
 	
 	int sequence[52]{
@@ -365,7 +365,7 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 				appIndex{},		
 				insertIndex{},		
 				sequenceLimit{};	
-	
+
 	for (; appIndex != 26; appIndex++) {
 		if (AppVec[appIndex] == inzipNameExt) {
 			appIndex = appIndex <= 14 ? 20 : appIndex += 6;
@@ -383,48 +383,41 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 		std::cout << "\nWindows: ";
 		std::getline(std::cin, argsWindows);
 		argsLinux.insert(0, "\x20"), argsWindows.insert(0, "\x20");
-		AppVec.push_back(argsLinux),  
-		AppVec.push_back(argsWindows); 
+		AppVec.push_back(argsLinux),	
+		AppVec.push_back(argsWindows);	
 	}
 
 	switch (appIndex) {
-		case VIDEO_AUDIO:		
-			appIndex = 5;		
+		case VIDEO_AUDIO:	
+			appIndex = 5;			
 			break;					
-		case PDF:			
-			insertIndex = 10,	
-			appIndex = 14;
-			break;
-		case PYTHON:			
-			insertIndex = 18,	
-			appIndex = 25;
-			break;
-		case POWERSHELL:		
-			insertIndex = 18,	
-			appIndex = 25;		
-			inzipName.insert(0, ".\\");	
-			AppVec.push_back(inzipName);	
-			sequence[31] = POWERSHELL,	
-			sequence[28] = WIN_POWERSHELL;	
-			sequence[27] = MOD_INZIP_FILENAME;	
-			break;
-		case EXECUTABLE:
-			insertIndex = 32,	
-			appIndex = 42;		
-			break;
-		case BASH_XDG_OPEN:
-			insertIndex = 33,	
-			appIndex = 43;		
-			break;
+		case PDF:		
 		case FOLDER_INVOKE_ITEM:	
-			insertIndex =10,	
-			appIndex = 14,		
-			sequence[15] = FOLDER_INVOKE_ITEM,	
-			sequence[17] = BASH_XDG_OPEN;		
-			break;
-		default:				
+			sequence[15] = appIndex == FOLDER_INVOKE_ITEM ? FOLDER_INVOKE_ITEM : START_B;
+			sequence[17] = appIndex == FOLDER_INVOKE_ITEM ? BASH_XDG_OPEN : PDF;
 			insertIndex = 10,		
 			appIndex = 14;
+			break;
+		case PYTHON:		
+		case POWERSHELL:
+			if (appIndex == POWERSHELL) {
+				inzipName.insert(0, ".\\");		
+				AppVec.push_back(inzipName);		
+				sequence[31] = POWERSHELL,		
+				sequence[28] = WIN_POWERSHELL;		
+				sequence[27] = MOD_INZIP_FILENAME;	
+			}
+			insertIndex = 18,		
+			appIndex = 25;
+			break;
+		case EXECUTABLE:	
+		case BASH_XDG_OPEN:
+			insertIndex = appIndex == EXECUTABLE ? 32 : 33;
+			appIndex = insertIndex == 32 ? 42 : 43;
+			break;
+		default:			
+			insertIndex = 10,	
+			appIndex = 14;			
 			sequence[17] = BASH_XDG_OPEN;	
 	}
 	
@@ -442,12 +435,12 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 		redoChunkLength = false;
 		
 		const ptrdiff_t HIST_LENGTH = ScriptVec.size() - 12;
-		
+
 		if (HIST_LENGTH > MAX_SCRIPT_SIZE_BYTES) {
 			std::cerr << "\nScript Size Error: Extraction script exceeds maximum size of 750 bytes.\n\n";
 			std::exit(EXIT_FAILURE);
 		}
-		
+
 		int chunkLengthIndex = 2;
 		
 		insertValue(ScriptVec, chunkLengthIndex, HIST_LENGTH, 16, true);
@@ -466,10 +459,12 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 
 void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned char>& ZipVec, std::vector<unsigned char>& ScriptVec) {
 
-	const std::string IDAT_SIG = "IDAT";
+	const std::string 
+		IDAT_SIG = "IDAT",
+		PDV_FILENAME = "pdvzip_image.png";
 
 	const ptrdiff_t
-		FIRST_IDAT_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - ImageVec.begin() - 4,	
+		FIRST_IDAT_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - ImageVec.begin() - 4,
 		LAST_IDAT_INDEX = (ImageVec.size() + ScriptVec.size()) - 12;
 	
 	ImageVec.insert((ImageVec.begin() + FIRST_IDAT_INDEX), ScriptVec.begin(), ScriptVec.end());
@@ -479,32 +474,21 @@ void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned c
 	
 	const uint32_t LAST_IDAT_CRC = crc(&ImageVec[LAST_IDAT_INDEX + 4], ZipVec.size() - 8);
 
-	ptrdiff_t 
-		crcInsertIndex = ImageVec.size() - 16,	
-		ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(); 
+	ptrdiff_t crcInsertIndex = ImageVec.size() - 16;	
 	
 	insertValue(ImageVec, crcInsertIndex, LAST_IDAT_CRC, 32, true);
 
-	std::string
-		unique_id = std::to_string(ms), 
-		pdv_filename;
-	
-	unique_id = std::string(unique_id.rbegin(), unique_id.rend()); 
-	unique_id = unique_id.substr(0, 6); 
-	
-	pdv_filename = "pdv_" + unique_id + "_image" ".png";
-
-	std::ofstream writeFinal(pdv_filename, std::ios::binary);
+	std::ofstream writeFinal(PDV_FILENAME, std::ios::binary);
 
 	if (!writeFinal) {
 		std::cerr << "\nWrite Error: Unable to write to file.\n\n";
 		std::exit(EXIT_FAILURE);
 	}
-	
+
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
 	writeFinal.close();
 
-	std::cout << "\nCreated output file " << "'" << pdv_filename << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
+	std::cout << "\nCreated output file " << "'" << PDV_FILENAME << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
 }
 
 void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_IDAT_INDEX) {
@@ -582,7 +566,7 @@ unsigned long crc(unsigned char* buf, const size_t& len)
 void displayInfo() {
 
 	std::cout << R"(
-PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.2). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
+PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.3). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 
 
 PDVZIP enables you to embed a ZIP archive containing a small media file within a tweetable PNG image.
