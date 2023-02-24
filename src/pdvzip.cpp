@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
 			std::exit(EXIT_FAILURE);
 		}
 
-		// Open file sucesss, now check file size requirements.
+		// Open file sucesss, now read files into vectors.
 		storeFiles(IMAGE, ZIP, IMG_NAME, ZIP_NAME);
 	}
 	return 0;
