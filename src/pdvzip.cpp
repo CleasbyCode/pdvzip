@@ -74,8 +74,8 @@ int main(int argc, char** argv) {
 void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG_FILE, const std::string& ZIP_FILE) {
 
 // Vector "ZipVec" will store the user ZIP file. The contents of "ZipVec" will later be inserted into the vector "ImageVec" as the last IDAT chunk. 
-// We will need to update the crc value (last 4 bytes) and the chunk length field (first 4 bytes), within this vector. Both fields currently set to zero. 
-// Vector "ImageVec" stores the user PNG image. Combining it later with the vectors "ScriptVec" and "ZipVec", before writing complete vector out to file.
+// We will need to update the crc value (last 4-bytes) and the chunk length field (first 4-bytes), within this vector. Both fields currently set to zero. 
+// Vector "ImageVec" stores the user PNG image. Combined later with the vectors "ScriptVec" and "ZipVec", before writing complete vector out to file.
 	
 	std::vector<unsigned char>
 		ZipVec{ 0,0,0,0,73,68,65,84,0,0,0,0 }, // IDAT chunk name with 4-byte chunk length and crc fields.
@@ -93,8 +93,8 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 	ZipVec.resize(ZIP_SIZE + ZipVec.size() / sizeof(unsigned char));
 	ZIP.read((char*)&ZipVec[8], ZIP_SIZE);
 
-	// Occurrence of these characters in the IHDR chunk (data/crc), PLTE chunk (data/crc) or hIST chunk (length), breaks the Linux extraction script.
 	// Array used by different functions within this program.
+	// Occurrence of these characters in the IHDR chunk (data/crc), PLTE chunk (data/crc) or hIST chunk (length), breaks the Linux extraction script.
 	static const char BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' };
 
 	// Make sure PNG and ZIP file specs meet program requirements. 
@@ -137,11 +137,11 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 		modifyPaletteChunk(ImageVec, BAD_CHAR);
 	}
 
-	// Chunk length field index for vector ZipVec.
+	// Index of chunk length field for vector ZipVec.
 	int chunkLengthIndex = 1;
 
 	// Write the updated IDAT chunk length of vector ZipVec within its length field.
-	// IDAT chunk length will never exceed 5MB, only 3 bytes (bits = 24) of the 4 byte length field is used.
+	// IDAT chunk length will never exceed 5MB, only 3 bytes (bits = 24) of the 4-byte length field is used.
 	insertValue(ZipVec, chunkLengthIndex, ZIP_SIZE, 24, true);
 
 	// Finish building extraction script.
@@ -157,11 +157,11 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		ZIP_VEC_HDR{ ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_SIG.length() };	// Get file header from vector ZipVec.
 
 	const int
-		IMAGE_DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	// Get image dimensions Width & Height from vector ImageVec.
-		IMAGE_DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],
-		PNG_TRUECOLOUR_MAX_DIMS = 899,		// 899 x 899 maximum supported dimensions size for PNG truecolour (PNG-32/PNG-24, Colour types 2 & 6).
-		PNG_INDEXCOLOUR_MAX_DIMS = 4096,	// 4096 x 4096 maximum supported dimensions size for PNG indexed-colour (PNG-8, Colour type 3).
-		PNG_MIN_DIMS = 68,			// 68 x 68 minimum supported dimensions size for PNG indexed-colour and truecolour.
+		IMAGE_DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	// Get image width dimensions from vector ImageVec.
+		IMAGE_DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],	// Get image height dimensions from vector ImageVec.
+		PNG_TRUECOLOUR_MAX_DIMS = 899,		// 899 x 899 maximum supported dimensions for PNG truecolour (PNG-32/PNG-24, Colour types 2 & 6).
+		PNG_INDEXCOLOUR_MAX_DIMS = 4096,	// 4096 x 4096 maximum supported dimensions for PNG indexed-colour (PNG-8, Colour type 3).
+		PNG_MIN_DIMS = 68,			// 68 x 68 minimum supported dimensions for PNG indexed-colour and truecolour.
 
 		// Get image colour type value from vector ImageVec. If value is 6 (Truecolour with alpha), set the value to 2 (Truecolour).
 		COLOUR_TYPE = ImageVec[25] == 6 ? 2 : ImageVec[25],
@@ -197,8 +197,8 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 			HEADER_ERR_MSG = "Format Error: File does not appear to be a valid",
 			IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements.\nSee 'pdvzip --info' for more details.\n\n",
 			IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements.\nSee 'pdvzip --info' for more details.\n\n",
-			ZIP_ERR_MSG = "\nZIP Error: Media filename length within ZIP archive is too short (or file is corrupt)."
-			"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n",
+			ZIP_ERR_MSG = "\nZIP Error: Media filename/folder length within ZIP archive is too short (Four characters minimum length)."
+			"\n\t   Increase the length of the media filename/folder and make sure file contains a valid extension.\n\n",
 
 			ERR_MSG = (IMG_VEC_HDR != PNG_SIG) ? "\nPNG " + HEADER_ERR_MSG + " PNG image.\n\n"
 			: (ZIP_VEC_HDR != ZIP_SIG) ? "\nZIP " + HEADER_ERR_MSG + " ZIP archive.\n\n"
