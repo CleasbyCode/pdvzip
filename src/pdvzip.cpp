@@ -239,7 +239,7 @@ void eraseChunks(std::vector<unsigned char>& ImageVec) {
 			firstIdatIndex = search(ImageVec.begin(), ImageVec.end(), CHUNK[0].begin(), CHUNK[0].end()) - ImageVec.begin(),
 			// From last to first, search and get index location of each chunk to remove.
 			chunkFoundIndex = search(ImageVec.begin(), ImageVec.end(), CHUNK[chunkIndex].begin(), CHUNK[chunkIndex].end()) - ImageVec.begin() - 4;
-			// If found chunk is located before first IDAT, remove chunk it.
+			// If found chunk is located before first IDAT, erase it.
 		if (firstIdatIndex > chunkFoundIndex) {
 			int chunkSize = (ImageVec[chunkFoundIndex + 1] << 16) | ImageVec[chunkFoundIndex + 2] << 8 | ImageVec[chunkFoundIndex + 3];
 			ImageVec.erase(ImageVec.begin() + chunkFoundIndex, ImageVec.begin() + chunkFoundIndex + (chunkSize + 12));
@@ -250,8 +250,8 @@ void eraseChunks(std::vector<unsigned char>& ImageVec) {
 
 void modifyPaletteChunk(std::vector<unsigned char>& ImageVec, const char(&BAD_CHAR)[]) {
 
-// PNG-8, Imgur, Linux issue. 
-// Some individual characters, sequence or combination of certain characters that may appear within the PLTE chunk, will break the extraction script.
+// PNG-8, Imgur (image hosting site), Linux issue. 
+// Some individual characters, a sequence or combination of certain characters that may appear within the PLTE chunk, breaks the extraction script.
 // This function contains a number of fixes for this issue.
 // The PLTE chunk must be located before the hIST chunk (extraction script) for pdv images to work correctly on the Imgur image hosting site.
 
@@ -344,7 +344,7 @@ void modifyPaletteChunk(std::vector<unsigned char>& ImageVec, const char(&BAD_CH
 			crcInsertIndex = PLTE_CHUNK_INDEX + (PLTE_CHUNK_SIZE + 4),
 			modValueInsertIndex = crcInsertIndex - 1;
 
-		// Write the updated crc value into PLTE's crc chunk field (bits=32) within vector ImageVec.
+		// Write the updated crc value into PLTE chunk's crc field (bits=32) within vector ImageVec.
 		insertValue(ImageVec, crcInsertIndex, PLTE_CHUNK_CRC, 32, true);
 
 		// Make sure the new crc value does not contain any of the BAD_CHAR characters, which will break the extraction script.
@@ -384,18 +384,18 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 
 	/* Vector "ScriptVec" (See "script_info.txt" in this repo).
 	 
-	First four bytes of the vector is the chunk length field, followed by chunk name (hIST) then our barebones extraction script.
+	First 4-bytes of the vector is the chunk length field, followed by chunk name (hIST) then our barebones extraction script.
 	"hIST" is a valid PNG chunk type. It does not require a correct crc value, so no update needed.
 
 	This vector stores the shell/batch script used for extracting and opening the embedded zipped media file.
 	The barebones script is about 300 bytes. The script size limit is 750 bytes, which should be more than enough to account 
-	for the later addition of filenames, application and argument strings & other required script commands. 
+	for the later addition of filenames, application, argument strings & other required script commands. 
 	
-	Script supports both Linux & Windows. The completed script, when executed, will unzip the media file from 
-	the PNG image & attempt to open/play/run (depending on file type) the in-zip media file, using an application 
+	Script supports both Linux & Windows. The completed script, when executed, will unzip the archive within 
+	the PNG image & attempt to open/play/run (depending on file type) the in-zip media file(s), using an application 
 	command based on a matched file extension, or if no match found, defaulting to the operating system making the choice.
 
-	The media file needs to be compatible with the operating system you are running it on.
+	The in-zip media file needs to be compatible with the operating system you are running it on.
 	The completed script within the hIST chunk will later be inserted into the vector "ImageVec" which contains the user PNG image file */
 
 	std::vector<unsigned char>ScriptVec{
@@ -443,9 +443,9 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 		PYTHON = 22,		// "python3" app command for Linux & Windows.
 		POWERSHELL = 23,	// "pwsh" app command for Linux, for starting PowerShell scripts.
 		EXECUTABLE = 24,	// "./" prepended to filename. Required when running Linux executables.
-		BASH_XDG_OPEN = 25,	// "xdg-open" linux command, runs shell scripts (.sh), opens folders & unknown file extensions.
+		BASH_XDG_OPEN = 25,	// "xdg-open" linux command, runs shell scripts (.sh), opens folders & unmatched file extensions.
 		FOLDER_INVOKE_ITEM = 26,	// "powershell;Invoke-Item" command used in Windows for opening folders.
-		START_B = 28,			// "start /b" Windows command used to open most file types. (uses Windows set default app for file type).
+		START_B = 28,			// "start /b" Windows command used to open most file types. Windows uses set default app for file type.
 		WIN_POWERSHELL = 30,		// "powershell" commmand used by Windows for running PowerShell scripts.
 		MOD_INZIP_FILENAME = 36;	// inzipName with ".\" prepend characters. Required for Windows PowerShell, e.g. powershell ".\filename.ps1".
 
@@ -488,17 +488,17 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 		Build script example below is using the first sequence (see "sequence" array above). 
 
 		VIDEO_AUDIO:
-		[0]>(236)[5]>(33) Windows: 236 insert index for in-zip media filename, (push_back) AppVec 33.
+		[0]>(236)[5]>(33) Windows: 236 insert index for in-zip media filename, AppVec 33.
 		[1]>(234)[6]>(28) Windows: 234 insert index for "start /b", AppVec 28. 
 		[2]>(116)[7]>(27) Linux: 116 insert index for "Dev Null", AppVec 27.
-		[3]>(115)[8]>(33) Linux: 115 insert index for in-zip media filename, (push_back) AppVec 33.
+		[3]>(115)[8]>(33) Linux: 115 insert index for in-zip media filename, AppVec 33.
 		[4]>(114)[9]>(20) Linux: 114 insert index for "vlc" AppVec 20.	
 		Sequence limit is 5 (value taken from first appIndex value for each sequence).
 
 		Matching a file extension from "inzipNameExt" with AppVec, we can select which application string and commands to use
 		in our extraction script, which, when executed, will open/play/run (depending on file type) the extracted in-zip media file.
 
-		Once the correct app extension has been matched by the For Loop below, it passes the appIndex result to the switch statement.
+		Once the correct app extension has been matched by the For-Loop below, it passes the appIndex result to the switch statement.
 		The relevant Case sequence is then used in completing the extraction script within vector ScriptVec.	*/
 
 	for (; appIndex != 26; appIndex++) {
@@ -554,7 +554,7 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 			insertIndex = appIndex == EXECUTABLE ? 32 : 33;
 			appIndex = insertIndex == 32 ? 42 : 43;
 			break;
-		default:			// No file extension match. Rely on operating system to use set default program for dealing with file type.
+		default:			// Unmatched file extensions. Rely on operating system to use set default program for dealing with file type.
 			insertIndex = 10,	// Case uses 2nd sequence, we just need to alter one index number.
 			appIndex = 14;			
 			sequence[17] = BASH_XDG_OPEN;	// swap index number to BASH_XDG_OPEN (25)
@@ -564,7 +564,7 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 	// Reduce sequenceLimit value by 1 if insertIndex is 33 (case BASH_XDG_OPEN).
 	sequenceLimit = { insertIndex == 33 ? appIndex - 1 : appIndex };
 
-	// With just a single command within the While Loop, we can insert all the required strings into the extraction script (ScriptVec) 
+	// With just a single command within the While-Loop, we can insert all the required strings into the extraction script (ScriptVec), 
 	// based on the sequence array, which is selected by the relevant case, from the above switch statement after the extension match. 
 	while (sequenceLimit > insertIndex) {
 		ScriptVec.insert(ScriptVec.begin() + sequence[insertIndex], AppVec[sequence[appIndex]].begin(), AppVec[sequence[appIndex]].end());
@@ -591,7 +591,7 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 		int chunkLengthIndex = 2;
 
 		// Call function to write updated chunk length value into ScriptVec vector's chunk length field. 
-		// Due to its small size, the hIST chunk will only use 2 bytes maximum (bits=16) of the 4 byte length field.
+		// Due to its small size, the hIST chunk will only use 2 bytes maximum (bits=16) of the 4-byte length field.
 		insertValue(ScriptVec, chunkLengthIndex, HIST_LENGTH, 16, true);
 
 		// Check the first byte of the hIST chunk length field to make sure the updated chunk length does not match 
@@ -607,7 +607,7 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 		}
 	} while (redoChunkLength);
 
-	// Insert vectors ScripVec (hIST chunk/completed extraction script) & ZipVec (IDAT chunk/user ZIP file) into vector ImageVec (user PNG image).
+	// Insert vectors ScripVec (hIST chunk/completed extraction script) & ZipVec (IDAT chunk/ZIP file) into vector ImageVec (PNG image).
 	combineVectors(ImageVec, ZipVec, ScriptVec);
 }
 
@@ -622,7 +622,7 @@ void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned c
 		// This value will be used as the insert location within vector ImageVec for vector ScriptVec. 
 	
 		// The inserted vector will appear just before the first IDAT chunk and (if PNG-8) after the PLTE chunk. 
-		// For Imgur to work correctly the PLTE chunk (PNG-8) must be located before the hIST chunk (ScriptVec). 
+		// For Imgur to work correctly the PLTE chunk (PNG-8) must be located before the hIST chunk. 
 		FIRST_IDAT_INDEX = search(ImageVec.begin(), ImageVec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - ImageVec.begin() - 4,	
 
 		// Set the index insert location within vector ImageVec for vector ZipVec.
@@ -632,7 +632,7 @@ void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned c
 	// Insert vector ScriptVec (hIST chunk with extraction script) into vector ImageVec.	
 	ImageVec.insert((ImageVec.begin() + FIRST_IDAT_INDEX), ScriptVec.begin(), ScriptVec.end());
 
-	// Insert vector ZipVec (IDAT chunk with user ZIP file) into vector ImageVec.
+	// Insert vector ZipVec (IDAT chunk with ZIP file) into vector ImageVec.
 	// This now becomes the last IDAT chunk of the PNG image within ImageVec.
 	ImageVec.insert((ImageVec.begin() + LAST_IDAT_INDEX), ZipVec.begin(), ZipVec.end());
 	
@@ -655,7 +655,7 @@ void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned c
 		std::exit(EXIT_FAILURE);
 	}
 
-	// Write out to file the completed polyglot image (Image / Script / ZIP).
+	// Write out to file the completed polyglot image (Image + Script + ZIP).
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
 	writeFinal.close();
 
@@ -669,7 +669,7 @@ void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_ID
 		END_CENTRAL_SIG = "PK\x05\x06",
 		ZIP_SIG = "PK\x03\x04";
 
-	// Search vector ImageVec (starting from last IDAT chunk) to get index locations for "Start Central Directory" & "End Central Directory".
+	// Search vector ImageVec (start from last IDAT chunk) to get index locations for "Start Central Directory" & "End Central Directory".
 	const ptrdiff_t
 		START_CENTRAL_INDEX = search(ImageVec.begin() + LAST_IDAT_INDEX, ImageVec.end(), START_CENTRAL_SIG.begin(), START_CENTRAL_SIG.end()) - ImageVec.begin(),
 		END_CENTRAL_INDEX = search(ImageVec.begin() + START_CENTRAL_INDEX, ImageVec.end(), END_CENTRAL_SIG.begin(), END_CENTRAL_SIG.end()) - ImageVec.begin();
@@ -696,7 +696,7 @@ void fixZipOffset(std::vector<unsigned char>& ImageVec, const ptrdiff_t& LAST_ID
 	// To run a JAR file, you will need to rename the '.png' extention to '.jar'.  
 	int commentLength = 16 + (ImageVec[commentLengthIndex] << 8) | ImageVec[commentLengthIndex - 1];
 
-	// Write the comment length value into the comment index location within vector ImageVec.
+	// Write the comment length value into the comment length index location within vector ImageVec.
 	insertValue(ImageVec, commentLengthIndex, commentLength, 16, false);
 }
 
