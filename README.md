@@ -4,7 +4,7 @@ PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.3)
 Embed a ZIP file of up to ~5MB within a tweetable and "*executable*" PNG image.
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/joker.png)  
-{***Image demo: Download and*** [**run me**](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) ***to play embedded video clip***[**Original image source link**](https://creator.nightcafe.studio/creation/U9WrKXRrmfatrg3eayUf)}  
+{***Image demo: Download and*** [**run me**](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) ***to play embedded video clip*** [***Original image source link***](https://creator.nightcafe.studio/creation/U9WrKXRrmfatrg3eayUf)}  
 
 Based on a similar idea from the original Python program ['***tweetable-polyglot-png***'](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by David Buchanan, pdvzip uses different methods for storing and accessing arbitrary data within a PNG image file.
 
