@@ -220,8 +220,8 @@ void checkFileRequirements(std::vector<unsigned char>& ImageVec, std::vector<uns
 		for (int j{}; j < 7; j++) {
 			if (ImageVec[pos] == BAD_CHAR[j]) { // BAD_CHAR found, display error message and exit program.
 				std::cerr <<
-					"\nInvalid Character Error:  The IHDR chunk of this image contains a character that will break the Linux extraction script.\n"
-					"\tTry modifying image dimensions (1% increase or decrease) to resolve the problem for this image. Repeat if necessary.\n\n";
+					"\nInvalid Character Error:  \n\nThe IHDR chunk of this image contains a character that will break the Linux extraction script."
+					"\nTry modifying image dimensions (1% increase or decrease) to resolve the issue. Repeat if necessary.\n\n";
 				std::exit(EXIT_FAILURE);
 			}
 		}
