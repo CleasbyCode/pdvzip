@@ -50,7 +50,7 @@ $ ./pdvzip_image.png
 ![Screen_shot1](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/screen_shot1.png)
 
 **Windows**   
-First, rename the '*.png*' file extension to '*.cmd*'.
+First, rename the file extension to '*.cmd*'.
 ```c
 
 G:\demo> ren  pdvzip_image.png  pdvzip_image.cmd
