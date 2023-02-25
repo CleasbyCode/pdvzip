@@ -47,6 +47,8 @@ $
 $ ./pdvzip_image.png
 
 ```  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/screen_shot1.png)
+
 **Windows**   
 First, rename the '*.png*' file extension to '*.cmd*'.
 ```c
