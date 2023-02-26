@@ -47,7 +47,7 @@ $
 $ ./pdvzip_image.png
 
 ```  
-![Screen_shot1](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/screen_shot1.png)
+![Screen_shot1](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/other/screen_shot1.png)
 
 **Windows**   
 First, rename the file extension to '*.cmd*'.
