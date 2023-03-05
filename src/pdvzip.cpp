@@ -613,9 +613,12 @@ void completeScript(std::vector<unsigned char>& ZipVec, std::vector<unsigned cha
 
 void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned char>& ZipVec, std::vector<unsigned char>& ScriptVec) {
 
-	const std::string 
+	srand((unsigned)time(NULL));
+
+	const std::string
 		IDAT_SIG = "IDAT",
-		PDV_FILENAME = "pdvzip_image.png"; // Output filename for the complete polyglot image.
+		TXT_NUM = std::to_string(rand()),
+		PDV_FILENAME = "pdvzip_image_"+TXT_NUM.substr(0,5)+".png"; // Output unique filename for the complete polyglot image.
 
 	const ptrdiff_t
 		// Search vector ImageVec for the index location of the first IDAT chunk (start of length field).
@@ -758,8 +761,8 @@ whenever you want to open/play the media file. You can also upload and share you
 image hosting sites, such as Flickr, ImgBB, Imgur, ImgPile, ImageShack, PostImage, etc. 
 *Not all image hosting sites are compatible, e.g. ImgBox, Reddit.
 
-From a Linux terminal: ./pdv_your_image_file.png (Image file requires executable permissions).
-From a Windows terminal: First, rename the '.png' file extension to '.cmd', then .\pdv_your_image_file.cmd 
+From a Linux terminal: ./pdvzip_your_image.png (Image file requires executable permissions).
+From a Windows terminal: First, rename the '.png' file extension to '.cmd', then .\pdvzip_your_image.cmd 
 
 For some common video & audio files, Linux requires the 'vlc (VideoLAN)' program, Windows uses the default media player.
 PDF '.pdf', Linux requires the 'evince' program, Windows uses the set default PDF viewer.
