@@ -660,7 +660,6 @@ void combineVectors(std::vector<unsigned char>& ImageVec, std::vector<unsigned c
 
 	// Write out to file the completed polyglot image (Image + Script + ZIP).
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
-	writeFinal.close();
 
 	std::cout << "\nCreated output file " << "'" << PDV_FILENAME << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
 }
