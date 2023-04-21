@@ -127,6 +127,7 @@ The less detailed your image, the more space available for the ZIP.
 
 Other editions of **pdv** you may find useful:-  
 
+* [jdvrdt - JPG Data Vehicle for Reddit](https://github.com/CleasbyCode/jdvrdt)
 * [pdvrdt - PNG Data Vehicle for Reddit](https://github.com/CleasbyCode/pdvrdt)  
 * [pdvps - PNG Data Vehicle for Twitter, PowerShell Edition](https://github.com/CleasbyCode/pdvps)  
 
