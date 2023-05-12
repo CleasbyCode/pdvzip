@@ -222,8 +222,8 @@ void checkFileRequirements(std::vector<BYTE>& ImageVec, std::vector<BYTE>& ZipVe
 		for (int j{}; j < 7; j++) {
 			if (ImageVec[pos] == BAD_CHAR[j]) { // BAD_CHAR found, display error message and exit program.
 				std::cerr <<
-					"\nInvalid Character Error:  \n\nThe IHDR chunk of this image contains a character that will break the Linux extraction script."
-					"\nTry modifying image dimensions (1% increase or decrease) to resolve the issue. Repeat if necessary.\n\n";
+				"\nInvalid Character Error:  \n\nThe IHDR chunk of this image contains a character that will break the Linux extraction script."
+				"\nTry modifying image dimensions (1% increase or decrease) to resolve the issue. Repeat if necessary.\n\n";
 				std::exit(EXIT_FAILURE);
 			}
 		}
@@ -525,7 +525,7 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 		std::getline(std::cin, argsWindows);
 		argsLinux.insert(0, "\x20"), argsWindows.insert(0, "\x20");
 		AppVec.push_back(argsLinux),	// AppVec (34).
-			AppVec.push_back(argsWindows);	// AppVec (35).
+		AppVec.push_back(argsWindows);	// AppVec (35).
 	}
 
 	switch (appIndex) {
@@ -537,7 +537,7 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 		sequence[15] = appIndex == FOLDER_INVOKE_ITEM ? FOLDER_INVOKE_ITEM : START_B;
 		sequence[17] = appIndex == FOLDER_INVOKE_ITEM ? BASH_XDG_OPEN : PDF;
 		insertIndex = 10,
-			appIndex = 14;
+		appIndex = 14;
 		break;
 	case PYTHON:		// These two Cases (with some changes) use 3rd sequence: 259,237,236,234,116,115,114, 29,35,33,22,34,33,22.
 	case POWERSHELL:
@@ -545,11 +545,11 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 			inzipName.insert(0, ".\\");		//  ".\" prepend to inzipName. Required for Windows PowerShell, e.g. powershell ".\filename.ps1".
 			AppVec.push_back(inzipName);		// add the modified filename to the AppVec vector (36).
 			sequence[31] = POWERSHELL,		// swap index number to Linux PowerShell (pwsh 23)
-				sequence[28] = WIN_POWERSHELL;		// swap index number to Windows PowerShell  (powershell 30)
+			sequence[28] = WIN_POWERSHELL;		// swap index number to Windows PowerShell  (powershell 30)
 			sequence[27] = MOD_INZIP_FILENAME;	// swap index number to MOD_INZIP_FILENAME (36), used with Windows powershell command.
 		}
 		insertIndex = 18,
-			appIndex = 25;
+		appIndex = 25;
 		break;
 	case EXECUTABLE:	// These two Cases (with minor changes) use 4th sequence: 259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31
 	case BASH_XDG_OPEN:
@@ -558,7 +558,7 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 		break;
 	default:			// Unmatched file extensions. Rely on operating system to use set default program for dealing with file type.
 		insertIndex = 10,	// Case uses 2nd sequence, we just need to alter one index number.
-			appIndex = 14;
+		appIndex = 14;
 		sequence[17] = BASH_XDG_OPEN;	// swap index number to BASH_XDG_OPEN (25)
 	}
 
@@ -689,7 +689,7 @@ void fixZipOffset(std::vector<BYTE>& ImageVec, const ptrdiff_t LAST_IDAT_INDEX) 
 	// Starting from the last IDAT chunk, search for ZIP file record offsets and update them to their new offset location.
 	while (zipRecords--) {
 		newOffset = search(ImageVec.begin() + newOffset + 1, ImageVec.end(), ZIP_SIG.begin(), ZIP_SIG.end()) - ImageVec.begin(),
-			centralLocalIndex = 45 + search(ImageVec.begin() + centralLocalIndex, ImageVec.end(), START_CENTRAL_SIG.begin(), START_CENTRAL_SIG.end()) - ImageVec.begin();
+		centralLocalIndex = 45 + search(ImageVec.begin() + centralLocalIndex, ImageVec.end(), START_CENTRAL_SIG.begin(), START_CENTRAL_SIG.end()) - ImageVec.begin();
 		updateValue(ImageVec, centralLocalIndex, newOffset, 32, false);
 	}
 
