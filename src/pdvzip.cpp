@@ -1,4 +1,3 @@
-
 // PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.3). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
 #include <algorithm>
@@ -8,40 +7,52 @@
 #include <vector>
 
 typedef unsigned char BYTE;
+typedef	unsigned short TBYTE;
 
-// Make sure user PNG image and ZIP file fulfil valid program requirements. Display relevant error message and exit program if checks fail.
-void checkFileRequirements(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[]);
+// Update values, such as chunk lengths, file sizes and other values, and write them into the relevant vector index locations. Overwrites previous values.
+class ValueUpdater {
+public:
+	void Value(std::vector<BYTE>& vec, size_t valueInsertIndex, const size_t VALUE, TBYTE bits, bool isBig) {
+		if (isBig) {
+			while (bits) vec[valueInsertIndex++] = (VALUE >> (bits -= 8)) & 0xff;
+		}
+		else {
+			while (bits) vec[valueInsertIndex--] = (VALUE >> (bits -= 8)) & 0xff;
+		}
+	}
+} *update;
 
-// Insert contents of vectors storing user ZIP file and the completed extraction script, into the vector containing PNG image, then output vector's content to file.
-void combineVectors(std::vector< BYTE>&, std::vector<BYTE>&, std::vector<BYTE>&);
-
-// Update barebones extraction script determined by embedded content. 
-void completeScript(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[]);
-
-// Output to screen detailed program usage information.
-void displayInfo();
-
-// Search and remove all unnecessary PNG chunks found before the first IDAT chunk.
-void eraseChunks(std::vector<BYTE>&);
-
-// Adjust embedded ZIP file offsets within the PNG image, so that it remains a valid, working ZIP archive.
-void fixZipOffset(std::vector<BYTE>&, const ptrdiff_t);
-
-// Updated values, such as adjusted ZIP file offsets, chunk lengths or chunk crc, into relevant vector index locations. Overwrites previous values.
-void updateValue(std::vector<BYTE>&, ptrdiff_t, const size_t, int, bool);
-
-// Search for and change characters within the PNG Palette chunk to prevent the Linux extraction script breaking.
-void modifyPaletteChunk(std::vector<BYTE>&, const char(&)[]);
 
 // Read-in user PNG image and ZIP file and store them in separate vectors.
 void storeFiles(std::ifstream&, std::ifstream&, const std::string&, const std::string&);
 
+// Make sure user PNG image and ZIP file fulfil valid program requirements. Display relevant error message and exit program if checks fail.
+void checkFileRequirements(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[]);
+
+// Search and remove all unnecessary PNG chunks found before the first IDAT chunk.
+void eraseChunks(std::vector<BYTE>&);
+
+// Search for and change characters within the PNG Palette chunk to prevent the Linux extraction script breaking.
+void modifyPaletteChunk(std::vector<BYTE>&, const char(&)[]);
+
+// Update barebones extraction script determined by embedded content. 
+void completeScript(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[]);
+
+// Insert contents of vectors storing user ZIP file and the completed extraction script, into the vector containing PNG image, then output vector's content to file.
+void combineVectors(std::vector< BYTE>&, std::vector<BYTE>&, std::vector<BYTE>&);
+
+// Adjust embedded ZIP file offsets within the PNG image, so that it remains a valid, working ZIP archive.
+void fixZipOffset(std::vector<BYTE>&, const size_t);
+
+// Output to screen detailed program usage information.
+void displayInfo();
+
 // Code to compute CRC32 (for IDAT & PLTE chunks within this program) was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-unsigned long crcUpdate(const unsigned long, unsigned char*, const size_t);
-unsigned long crc(unsigned char*, const size_t);
+size_t crcUpdate(const size_t, BYTE*, const size_t);
+size_t crc(BYTE*, const size_t);
 
 int main(int argc, char** argv) {
-
+	
 	if (argc == 2 && std::string(argv[1]) == "--info") {
 		displayInfo();
 	}
@@ -86,7 +97,7 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 	// Get size of user ZIP file.
 	ZIP.seekg(0, ZIP.end);
 
-	const ptrdiff_t ZIP_SIZE = ZIP.tellg();
+	const size_t ZIP_SIZE = ZIP.tellg();
 
 	// Reset read position of ZIP file.
 	ZIP.seekg(0, ZIP.beg);
@@ -105,7 +116,7 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 	// Find and remove unnecessary PNG chunks.
 	eraseChunks(ImageVec);
 
-	const ptrdiff_t
+	const size_t
 		IMG_SIZE = ImageVec.size(),
 		MAX_PNG_SIZE_BYTES = 5242880,	// 5MB PNG file size limit for Twitter.
 		MAX_SCRIPT_SIZE_BYTES = 750,	// Extraction script size limit.
@@ -116,7 +127,7 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 		|| ZIP_SIZE > MAX_PNG_SIZE_BYTES
 		|| COMBINED_SIZE > MAX_PNG_SIZE_BYTES) {
 
-		const ptrdiff_t
+		const size_t
 			EXCEED_SIZE_LIMIT = (IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES) - MAX_PNG_SIZE_BYTES,
 			AVAILABLE_BYTES = MAX_PNG_SIZE_BYTES - (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES);
 
@@ -140,11 +151,11 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 	}
 
 	// Index of chunk length field for vector ZipVec.
-	int chunkLengthIndex = 1;
+	TBYTE chunkLengthIndex = 1;
 
 	// Write the updated IDAT chunk length of vector ZipVec within its length field.
 	// IDAT chunk length will never exceed 5MB, only 3 bytes (bits = 24) of the 4-byte length field is used.
-	updateValue(ZipVec, chunkLengthIndex, ZIP_SIZE, 24, true);
+	update->Value(ZipVec, chunkLengthIndex, ZIP_SIZE, 24, true);
 
 	// Finish building extraction script.
 	completeScript(ZipVec, ImageVec, BAD_CHAR);
@@ -158,7 +169,7 @@ void checkFileRequirements(std::vector<BYTE>& ImageVec, std::vector<BYTE>& ZipVe
 		IMG_VEC_HDR{ ImageVec.begin(), ImageVec.begin() + PNG_SIG.length() },		// Get file header from vector ImageVec. 
 		ZIP_VEC_HDR{ ZipVec.begin() + 8, ZipVec.begin() + 8 + ZIP_SIG.length() };	// Get file header from vector ZipVec.
 
-	const int
+	const TBYTE
 		IMAGE_DIMS_WIDTH = ImageVec[18] << 8 | ImageVec[19],	// Get image width dimensions from vector ImageVec.
 		IMAGE_DIMS_HEIGHT = ImageVec[22] << 8 | ImageVec[23],	// Get image height dimensions from vector ImageVec.
 		PNG_TRUECOLOUR_MAX_DIMS = 899,		// 899 x 899 maximum supported dimensions for PNG truecolour (PNG-32/PNG-24, Colour types 2 & 6).
@@ -215,15 +226,15 @@ void checkFileRequirements(std::vector<BYTE>& ImageVec, std::vector<BYTE>& ZipVe
 	// A script breaking character can appear within the width and height fields or the crc field of the IHDR chunk.
 	// Manually modifying the dimensions (1% increase or decrease) of the image will usually resolve the issue. Repeat if necessary.
 
-	int pos = 18; // Vector index start position within ImageVec.
+	TBYTE pos = 18; // Vector index start position within ImageVec.
 
 	// From pos location, increment through 15 bytes of ImageVec and compare each byte to the 7 characters within BAD_CHAR.
-	for (int i{}; i < 16; i++) {
-		for (int j{}; j < 7; j++) {
+	for (TBYTE i{}; i < 16; i++) {
+		for (TBYTE j{}; j < 7; j++) {
 			if (ImageVec[pos] == BAD_CHAR[j]) { // BAD_CHAR found, display error message and exit program.
 				std::cerr <<
-				"\nInvalid Character Error:  \n\nThe IHDR chunk of this image contains a character that will break the Linux extraction script."
-				"\nTry modifying image dimensions (1% increase or decrease) to resolve the issue. Repeat if necessary.\n\n";
+					"\nInvalid Character Error:  \n\nThe IHDR chunk of this image contains a character that will break the Linux extraction script."
+					"\nTry modifying image dimensions (1% increase or decrease) to resolve the issue. Repeat if necessary.\n\n";
 				std::exit(EXIT_FAILURE);
 			}
 		}
@@ -235,8 +246,8 @@ void eraseChunks(std::vector<BYTE>& ImageVec) {
 
 	const std::string CHUNK[15]{ "IDAT", "bKGD", "cHRM", "iCCP", "sRGB", "hIST", "pHYs", "sBIT", "gAMA", "sPLT", "tIME", "tRNS", "tEXt", "iTXt", "zTXt" };
 
-	for (int chunkIndex = 14; chunkIndex > 0; chunkIndex--) {
-		ptrdiff_t
+	for (TBYTE chunkIndex = 14; chunkIndex > 0; chunkIndex--) {
+		size_t
 			// Get first IDAT chunk index location. Don't remove chunks after this point.
 			firstIdatIndex = search(ImageVec.begin(), ImageVec.end(), CHUNK[0].begin(), CHUNK[0].end()) - ImageVec.begin(),
 			// From last to first, search and get index location of each chunk to remove.
@@ -259,7 +270,7 @@ void modifyPaletteChunk(std::vector<BYTE>& ImageVec, const char(&BAD_CHAR)[]) {
 
 	const std::string PLTE_SIG = "PLTE";
 
-	const ptrdiff_t
+	const size_t
 		// Search for index location of PLTE chunk name within vector ImageVec.
 		PLTE_CHUNK_INDEX = search(ImageVec.begin(), ImageVec.end(), PLTE_SIG.begin(), PLTE_SIG.end()) - ImageVec.begin(),
 		// Get PLTE chunk size from vector ImageVec.
@@ -269,19 +280,16 @@ void modifyPaletteChunk(std::vector<BYTE>& ImageVec, const char(&BAD_CHAR)[]) {
 	// While image corruption is possible when altering the PLTE chunk, the majority of images should be fine with these replacement characters.
 	const char GOOD_CHAR[7]{ '*', '&', '=', '}', 'a', '?', ':' };
 
-	int twoCount{};
+	TBYTE twoCount{};
 
-	for (ptrdiff_t i = PLTE_CHUNK_INDEX; i < (PLTE_CHUNK_INDEX + (PLTE_CHUNK_SIZE + 4)); i++) {
+	for (size_t i = PLTE_CHUNK_INDEX; i < (PLTE_CHUNK_INDEX + (PLTE_CHUNK_SIZE + 4)); i++) {
 
 		// Individual BAD_CHAR characters within PLTE chunk that will break the extraction script.
 		// Replace matched BAD_CHAR with the relevant GOOD_CHAR.
 		ImageVec[i] = (ImageVec[i] == BAD_CHAR[0]) ? GOOD_CHAR[1]
-			: (ImageVec[i] == BAD_CHAR[1]) ? GOOD_CHAR[1]
-			: (ImageVec[i] == BAD_CHAR[2]) ? GOOD_CHAR[1]
-			: (ImageVec[i] == BAD_CHAR[3]) ? GOOD_CHAR[4]
-			: (ImageVec[i] == BAD_CHAR[4]) ? GOOD_CHAR[0]
-			: (ImageVec[i] == BAD_CHAR[5]) ? GOOD_CHAR[5]
-			: ((ImageVec[i] == BAD_CHAR[6]) ? GOOD_CHAR[6] : ImageVec[i]);
+			: (ImageVec[i] == BAD_CHAR[1]) ? GOOD_CHAR[1] : (ImageVec[i] == BAD_CHAR[2]) ? GOOD_CHAR[1]
+			: (ImageVec[i] == BAD_CHAR[3]) ? GOOD_CHAR[4] : (ImageVec[i] == BAD_CHAR[4]) ? GOOD_CHAR[0]
+			: (ImageVec[i] == BAD_CHAR[5]) ? GOOD_CHAR[5] : ((ImageVec[i] == BAD_CHAR[6]) ? GOOD_CHAR[6] : ImageVec[i]);
 
 		// Character combinations that will break extraction script. 
 		if ((ImageVec[i] == '&' && ImageVec[i + 1] == '!')		// e.g. "&!"
@@ -319,7 +327,7 @@ void modifyPaletteChunk(std::vector<BYTE>& ImageVec, const char(&BAD_CHAR)[]) {
 
 		// Character "<" followed by a number (or a sequence of numbers upto 11 digits) and ending with the same character "<", breaks extraction script. 
 		// Example, "<1<, <4356<, <293459< <35242369849<, etc".
-		int j = 1, k = 2;
+		TBYTE j = 1, k = 2;
 		if (ImageVec[i] == '<') { // Found this "<" character, now check if it is followed by a number and ends with another "<" character.
 			while (j < 12) {
 				if (ImageVec[i + j] > 47 && ImageVec[i + j] < 58 && ImageVec[i + k] == '<') { // Found pattern  
@@ -339,21 +347,21 @@ void modifyPaletteChunk(std::vector<BYTE>& ImageVec, const char(&BAD_CHAR)[]) {
 
 		// After modifying the PLTE chunk, we need to update the chunk's crc value.
 		// Pass these two values (PLTE_CHUNK_INDEX & PLTE_CHUNK_SIZE + 4) to the crc fuction to get correct PLTE chunk crc value.
-		const uint32_t PLTE_CHUNK_CRC = crc(&ImageVec[PLTE_CHUNK_INDEX], PLTE_CHUNK_SIZE + 4);
+		const size_t PLTE_CHUNK_CRC = crc(&ImageVec[PLTE_CHUNK_INDEX], PLTE_CHUNK_SIZE + 4);
 
 		// Get vector index locations for PLTE crc chunk field and PLTE modValue.
-		ptrdiff_t
+		size_t
 			crcInsertIndex = PLTE_CHUNK_INDEX + (PLTE_CHUNK_SIZE + 4),
 			modValueInsertIndex = crcInsertIndex - 1;
 
 		// Write the updated crc value into PLTE chunk's crc field (bits=32) within vector ImageVec.
-		updateValue(ImageVec, crcInsertIndex, PLTE_CHUNK_CRC, 32, true);
+		update->Value(ImageVec, crcInsertIndex, PLTE_CHUNK_CRC, 32, true);
 
 		// Make sure the new crc value does not contain any of the BAD_CHAR characters, which will break the extraction script.
 		// If we find a BAD_CHAR in the new crc value, modify one byte in the PLTE chunk (PLTE mod location), then recalculate crc value. 
 		// Repeat process until no BAD_CHAR found.
-		for (int i{}; i < 5; i++) {
-			for (int j{}; j < 7; j++) {
+		for (TBYTE i = 0; i < 5; i++) {
+			for (TBYTE j = 0; j < 7; j++) {
 				if (i > 3) break;
 				if (ImageVec[crcInsertIndex] == BAD_CHAR[j]) {
 					ImageVec[modValueInsertIndex] = modValue;
@@ -365,21 +373,6 @@ void modifyPaletteChunk(std::vector<BYTE>& ImageVec, const char(&BAD_CHAR)[]) {
 			crcInsertIndex++;
 		}
 	} while (redoCrc);
-}
-
-void updateValue(std::vector<BYTE>& vec, ptrdiff_t valueInsertIndex, const size_t VALUE, int bits, bool isBig) {
-
-	// This small function will insert updated values, such as adjusted ZIP file offsets, PNG chunk lengths or crc values, 
-	// into the relevant vector index locations. Values will range from a minimum of 1 byte to a maximum of 4 bytes (bits: 8, 16, 24, 32). 
-
-	// ZIP file values are stored in little-endian byte order, PNG image values are stored in big-endian byte order.
-
-	if (isBig) {
-		while (bits) vec[valueInsertIndex++] = (VALUE >> (bits -= 8)) & 0xff;
-	}
-	else {
-		while (bits) vec[valueInsertIndex--] = (VALUE >> (bits -= 8)) & 0xff;
-	}
 }
 
 void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, const char(&BAD_CHAR)[]) {
@@ -401,29 +394,24 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 	The completed script within the hIST chunk will later be inserted into the vector "ImageVec" which contains the user PNG image file */
 
 	std::vector<BYTE>ScriptVec{
-	0x00, 0x00, 0x00, 0xFD, 0x68, 0x49, 0x53, 0x54, 0x0D, 0x52, 0x45, 0x4D,
-	0x3B, 0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x6D, 0x6B, 0x64, 0x69, 0x72,
-	0x20, 0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78,
-	0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x3B, 0x6D, 0x76, 0x20, 0x22,
-	0x24, 0x30, 0x22, 0x20, 0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70,
-	0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x3B, 0x63,
-	0x64, 0x20, 0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65,
-	0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x3B, 0x75, 0x6E, 0x7A,
-	0x69, 0x70, 0x20, 0x2D, 0x71, 0x6F, 0x20, 0x22, 0x24, 0x30, 0x22, 0x3B,
-	0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x22, 0x22, 0x3B, 0x65, 0x78, 0x69,
-	0x74, 0x3B, 0x0D, 0x0A, 0x23, 0x26, 0x63, 0x6C, 0x73, 0x26, 0x6D, 0x6B,
-	0x64, 0x69, 0x72, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70,
-	0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x6D,
-	0x6F, 0x76, 0x65, 0x20, 0x22, 0x25, 0x7E, 0x64, 0x70, 0x6E, 0x78, 0x30,
-	0x22, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65,
-	0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x63, 0x64, 0x20,
-	0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74,
-	0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x63, 0x6C, 0x73, 0x26, 0x74,
-	0x61, 0x72, 0x20, 0x2D, 0x78, 0x66, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30,
-	0x25, 0x7E, 0x78, 0x30, 0x22, 0x26, 0x20, 0x22, 0x22, 0x26, 0x72, 0x65,
-	0x6E, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78, 0x30, 0x22,
-	0x20, 0x2A, 0x2E, 0x70, 0x6E, 0x67, 0x26, 0x65, 0x78, 0x69, 0x74, 0x0D,
-	0x0A };
+	0x00, 0x00, 0x00, 0xFD, 0x68, 0x49, 0x53, 0x54, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x63, 0x6C,
+	0x65, 0x61, 0x72, 0x3B, 0x6D, 0x6B, 0x64, 0x69, 0x72, 0x20, 0x2E, 0x2F, 0x70, 0x64, 0x76,
+	0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x3B, 0x6D,
+	0x76, 0x20, 0x22, 0x24, 0x30, 0x22, 0x20, 0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70,
+	0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x3B, 0x63, 0x64, 0x20, 0x2E,
+	0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74,
+	0x65, 0x64, 0x3B, 0x75, 0x6E, 0x7A, 0x69, 0x70, 0x20, 0x2D, 0x71, 0x6F, 0x20, 0x22, 0x24,
+	0x30, 0x22, 0x3B, 0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x22, 0x22, 0x3B, 0x65, 0x78, 0x69,
+	0x74, 0x3B, 0x0D, 0x0A, 0x23, 0x26, 0x63, 0x6C, 0x73, 0x26, 0x6D, 0x6B, 0x64, 0x69, 0x72,
+	0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61,
+	0x63, 0x74, 0x65, 0x64, 0x26, 0x6D, 0x6F, 0x76, 0x65, 0x20, 0x22, 0x25, 0x7E, 0x64, 0x70,
+	0x6E, 0x78, 0x30, 0x22, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65,
+	0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x63, 0x64, 0x20, 0x2E, 0x5C, 0x70,
+	0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64,
+	0x26, 0x63, 0x6C, 0x73, 0x26, 0x74, 0x61, 0x72, 0x20, 0x2D, 0x78, 0x66, 0x20, 0x22, 0x25,
+	0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78, 0x30, 0x22, 0x26, 0x20, 0x22, 0x22, 0x26, 0x72, 0x65,
+	0x6E, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78, 0x30, 0x22, 0x20, 0x2A, 0x2E, 
+	0x70, 0x6E, 0x67, 0x26, 0x65, 0x78, 0x69, 0x74, 0x0D, 0x0A };
 
 	// AppVec string vector. 
 	// Stores file extensions for some popular media types along with several default application commands (& args) that support those extensions.
@@ -432,7 +420,7 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 					".sh","vlc --play-and-exit --no-video-title-show ","evince ","python3 ","pwsh ","./","xdg-open ","powershell;Invoke-Item ",
 					" &> /dev/null","start /b \"\"","pause&","powershell","chmod +x ",";" };
 
-	const int
+	const TBYTE
 		INZIP_NAME_LENGTH_INDEX = 34,	// ZipVec vector's index location for length value of the in-zip media filename.
 		INZIP_NAME_INDEX = 38,		// ZipVec start index location for the in-zip media filename.
 		INZIP_NAME_LENGTH = ZipVec[INZIP_NAME_LENGTH_INDEX],	// Get character length of the in-zip media filename from ZipVec.
@@ -476,17 +464,17 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 	// sequence[5] = AppVec index 33 ("appIndex"), which is the inzip media filename string element. 
 	// AppVec string element 33 (inzip media filename) will be inserted into the script (vector ScriptVec) at index 236.
 
-	int sequence[52]{
+	TBYTE sequence[52]{
 				236,234,116,115,114, 33,28,27,33,20,	// 1st sequence for case "VIDEO_AUDIO".
 				236,234,115,114, 33,28,33,21,		// 2nd sequence for cases "PDF, FOLDER_INVOKE_ITEM, DEFAULT".
 				259,237,236,234,116,115,114, 29,35,33,22,34,33,22,	// 3rd sequence for cases "PYTHON, POWERSHELL".
 				259,237,236,234,116,115,114,114,114,114, 29,35,33,28,34,33,24,32,33,31 }, // 4th sequence for cases "EXECUTABLE & BASH_XDG_OPEN".
 
-				appIndex{},		// Uses the AppVec index values from the sequence array.
-				insertIndex{},		// Uses the ScriptVec index values from the sequence array.
-				sequenceLimit{};	// Stores the length limit of each of the four sequences. 
+				appIndex = 0,		// Uses the AppVec index values from the sequence array.
+				insertIndex = 0,		// Uses the ScriptVec index values from the sequence array.
+				sequenceLimit = 0;	// Stores the length limit of each of the four sequences. 
 
-	/*  	[sequence](insertIndex)[sequence](appIndex)
+	/*  [sequence](insertIndex)[sequence](appIndex)
 		Build script example below is using the first sequence (see "sequence" array above).
 
 		VIDEO_AUDIO:
@@ -564,7 +552,7 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 
 	// Set the sequenceLimit using the first appIndex value from each switch case sequence.
 	// Reduce sequenceLimit value by 1 if insertIndex is 33 (case BASH_XDG_OPEN).
-	sequenceLimit = { insertIndex == 33 ? appIndex - 1 : appIndex };
+	sequenceLimit = insertIndex == 33 ? appIndex - 1 : appIndex;
 
 	// With just a single command within the While-Loop, we can insert all the required strings into the extraction script (ScriptVec), 
 	// based on the sequence array, which is selected by the relevant case, from the above switch statement after the extension match. 
@@ -581,7 +569,7 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 
 		// Extraction script within the hIST chunk of vector ScriptVec, is now complete. 
 		// Update hIST chunk length.
-		const ptrdiff_t HIST_LENGTH = ScriptVec.size() - 12;
+		const size_t HIST_LENGTH = ScriptVec.size() - 12;
 
 		// Display relevant error message and exit program if extraction script exceeds size limit.
 		if (HIST_LENGTH > MAX_SCRIPT_SIZE_BYTES) {
@@ -590,15 +578,15 @@ void completeScript(std::vector<BYTE>& ZipVec, std::vector<BYTE>& ImageVec, cons
 		}
 
 		// ScriptVec vector's insert location for chunk length field.
-		int chunkLengthIndex = 2;
+		TBYTE chunkLengthIndex = 2;
 
 		// Call function to write updated chunk length value into ScriptVec vector's chunk length field. 
 		// Due to its small size, the hIST chunk will only use 2 bytes maximum (bits=16) of the 4-byte length field.
-		updateValue(ScriptVec, chunkLengthIndex, HIST_LENGTH, 16, true);
+		update->Value(ScriptVec, chunkLengthIndex, HIST_LENGTH, 16, true);
 
 		// Check the first byte of the hIST chunk length field to make sure the updated chunk length does not match 
 		// any of the BAD_CHAR characters that will break the Linux extraction script.
-		for (int i{}; i < 7; i++) {
+		for (TBYTE i = 0; i < 7; i++) {
 			if (ScriptVec[3] == BAD_CHAR[i]) {
 				// BAD_CHAR found. Insert a byte at the end of ScriptVec to increase chunk length. Update chunk length field. 
 				// Check again for a BAD_CHAR match. Repeat the byte insertion and chunk length update, until no BAD_CHAR match.
@@ -620,9 +608,9 @@ void combineVectors(std::vector<BYTE>& ImageVec, std::vector<BYTE>& ZipVec, std:
 	const std::string
 		IDAT_SIG = "IDAT",
 		TXT_NUM = std::to_string(rand()),
-		PDV_FILENAME = "pdvzip_image_" + TXT_NUM.substr(0, 5) + ".png"; // Output unique filename for the complete polyglot image.
+		PDV_FILENAME = "pdvimg_" + TXT_NUM.substr(0, 5) + ".png"; // Output unique filename for the complete polyglot image.
 
-	const ptrdiff_t
+	const size_t
 		// Search vector ImageVec for the index location of the first IDAT chunk (start of length field).
 		// This value will be used as the insert location within vector ImageVec for vector ScriptVec. 
 
@@ -646,12 +634,12 @@ void combineVectors(std::vector<BYTE>& ImageVec, std::vector<BYTE>& ZipVec, std:
 
 	// Generate crc value for our (new) last IDAT chunk.
 	// The +4 value points LAST IDAT index value to the chunk name location, which is where crc calculation needs to begin/include.
-	const uint32_t LAST_IDAT_CRC = crc(&ImageVec[LAST_IDAT_INDEX + 4], ZipVec.size() - 8);
+	const size_t LAST_IDAT_CRC = crc(&ImageVec[LAST_IDAT_INDEX + 4], ZipVec.size() - 8);
 
-	ptrdiff_t crcInsertIndex = ImageVec.size() - 16;	// Get index location for last IDAT chunk's 4-byte crc field, from vector ImageVec.
+	size_t crcInsertIndex = ImageVec.size() - 16;	// Get index location for last IDAT chunk's 4-byte crc field, from vector ImageVec.
 
 	// Call function to write new crc value into the last IDAT chunk's crc index field, within the vector ImageVec.
-	updateValue(ImageVec, crcInsertIndex, LAST_IDAT_CRC, 32, true);
+	update->Value(ImageVec, crcInsertIndex, LAST_IDAT_CRC, 32, true);
 
 	std::ofstream writeFinal(PDV_FILENAME, std::ios::binary);
 
@@ -666,7 +654,7 @@ void combineVectors(std::vector<BYTE>& ImageVec, std::vector<BYTE>& ZipVec, std:
 	std::cout << "\nCreated output file " << "'" << PDV_FILENAME << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
 }
 
-void fixZipOffset(std::vector<BYTE>& ImageVec, const ptrdiff_t LAST_IDAT_INDEX) {
+void fixZipOffset(std::vector<BYTE>& ImageVec, const size_t LAST_IDAT_INDEX) {
 
 	const std::string
 		START_CENTRAL_SIG = "PK\x01\x02",
@@ -674,11 +662,11 @@ void fixZipOffset(std::vector<BYTE>& ImageVec, const ptrdiff_t LAST_IDAT_INDEX) 
 		ZIP_SIG = "PK\x03\x04";
 
 	// Search vector ImageVec (start from last IDAT chunk) to get index locations for "Start Central Directory" & "End Central Directory".
-	const ptrdiff_t
+	const size_t
 		START_CENTRAL_INDEX = search(ImageVec.begin() + LAST_IDAT_INDEX, ImageVec.end(), START_CENTRAL_SIG.begin(), START_CENTRAL_SIG.end()) - ImageVec.begin(),
 		END_CENTRAL_INDEX = search(ImageVec.begin() + START_CENTRAL_INDEX, ImageVec.end(), END_CENTRAL_SIG.begin(), END_CENTRAL_SIG.end()) - ImageVec.begin();
 
-	ptrdiff_t
+	size_t
 		zipRecordsIndex = END_CENTRAL_INDEX + 11,	// Index location for ZIP file records value.
 		commentLengthIndex = END_CENTRAL_INDEX + 21,	// Index location for ZIP comment length.
 		endCentralStartIndex = END_CENTRAL_INDEX + 19,	// Index location for End Central Start offset.
@@ -690,51 +678,49 @@ void fixZipOffset(std::vector<BYTE>& ImageVec, const ptrdiff_t LAST_IDAT_INDEX) 
 	while (zipRecords--) {
 		newOffset = search(ImageVec.begin() + newOffset + 1, ImageVec.end(), ZIP_SIG.begin(), ZIP_SIG.end()) - ImageVec.begin(),
 		centralLocalIndex = 45 + search(ImageVec.begin() + centralLocalIndex, ImageVec.end(), START_CENTRAL_SIG.begin(), START_CENTRAL_SIG.end()) - ImageVec.begin();
-		updateValue(ImageVec, centralLocalIndex, newOffset, 32, false);
+		update->Value(ImageVec, centralLocalIndex, newOffset, 32, false);
 	}
 
 	// Write updated "Start Central Directory" offset into End Central Directory's "Start Central Directory" index location within vector ImageVec.
-	updateValue(ImageVec, endCentralStartIndex, START_CENTRAL_INDEX, 32, false);
+	update->Value(ImageVec, endCentralStartIndex, START_CENTRAL_INDEX, 32, false);
 
 	// JAR file support. Get global comment length value from ZIP file within vector ImageVec and increase it by 16 bytes to cover end of PNG file.
 	// To run a JAR file, you will need to rename the '.png' extention to '.jar'.  
-	int commentLength = 16 + (ImageVec[commentLengthIndex] << 8) | ImageVec[commentLengthIndex - 1];
+	TBYTE commentLength = 16 + (ImageVec[commentLengthIndex] << 8) | ImageVec[commentLengthIndex - 1];
 
 	// Write the comment length value into the comment length index location within vector ImageVec.
-	updateValue(ImageVec, commentLengthIndex, commentLength, 16, false);
+	update->Value(ImageVec, commentLengthIndex, commentLength, 16, false);
 }
 
 // The following code (slightly modified) to compute CRC32 (for IDAT & PLTE chunks) was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-unsigned long crcUpdate(const unsigned long crc, unsigned char* buf, const size_t len)
+size_t crcUpdate(const size_t crc, BYTE* buf, const size_t len)
 {
 	// Table of CRCs of all 8-bit messages.
-	unsigned long crcTable[256]
-	{ 0,1996959894,3993919788,2567524794,124634137,1886057615,3915621685,2657392035,249268274,2044508324,3772115230,2547177864,162941995,
-		2125561021,3887607047,2428444049,498536548,1789927666,4089016648,2227061214,450548861,1843258603,4107580753,2211677639,325883990,
-		1684777152,4251122042,2321926636,335633487,1661365465,4195302755,2366115317,997073096,1281953886,3579855332,2724688242,1006888145,
-		1258607687,3524101629,2768942443,901097722,1119000684,3686517206,2898065728,853044451,1172266101,3705015759,2882616665,651767980,
-		1373503546,3369554304,3218104598,565507253,1454621731,3485111705,3099436303,671266974,1594198024,3322730930,2970347812,795835527,
-		1483230225,3244367275,3060149565,1994146192,31158534,2563907772,4023717930,1907459465,112637215,2680153253,3904427059,2013776290,
-		251722036,2517215374,3775830040,2137656763,141376813,2439277719,3865271297,1802195444,476864866,2238001368,4066508878,1812370925,
-		453092731,2181625025,4111451223,1706088902,314042704,2344532202,4240017532,1658658271,366619977,2362670323,4224994405,1303535960,
-		984961486,2747007092,3569037538,1256170817,1037604311,2765210733,3554079995,1131014506,879679996,2909243462,3663771856,1141124467,
-		855842277,2852801631,3708648649,1342533948,654459306,3188396048,3373015174,1466479909,544179635,3110523913,3462522015,1591671054,
-		702138776,2966460450,3352799412,1504918807,783551873,3082640443,3233442989,3988292384,2596254646,62317068,1957810842,3939845945,
-		2647816111,81470997,1943803523,3814918930,2489596804,225274430,2053790376,3826175755,2466906013,167816743,2097651377,4027552580,
-		2265490386,503444072,1762050814,4150417245,2154129355,426522225,1852507879,4275313526,2312317920,282753626,1742555852,4189708143,
-		2394877945,397917763,1622183637,3604390888,2714866558,953729732,1340076626,3518719985,2797360999,1068828381,1219638859,3624741850,
-		2936675148,906185462,1090812512,3747672003,2825379669,829329135,1181335161,3412177804,3160834842,628085408,1382605366,3423369109,
-		3138078467,570562233,1426400815,3317316542,2998733608,733239954,1555261956,3268935591,3050360625,752459403,1541320221,2607071920,
-		3965973030,1969922972,40735498,2617837225,3943577151,1913087877,83908371,2512341634,3803740692,2075208622,213261112,2463272603,
-		3855990285,2094854071,198958881,2262029012,4057260610,1759359992,534414190,2176718541,4139329115,1873836001,414664567,2282248934,
-		4279200368,1711684554,285281116,2405801727,4167216745,1634467795,376229701,2685067896,3608007406,1308918612,956543938,2808555105,
-		3495958263,1231636301,1047427035,2932959818,3654703836,1088359270,936918000,2847714899,3736837829,1202900863,817233897,3183342108,
-		3401237130,1404277552,615818150,3134207493,3453421203,1423857449,601450431,3009837614,3294710456,1567103746,711928724,3020668471,
-		3272380065,1510334235,755167117 };
+	size_t crcTable[256]
+	{ 0, 1996959894, 3993919788, 2567524794, 124634137, 1886057615, 3915621685, 2657392035, 249268274, 2044508324, 3772115230, 2547177864, 162941995, 2125561021,
+		 3887607047, 2428444049, 498536548, 1789927666, 4089016648, 2227061214, 450548861, 1843258603, 4107580753, 2211677639, 325883990, 1684777152, 4251122042,
+		 2321926636, 335633487, 1661365465, 4195302755, 2366115317, 997073096, 1281953886, 3579855332, 2724688242, 1006888145, 1258607687, 3524101629, 2768942443,
+		 901097722, 1119000684, 3686517206, 2898065728, 853044451, 1172266101, 3705015759, 2882616665, 651767980, 1373503546, 3369554304, 3218104598, 565507253,
+		 1454621731, 3485111705, 3099436303, 671266974, 1594198024, 3322730930, 2970347812, 795835527, 1483230225, 3244367275, 3060149565, 1994146192, 31158534,
+		 2563907772, 4023717930, 1907459465, 112637215, 2680153253, 3904427059, 2013776290, 251722036, 2517215374, 3775830040, 2137656763, 141376813, 2439277719,
+		 3865271297, 1802195444, 476864866, 2238001368, 4066508878, 1812370925, 453092731, 2181625025, 4111451223, 1706088902, 314042704, 2344532202, 4240017532,
+		 1658658271, 366619977, 2362670323, 4224994405, 1303535960, 984961486, 2747007092, 3569037538, 1256170817, 1037604311, 2765210733, 3554079995, 1131014506,
+		 879679996, 2909243462, 3663771856, 1141124467, 855842277, 2852801631, 3708648649, 1342533948, 654459306, 3188396048, 3373015174, 1466479909, 544179635,
+		 3110523913, 3462522015, 1591671054, 702138776, 2966460450, 3352799412, 1504918807, 783551873, 3082640443, 3233442989, 3988292384, 2596254646, 62317068,
+		 1957810842, 3939845945, 2647816111, 81470997, 1943803523, 3814918930, 2489596804, 225274430, 2053790376, 3826175755, 2466906013, 167816743, 2097651377,
+		 4027552580, 2265490386, 503444072, 1762050814, 4150417245, 2154129355, 426522225, 1852507879, 4275313526, 2312317920, 282753626, 1742555852, 4189708143,
+		 2394877945, 397917763, 1622183637, 3604390888, 2714866558, 953729732, 1340076626, 3518719985, 2797360999, 1068828381, 1219638859, 3624741850, 2936675148,
+		 906185462, 1090812512, 3747672003, 2825379669, 829329135, 1181335161, 3412177804, 3160834842, 628085408, 1382605366, 3423369109, 3138078467, 570562233,
+		 1426400815, 3317316542, 2998733608, 733239954, 1555261956, 3268935591, 3050360625, 752459403, 1541320221, 2607071920, 3965973030, 1969922972, 40735498,
+		 2617837225, 3943577151, 1913087877, 83908371, 2512341634, 3803740692, 2075208622, 213261112, 2463272603, 3855990285, 2094854071, 198958881, 2262029012,
+		 4057260610, 1759359992, 534414190, 2176718541, 4139329115, 1873836001, 414664567, 2282248934, 4279200368, 1711684554, 285281116, 2405801727, 4167216745,
+		 1634467795, 376229701, 2685067896, 3608007406, 1308918612, 956543938, 2808555105, 3495958263, 1231636301, 1047427035, 2932959818, 3654703836, 1088359270,
+		 936918000, 2847714899, 3736837829, 1202900863, 817233897, 3183342108, 3401237130, 1404277552, 615818150, 3134207493, 3453421203, 1423857449, 601450431,
+		 3009837614, 3294710456, 1567103746, 711928724, 3020668471, 3272380065, 1510334235, 755167117 };
 
 	// Update a running CRC with the bytes buf[0..len - 1] the CRC should be initialized to all 1's, 
 	// and the transmitted value is the 1's complement of the final running CRC (see the crc() routine below).
-	unsigned long c = crc;
+	size_t c = crc;
 
 	for (size_t n{}; n < len; n++) {
 		c = crcTable[(c ^ buf[n]) & 0xff] ^ (c >> 8);
@@ -743,7 +729,7 @@ unsigned long crcUpdate(const unsigned long crc, unsigned char* buf, const size_
 }
 
 // Return the CRC of the bytes buf[0..len-1].
-unsigned long crc(unsigned char* buf, const size_t len)
+size_t crc(BYTE* buf, const size_t len)
 {
 	return crcUpdate(0xffffffffL, buf, len) ^ 0xffffffffL;
 }
