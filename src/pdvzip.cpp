@@ -118,7 +118,7 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 
 	const size_t
 		IMG_SIZE = ImageVec.size(),
-		MAX_PNG_SIZE_BYTES = 5242880,	// 5MB PNG file size limit for Twitter.
+		MAX_PNG_SIZE_BYTES = 209715200,	// 200MB PNG file size limit for pdvzip.
 		MAX_SCRIPT_SIZE_BYTES = 750,	// Extraction script size limit.
 		COMBINED_SIZE = IMG_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES;
 
@@ -132,9 +132,9 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 			AVAILABLE_BYTES = MAX_PNG_SIZE_BYTES - (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES);
 
 		const std::string
-			SIZE_ERR = "Size Error: File must not exceed Twitter's file size limit of 5MB (5,242,880 bytes).\n\n",
+			SIZE_ERR = "Size Error: File must not exceed pdvzip's file size limit of 200MB (209,715,200 bytes).\n\n",
 			COMBINED_SIZE_ERR = "\nSize Error: " + std::to_string(COMBINED_SIZE) +
-			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds Twitter's 5MB size limit by "
+			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds pdvzip's 200MB size limit by "
 			+ std::to_string(EXCEED_SIZE_LIMIT) + " bytes. Available ZIP file size is " + std::to_string(AVAILABLE_BYTES) + " bytes.\n\n",
 
 			ERR_MSG = (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES > MAX_PNG_SIZE_BYTES) ? "\nPNG " + SIZE_ERR
@@ -151,11 +151,10 @@ void storeFiles(std::ifstream& IMAGE, std::ifstream& ZIP, const std::string& IMG
 	}
 
 	// Index of chunk length field for vector ZipVec.
-	TBYTE chunkLengthIndex = 1;
+	TBYTE chunkLengthIndex = 0;
 
 	// Write the updated IDAT chunk length of vector ZipVec within its length field.
-	// IDAT chunk length will never exceed 5MB, only 3 bytes (bits = 24) of the 4-byte length field is used.
-	update->Value(ZipVec, chunkLengthIndex, ZIP_SIZE, 24, true);
+	update->Value(ZipVec, chunkLengthIndex, ZIP_SIZE, 32, true);
 
 	// Finish building extraction script.
 	completeScript(ZipVec, ImageVec, BAD_CHAR);
@@ -737,7 +736,7 @@ size_t crc(BYTE* buf, const size_t len)
 void displayInfo() {
 
 	std::cout << R"(
-PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.3). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
+PNG Data Vehicle ZIP Edition (PDVZIP v1.3). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 
 
 PDVZIP enables you to embed a ZIP archive containing a small media file within a tweetable PNG image.
