@@ -1,8 +1,9 @@
 # pdvzip
-PNG Data Vehicle for Twitter, ZIP Edition (PDVZIP v1.3)
+PNG Data Vehicle (ZIP Edition) for Twitter, Imgur, ImgBB, ImgPile, Flickr, ImageShack & PostImage.
 
-Embed a ZIP file of up to ~5MB within a tweetable and "*executable*" PNG image.  
+Embed a ZIP file within a \*tweetable and "executable" PNG image. PNG image size limit is platform dependant (see below).
 
+Flickr (200MB / Free account), Imgbb (32MB), ImageShack (25MB), PostImage (24MB), ImgPile (8MB), *Twitter & Imgur (5MB).
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/6_image_vid.png)  
  [***(Image Credit: @Photography_Ai_)***](https://twitter.com/Photography_Ai_/status/1669775346802065423)  
@@ -31,9 +32,7 @@ $
 
 ```
 
-Once the ZIP file has been embedded within a PNG image, it's ready to be shared (tweeted) or '*executed*' whenever you want to open/play the media file.
-
-You can also upload and share your PNG image to *some popular image hosting sites, such as [***Flickr***](https://www.flickr.com/), [***ImgBB***](https://imgbb.com/), [***Imgur***](https://imgur.com/a/zF40QMX), [***ImgPile***](https://imgpile.com/), [***ImageShack***](https://imageshack.com/), [***PostImage***](https://postimg.cc/xcCcvpLJ), etc. **Not all image hosting sites are compatible, e.g. ***ImgBox***, [***Reddit***](https://github.com/CleasbyCode/pdvrdt).*
+Once the ZIP file has been embedded within a PNG image, it's ready to be shared on your chosen hosting site or '*executed*' whenever you want to access the embedded file(s).
 
 **Mobile Issue**: Sometimes when saving images from Twitter to a mobile, the file gets saved with a '*.jpg*' extension. Please note, the file has not been converted to a JPG. Twitter has just renamed the extension, so it is still the original PNG image with its embedded content. 
 
@@ -82,12 +81,12 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 ## PNG Image Requirements for Arbitrary Data Preservation
 
 
-PNG file size (image + embedded content) must not exceed **5MB** (5,242,880 bytes).  
-Twitter will convert image to ***jpg*** if you exceed this size.
+PNG file size (image + embedded content) must not exceed the hosting sites size limits. 
+The site will either refuse to upload your image or it will convert your image to ***jpg***, such as Twitter & Imgur.
 
 **Dimensions:**
 
-The following dimension size limits are specific to **pdvzip** and not necessarily the extact Twitter size limits.
+The following dimension size limits are specific to **pdvzip** and not necessarily the extact hosting site size limits.
 
 **PNG-32** (Truecolour with alpha [6])  
 **PNG-24** (Truecolour [2]) 
@@ -100,7 +99,7 @@ Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of 
         
 **Chunks:**  
 
-PNG chunks that you can insert arbitrary data, in which Twitter will preserve in conjuction with the above dimensions & file size limits.  
+PNG chunks that you can insert arbitrary data, in which the hosting site will preserve in conjuction with the above dimensions & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,***  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
@@ -112,15 +111,17 @@ This program uses hIST & IDAT chunk names for storing arbitrary data.
 
 ## ZIP File Size & Other Important Information
 
-To work out the maximum ZIP file size, start with Twitter's size limit of 5MB (5,242,880 bytes),
+To work out the maximum ZIP file size, start with the hosting site's size limit,
 minus your PNG image size, minus 750 bytes (internal shell extraction script size).  
   
-Example: 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for your ZIP file.  
+Twitter example: (5MB) 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for your ZIP file.  
 
 The less detailed your image, the more space available for the ZIP.
 
-* Make sure your ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.  
-* Use file extensions for your media file within the ZIP archive: *my_doc.pdf*, *my_video.mp4*, *my_program.py*, etc.
+* Make sure your ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
+* Do not include other .zip files within the main ZIP archive. (.rar files are ok).
+* Do not include other pdvzip created PNG image files within the main ZIP archive, as they are essentially .zip files.
+* Use file extensions for your file(s) within the ZIP archive: *my_doc.pdf*, *my_video.mp4*, *my_program.py*, etc.
   
   A file without an extension will be treated as a Linux executable.      
 * **Paint.net** application is recommended for easily creating compatible PNG image files.  
