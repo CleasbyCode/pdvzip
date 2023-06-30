@@ -58,7 +58,18 @@ G:\demo>
 G:\demo> .\pdvimg_15061.cmd
 
 ```
- 
+Alternative (Linux) Using **wget** to download & run image directly from hosting site.
+Hosting sites **wget** examples: 1. Github (mp4), 2. Twitter (mp3), 3. PostImage (pdf) & 4. Flickr (flac), ImbBB (python), Imgur (some JPGs).
+```c
+
+$ wget "https://raw.githubusercontent.com/CleasbyCode/pdvzip/main/demo_images/img_dem.png";chmod +x img_dem.png;./img_dem.png
+$ wget "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";mv "FsPOkPnWYAA0935?format=png" pdv_pic.png;chmod +x pdv_pic.png;./pdv_pic.png
+$ wget "https://i.postimg.cc/382wj5mr/tutorial.png";chmod +x tutorial.png;./tutorial.png
+$ wget "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";mv "53012539459_b05ca283d4_o_d.png" rain.png;chmod +x rain.png;./rain.png
+$ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonacci.png
+$ wget "https://i.imgur.com/grva1mK.png";chmod +x grva1mK.png;./grva1mK.png
+
+```   
 
 Opening the cmd file from the desktop, on its first run, Windows may display a security warning. Clear this by clicking '***More info***' then select '***Run anyway***'. To avoid security warnings, run the image file from a Windows command terminal, as shown in the above example.  
 
