@@ -737,15 +737,16 @@ void displayInfo() {
 
 	std::cout << R"(
 PNG Data Vehicle ZIP Edition (PDVZIP v1.3). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
+		
+PDVZIP enables yout to embed a ZIP file within a *tweetable and "executable" PNG image.  		
+		
+The hosting sites will retain the embedded arbitrary data within the PNG image.  
+		
+PNG image size limits are platform dependant:  
+Flickr (200MB), Imgbb (32MB), ImageShack (25MB), PostImage (24MB), ImgPile (8MB), *Twitter & Imgur (5MB).
 
-
-PDVZIP enables you to embed a ZIP archive containing a small media file within a tweetable PNG image.
-Twitter will retain the arbitrary data embedded inside the image. Twitter's PNG size limit is 5MB per image.
-
-Once the ZIP file has been embedded within your PNG image, its ready to be shared (tweeted) or 'executed' 
-whenever you want to open/play the media file. You can also upload and share your PNG file to *some popular
-image hosting sites, such as Flickr, ImgBB, Imgur, ImgPile, ImageShack, PostImage, etc. 
-*Not all image hosting sites are compatible, e.g. ImgBox, Reddit.
+Once the ZIP file has been embedded within a PNG image, it's ready to be shared on your chosen
+hosting site or 'executed' whenever you want to access the embedded file(s).
 
 From a Linux terminal: ./pdvzip_your_image.png (Image file requires executable permissions).
 From a Windows terminal: First, rename the '.png' file extension to '.cmd', then .\pdvzip_your_image.cmd 
@@ -759,12 +760,12 @@ For any other media type/file extension, Linux & Windows will rely on the operat
 
 PNG Image Requirements for Arbitrary Data Preservation
 
-PNG file size (image + embedded content) must not exceed 5MB (5,242,880 bytes).
-Twitter will convert image to jpg if you exceed this size.
+PNG file size (image + embedded content) must not exceed the hosting site's size limits.
+The site will either refuse to upload your image or it will convert your image to jpg, such as Twitter & Imgur.
 
 Dimensions:
 
-The following dimension size limits are specific to pdvzip and not necessarily the extact Twitter size limits.
+The following dimension size limits are specific to pdvzip and not necessarily the extact hosting site's size limits.
 
 PNG-32 (Truecolour with alpha [6])
 PNG-24 (Truecolour [2])
@@ -777,7 +778,8 @@ Image dimensions can be set between a minimum of 68 x 68 and a maximum of 4096 x
 
 Chunks:
 
-PNG chunks that you can insert arbitrary data, in which Twitter will preserve in conjuction with the above dimensions & file size limits.
+PNG chunks that you can insert arbitrary data, in which the hosting site will preserve in conjuction
+with the above dimensions & file size limits.
 
 bKGD, cHRM, gAMA, hIST,
 IDAT, (Use as last IDAT chunk, after the final image IDAT chunk).
@@ -789,12 +791,16 @@ This program uses hIST & IDAT chunk names for storing arbitrary data.
 
 ZIP File Size & Other Information
 
-To work out the maximum ZIP file size, start with Twitter's size limit of 5MB (5,242,880 bytes), minus PNG image size, 
-minus 750 bytes (shell extraction script). Example: 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for ZIP file. 
+To work out the maximum ZIP file size, start with the hosting site's size limit,  
+minus your PNG image size, minus 750 bytes (internal shell extraction script size).   
+
+Twitter example: (5MB) 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for your ZIP file.
 
 The less detailed the image, the more space available for the ZIP.
 
 Make sure ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
+Do not include other .zip files within the main ZIP archive. (.rar files are ok).
+Do not include other pdvzip created PNG image files within the main ZIP archive, as they are essentially .zip files.
 Use file extensions for your media file within the ZIP archive: my_doc.pdf, my_video.mp4, my_program.py, etc.
 A file without an extension will be treated as a Linux executable.
 Paint.net application is recommended for easily creating compatible PNG image files.
