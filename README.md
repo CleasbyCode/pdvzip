@@ -113,7 +113,7 @@ This program uses hIST & IDAT chunk names for storing arbitrary data.
 
 ## ZIP File Size & Other Important Information
 
-To work out the maximum ZIP file size, start with the hosting site's size limit,
+To work out the maximum ZIP file size, start with the hosting site's size limit,  
 minus your PNG image size, minus 750 bytes (internal shell extraction script size).  
   
 Twitter example: (5MB) 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for your ZIP file.  
