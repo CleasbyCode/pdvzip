@@ -6,8 +6,8 @@ Embed a ZIP file within a \*tweetable and "executable" PNG image.
 PNG image size limit is platform dependant:  
 Flickr (200MB), Imgbb (32MB), ImageShack (25MB), PostImage (24MB), ImgPile (8MB), *Twitter & Imgur (5MB).
 
-![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/6_image_vid.png)  
- [***(Image Credit: @Photography_Ai_)***](https://twitter.com/Photography_Ai_/status/1669775346802065423)  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/img_dem.png)  
+ [***(Image Credit: @likelycoder)***](https://twitter.com/likelycoder/status/1616908406874316804)  
 
 Based on a similar idea from the original Python program ['***tweetable-polyglot-png***'](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by David Buchanan, pdvzip uses different methods for storing and accessing arbitrary data within a PNG image file.  
 
