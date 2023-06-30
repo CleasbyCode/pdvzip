@@ -1,7 +1,7 @@
 # pdvzip
 PNG Data Vehicle (ZIP Edition) for various image hosting sites.
 
-Embed a ZIP file within a \*tweetable and "**executable**" PNG image.  
+Embed a ZIP file within a \*tweetable and "*executable*" PNG image.  
 
 Image size limit is platform dependant:-  
 * Flickr (200MB), ImgBB (32MB), ImageShack (25MB),
