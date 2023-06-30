@@ -9,8 +9,7 @@ Flickr (200MB), ImgBB (32MB), ImageShack (25MB), PostImage (24MB), ImgPile (8MB)
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/img_dem.png)  
  [***(Image Credit: @likelycoder)***](https://twitter.com/likelycoder/status/1616908406874316804)  
 
-[pdvzip-image-1567.png](https://postimg.cc/Zv65NsD1)
-Based on a similar idea from the original Python program ['***tweetable-polyglot-png***'](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by David Buchanan, pdvzip uses different methods for storing and accessing arbitrary data within a PNG image file.  
+[![pdvzip-image-1567.png](https://i.postimg.cc/tJMZLLdC/pdvzip-image-1567.png)](https://postimg.cc/Zv65NsD1)Based on a similar idea from the original Python program ['***tweetable-polyglot-png***'](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by David Buchanan, pdvzip uses different methods for storing and accessing arbitrary data within a PNG image file.  
 
 Compile and run the program under Windows or **Linux**.
 
