@@ -87,7 +87,7 @@ The site will either refuse to upload your image or it will convert your image t
 
 **Dimensions:**
 
-The following dimension size limits are specific to **pdvzip** and not necessarily the extact hosting site size limits.
+The following dimension size limits are specific to **pdvzip** and not necessarily the extact hosting site's size limits.
 
 **PNG-32** (Truecolour with alpha [6])  
 **PNG-24** (Truecolour [2]) 
