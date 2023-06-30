@@ -84,7 +84,9 @@ $ curl -o img6.cmd "https://i.imgur.com/grva1mK.png";.\img6.cmd
 
 ```
 
-Opening the cmd file from the desktop, on its first run, Windows may display a security warning. Clear this by clicking '***More info***' then select '***Run anyway***'. To avoid security warnings, run the image file from a Windows command terminal, as shown in the above example.  
+Opening the cmd file from the desktop, on its first run, Windows may display a security warning.  
+Clear this by clicking '***More info***' then select '***Run anyway***'.  
+To avoid security warnings, run the image file from a Windows command terminal, as shown in the above example.  
 
 For some common video & audio files, Linux requires the '***vlc (VideoLAN)***' application, Windows uses the set default media player.  
 PDF '*.pdf*', Linux requires the '***evince***' application, Windows uses the set default PDF viewer.  
