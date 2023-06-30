@@ -47,10 +47,7 @@ $
 $ ./pdvimg_15061.png
 
 ```  
-![Screen_shot1](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/other/screen_shot1.png)  
-
-Alternative execution (Linux).  
-Using **wget** to download & run image directly from hosting site.  
+Alternative execution (Linux).  Using **wget** to download & run image directly from hosting site.  
 Hosting sites **wget** examples:-  
 1. Github (mp4), 2. Twitter (mp3), 3. PostImage (pdf) & 4. Flickr (flac), ImbBB (python), Imgur (some JPGs).
 ```c
