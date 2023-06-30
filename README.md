@@ -100,7 +100,8 @@ Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of 
         
 **Chunks:**  
 
-PNG chunks that you can insert arbitrary data, in which the hosting site will preserve in conjuction with the above dimensions & file size limits.  
+PNG chunks that you can insert arbitrary data, in which the hosting site will preserve in conjuction  
+with the above dimensions & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,***  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
