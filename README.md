@@ -1,5 +1,5 @@
 # pdvzip
-PNG Data Vehicle (ZIP Edition) for various image hosting sites.
+PNG Data Vehicle (ZIP Edition) for Various Image Hosting Sites.
 
 Embed a ZIP file within a \*tweetable and "*executable*" PNG image.  
 
