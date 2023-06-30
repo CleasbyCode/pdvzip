@@ -738,7 +738,7 @@ void displayInfo() {
 	std::cout << R"(
 PNG Data Vehicle ZIP Edition (PDVZIP v1.3). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 		
-PDVZIP enables yout to embed a ZIP file within a *tweetable and "executable" PNG image.  		
+PDVZIP enables you to embed a ZIP file within a *tweetable and "executable" PNG image.  		
 		
 The hosting sites will retain the embedded arbitrary data within the PNG image.  
 		
