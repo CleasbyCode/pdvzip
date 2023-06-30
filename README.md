@@ -2,9 +2,9 @@
 PNG Data Vehicle (ZIP Edition) for Twitter, Imgur, ImgBB, ImgPile, Flickr, ImageShack & PostImage.
 
 Embed a ZIP file within a \*tweetable and "executable" PNG image.  
-PNG image size limit is platform dependant (see below).
+PNG image size limit is platform dependant:
 
-Flickr (200MB), Imgbb (32MB), ImageShack (25MB), PostImage (24MB), ImgPile (8MB), *Twitter & Imgur (5MB).
+* Flickr (200MB), Imgbb (32MB), ImageShack (25MB), PostImage (24MB), ImgPile (8MB), *Twitter & Imgur (5MB).
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/6_image_vid.png)  
  [***(Image Credit: @Photography_Ai_)***](https://twitter.com/Photography_Ai_/status/1669775346802065423)  
