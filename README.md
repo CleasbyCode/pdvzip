@@ -47,17 +47,8 @@ $
 $ ./pdvimg_15061.png
 
 ```  
-![Screen_shot1](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/other/screen_shot1.png)
+![Screen_shot1](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/other/screen_shot1.png)  
 
-**Windows**   
-First, rename the file extension to '*.cmd*'.
-```c
-
-G:\demo> ren  pdvimg_15061.png  pdvimg_15061.cmd
-G:\demo>
-G:\demo> .\pdvimg_15061.cmd
-
-```
 Alternative (Linux) Using **wget** to download & run image directly from hosting site.
 Hosting sites **wget** examples: 1. Github (mp4), 2. Twitter (mp3), 3. PostImage (pdf) & 4. Flickr (flac), ImbBB (python), Imgur (some JPGs).
 ```c
@@ -70,6 +61,16 @@ $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonac
 $ wget "https://i.imgur.com/grva1mK.png";chmod +x grva1mK.png;./grva1mK.png
 
 ```   
+
+**Windows**   
+First, rename the file extension to '*.cmd*'.
+```c
+
+G:\demo> ren  pdvimg_15061.png  pdvimg_15061.cmd
+G:\demo>
+G:\demo> .\pdvimg_15061.cmd
+
+```
 
 Opening the cmd file from the desktop, on its first run, Windows may display a security warning. Clear this by clicking '***More info***' then select '***Run anyway***'. To avoid security warnings, run the image file from a Windows command terminal, as shown in the above example.  
 
