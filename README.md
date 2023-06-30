@@ -88,10 +88,11 @@ Opening the cmd file from the desktop, on its first run, Windows may display a s
 Clear this by clicking '***More info***' then select '***Run anyway***'.  
 To avoid security warnings, run the image file from a Windows command terminal, as shown in the above example.  
 
-For some common video & audio files, Linux requires the '***vlc (VideoLAN)***' application, Windows uses the set default media player.  
+For some common video & audio files, Linux requires the '***vlc (VideoLAN)***' application,  
+Windows uses the set default media player.  
 PDF '*.pdf*', Linux requires the '***evince***' application, Windows uses the set default PDF viewer.  
 [Python](https://asciinema.org/a/544680) '*.py*', Linux & Windows use the '***python3***' command to run these programs.  
-PowerShell '*.ps1*', Linux uses the '***pwsh***' command (if PowerShell installed), Windows uses '***powershell***' to run these scripts.
+PowerShell '*.ps1*', Linux uses the '***pwsh***' command, Windows uses '***powershell***' to run these scripts.
 
 For any other file type, Linux & Windows will rely on the operating system's set default application.  
 Obviously, the embedded file needs to be compatible with the operating system you run it on.
