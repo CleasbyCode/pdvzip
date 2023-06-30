@@ -160,7 +160,7 @@ The less detailed your image, the more space available for the ZIP.
 Other editions of **pdv** you may find useful:-  
 
 * [jdvrif - JPG Data Vehicle for Reddit](https://github.com/CleasbyCode/jdvrif)
-* [imgprmt - Embed image prompts as basic HTML page within a JPG image file](https://github.com/CleasbyCode/imgprmt)
+* [imgprmt - Embed image prompts as a basic HTML page within a JPG image file](https://github.com/CleasbyCode/imgprmt)
 * [pdvrdt - PNG Data Vehicle for Reddit](https://github.com/CleasbyCode/pdvrdt)  
 * [pdvps - PNG Data Vehicle for Twitter, PowerShell Edition](https://github.com/CleasbyCode/pdvps)  
 
