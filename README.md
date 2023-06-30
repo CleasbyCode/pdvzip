@@ -3,8 +3,8 @@ PNG Data Vehicle (ZIP Edition) for Twitter, Imgur, ImgBB, ImgPile, Flickr, Image
 
 Embed a ZIP file within a \*tweetable and "executable" PNG image.  
 
-PNG image size limit is platform dependant:  
-Flickr (200MB), ImgBB (32MB), ImageShack (25MB), PostImage (24MB), ImgPile (8MB), *Twitter & Imgur (5MB).
+PNG image size limit is platform dependant:-  
+* Flickr (200MB), ImgBB (32MB), ImageShack (25MB), PostImage (24MB), ImgPile (8MB), *Twitter & Imgur (5MB).
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/img_dem.png)  
  [***(Image Credit: @likelycoder)***](https://twitter.com/likelycoder/status/1616908406874316804)  
@@ -49,7 +49,7 @@ $ ./pdvimg_15061.png
 ```  
 Alternative execution (Linux).  Using **wget** to download & run image directly from hosting site.  
 Hosting sites **wget** examples:-  
-1. Github (mp4), 2. Twitter (mp3), 3. PostImage (pdf), 4. Flickr (flac), ImbBB (python) & Imgur (some JPGs).
+* Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac), ImbBB (python) & Imgur (some JPGs).
 ```c
 
 $ wget "https://raw.githubusercontent.com/CleasbyCode/pdvzip/main/demo_images/img_dem.png";chmod +x img_dem.png;./img_dem.png
@@ -72,7 +72,7 @@ G:\demo> .\pdvimg_15061.cmd
 ```
 Alternative execution (Windows).  Using **curl** to download & run image directly from hosting site.  
 Hosting sites **curl** examples:-  
-1. Github (mp4), 2. Twitter (mp3), 3. PostImage (pdf), 4. Flickr (flac), ImbBB (python) & Imgur (some JPGs).
+* Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac), ImbBB (python) & Imgur (some JPGs).
 ```c
 
 $ curl -o img1.cmd "https://raw.githubusercontent.com/CleasbyCode/pdvzip/main/demo_images/img_dem.png";.\img1.cmd
