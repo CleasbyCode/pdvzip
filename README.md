@@ -49,7 +49,7 @@ $ ./pdvimg_15061.png
 ```  
 Alternative execution (Linux).  Using **wget** to download & run image directly from hosting site.  
 Hosting sites **wget** examples:-  
-1. Github (mp4), 2. Twitter (mp3), 3. PostImage (pdf) & 4. Flickr (flac), ImbBB (python), Imgur (some JPGs).
+1. Github (mp4), 2. Twitter (mp3), 3. PostImage (pdf), 4. Flickr (flac), ImbBB (python) & Imgur (some JPGs).
 ```c
 
 $ wget "https://raw.githubusercontent.com/CleasbyCode/pdvzip/main/demo_images/img_dem.png";chmod +x img_dem.png;./img_dem.png
