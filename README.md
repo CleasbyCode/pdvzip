@@ -48,8 +48,8 @@ $
 $ ./pdvimg_15061.png
 
 ```  
-Alternative execution (Linux).  Using **wget** to download & run image directly from hosting site.  
-Hosting sites **wget** examples:-  
+Alternative execution (Linux).  Using ***wget*** to download & run image directly from the hosting site.  
+Hosting sites ***wget*** examples:-  
 * Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac), ImbBB (python) & Imgur (some JPGs).
 ```c
 
@@ -71,8 +71,8 @@ G:\demo>
 G:\demo> .\pdvimg_15061.cmd
 
 ```
-Alternative execution (Windows).  Using **curl** to download & run image directly from hosting site.  
-Hosting sites **curl** examples:-  
+Alternative execution (Windows).  Using ***curl*** to download & run image directly from the hosting site.  
+Hosting sites ***curl*** examples:-  
 * Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac), ImbBB (python) & Imgur (some JPGs).
 ```c
 
@@ -160,6 +160,7 @@ The less detailed your image, the more space available for the ZIP.
 Other editions of **pdv** you may find useful:-  
 
 * [jdvrif - JPG Data Vehicle for Reddit](https://github.com/CleasbyCode/jdvrif)
+* [imgprmt - Embed image prompts as basic HTML page within a JPG image file](https://github.com/CleasbyCode/imgprmt)
 * [pdvrdt - PNG Data Vehicle for Reddit](https://github.com/CleasbyCode/pdvrdt)  
 * [pdvps - PNG Data Vehicle for Twitter, PowerShell Edition](https://github.com/CleasbyCode/pdvps)  
 
