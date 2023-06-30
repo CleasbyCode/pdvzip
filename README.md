@@ -82,7 +82,7 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 ## PNG Image Requirements for Arbitrary Data Preservation
 
 
-PNG file size (image + embedded content) must not exceed the hosting sites size limits. 
+PNG file size (image + embedded content) must not exceed the hosting site's size limits. 
 The site will either refuse to upload your image or it will convert your image to ***jpg***, such as Twitter & Imgur.
 
 **Dimensions:**
