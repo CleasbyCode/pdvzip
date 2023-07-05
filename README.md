@@ -159,7 +159,7 @@ The less detailed your image, the more space available for the ZIP.
   A file without an extension will be treated as a Linux executable.      
 * **Paint.net** application is recommended for easily creating compatible PNG image files.  
 
-Other editions of **pdv** you may find useful:-  
+My other programs you may find useful:-
 
 * [jdvrif - JPG Data Vehicle for Reddit, Imgur, Flickr & Other Compatible Social Media / Image Hosting Sites](https://github.com/CleasbyCode/jdvrif)
 * [imgprmt - Embed image prompts as a basic HTML page within a JPG image file](https://github.com/CleasbyCode/imgprmt)
