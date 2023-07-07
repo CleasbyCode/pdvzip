@@ -651,6 +651,28 @@ void combineVectors(std::vector<BYTE>& ImageVec, std::vector<BYTE>& ZipVec, std:
 	// Write out to file the completed polyglot image file (Image + Script + ZIP).
 	writeFinal.write((char*)&ImageVec[0], ImageVec.size());
 
+	std::string msgSizeWarning =
+		"\n**Warning**\n\nDue to the file size of your \"zip-embedded\" PNG image,\nyou will only be able to share this image on the following platforms:\n\n"
+		"Flickr, ImgBB, ImageShack, PostImage & ImgPile";
+
+	const size_t
+		msgLen = msgSizeWarning.length(),
+		imgSize = ImageVec.size(),
+		imgurTwitter = 5242880,		// 5MB
+		imgPile = 8388608,		// 8MB
+		postImageSize = 25165824,	// 24MB
+		imageShackSize = 26214400,	// 25MB 
+		imgbbSize = 33554432;		// 32MB
+
+	msgSizeWarning = (imgSize > imgPile && imgSize <= postImageSize ? msgSizeWarning.substr(0, msgLen - 10)
+					: (imgSize > postImageSize && imgSize <= imageShackSize ? msgSizeWarning.substr(0, msgLen - 21)
+					: (imgSize > imageShackSize && imgSize <= imgbbSize ? msgSizeWarning.substr(0, msgLen - 33)
+					: (imgSize > imgbbSize ? msgSizeWarning.substr(0, msgLen - 40) : msgSizeWarning))));
+
+	if (imgSize > imgurTwitter) {
+		std::cerr << msgSizeWarning << ".\n";
+	}
+
 	std::cout << "\nCreated output file " << "'" << PDV_FILENAME << "' " << ImageVec.size() << " bytes." << "\n\nAll Done!\n\n";
 }
 
