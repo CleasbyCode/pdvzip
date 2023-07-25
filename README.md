@@ -1,5 +1,5 @@
 # pdvzip
-A simple command-line tool for embedding a ZIP file (up to *200MB) within an "executable" PNG image.  
+A command-line tool for embedding a ZIP file (up to *200MB) within an "executable" PNG image.  
 Share the "ZIP-embedded" image on compatible social media & image hosting sites.
 
 \*Image size limit is platform dependant:-  
