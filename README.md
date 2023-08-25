@@ -73,7 +73,7 @@ G:\demo> .\pdvimg_15061.cmd
 ```
 Alternative execution (Windows).  Using ***curl*** to download & run image directly from the hosting site.  
 Hosting sites ***curl*** examples:-  
-* Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac), ImbBB (python) & Imgur (some JPGs).
+* Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac) & ImbBB (python).
 ```c
 
 $ curl -o img1.cmd "https://raw.githubusercontent.com/CleasbyCode/pdvzip/main/demo_images/img_dem.png";.\img1.cmd
@@ -81,7 +81,6 @@ $ curl -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\im
 $ curl -o img3.cmd "https://i.postimg.cc/382wj5mr/tutorial.png";.\img3.cmd
 $ curl -o img4.cmd "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";.\img4.cmd
 $ curl -o img5.cmd "https://i.ibb.co/r6R7zdG/Fibonacci.png";.\img5.cmd
-$ curl -o img6.cmd "https://i.imgur.com/grva1mK.png";.\img6.cmd
 
 ```
 
