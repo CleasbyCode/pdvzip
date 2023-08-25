@@ -708,6 +708,7 @@ void fixZipOffset(std::vector<BYTE>& ImageVec, const size_t LAST_IDAT_INDEX) {
 
 	// JAR file support. Get global comment length value from ZIP file within vector "ImageVec" and increase it by 16 bytes to cover end of PNG file.
 	// To run a JAR file, you will need to rename the '.png' extension to '.jar'.  
+	// or run the command: java -jar .\your_image_file.png
 	TBYTE commentLength = 16 + (ImageVec[commentLengthIndex] << 8) | ImageVec[commentLengthIndex - 1];
 
 	// Write the comment length value into the comment length index location within vector "ImageVec".
