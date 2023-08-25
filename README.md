@@ -51,7 +51,7 @@ $ ./pdvimg_15061.png
 ```  
 Alternative execution (Linux).  Using ***wget*** to download & run image directly from the hosting site.  
 Hosting sites ***wget*** examples:-  
-* Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac), ImbBB (python) & Imgur (some JPGs).
+* Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac) & ImbBB (python).
 ```c
 
 $ wget "https://raw.githubusercontent.com/CleasbyCode/pdvzip/main/demo_images/img_dem.png";chmod +x img_dem.png;./img_dem.png
@@ -59,7 +59,6 @@ $ wget "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";mv "FsPOkPnWYAA0
 $ wget "https://i.postimg.cc/382wj5mr/tutorial.png";chmod +x tutorial.png;./tutorial.png
 $ wget "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";mv "53012539459_b05ca283d4_o_d.png" rain.png;chmod +x rain.png;./rain.png
 $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonacci.png
-$ wget "https://i.imgur.com/grva1mK.png";chmod +x grva1mK.png;./grva1mK.png
 
 ```   
 
