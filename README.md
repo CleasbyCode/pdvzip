@@ -124,11 +124,11 @@ The following dimension size limits are specific to **pdvzip** and not necessari
 
 Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of ***899 x 899***.
 
-Note: Images that are created & saved within your image editor as **PNG-32/24** that are either
+*Note: Images that are created & saved within your image editor as **PNG-32/24** that are either
 black & white/grayscale images, or with 256 colours or less will be converted by **Twitter** to
 **PNG-8** and you will lose the embedded content. If you want to use a simple "single" colour
 **PNG-32/24** image, then fill an area with a gradient colour instead of a single solid colour. 
-**Twitter** should then keep the image as **PNG-32/24**.
+**Twitter** should then keep the image as **PNG-32/24**.*
     
 **PNG-8 (Indexed-colour [3])**
 
