@@ -1,6 +1,6 @@
 # pdvzip
-Command-line tool for embedding a ZIP file (up to *200MB) within an "executable" PNG image.  
-Share the "ZIP-embedded" image on compatible social media & image hosting sites.
+Command-line tool for embedding a **ZIP** file (up to *200MB) within an *"executable"* **PNG** image.  
+Share the *"ZIP-embedded"* image on compatible social media & image hosting sites.
 
 \*Image size limit is platform dependant:-  
 * ***Flickr (200MB), ImgBB (32MB), ImageShack (25MB),***
