@@ -9,9 +9,9 @@ Image size limit is platform dependant:-
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/img_dem.png)  
  ***{Image Credit:*** [***@likelycoder*** ](https://twitter.com/likelycoder/status/1616908406874316804)***}***  
  
- [**Video_Demo - 200MB PNG Image Embedded with 800+ Images. Uploaded to Flickr**](https://youtu.be/5UEaFDjQHuQ)  
-
 Based on a similar idea from the original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), pdvzip uses different methods for storing and accessing arbitrary data within a PNG image file.  
+
+ [**Video_Demo - 200MB PNG Image Embedded with 800+ Images. Uploaded to Flickr**](https://youtu.be/5UEaFDjQHuQ)  
 
 Compile and run the program under Windows or **Linux**.
 
