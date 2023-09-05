@@ -40,8 +40,7 @@ Once the ZIP file has been embedded within a PNG image, it's ready to be shared 
 **Mobile Issue**: Sometimes when saving images from Twitter to a mobile, the file is saved with a '*.jpg*' extension. The file (most likely) has not been converted to a JPG. Twitter has just renamed the extension, so the image should still be the original PNG with embedded content.
 
 ## Extracting Your Embedded File(s)
-**Linux**    
-Make sure image file has executable permissions.
+**Linux** ***(Make sure image file has executable permissions)***
 ```c
 
 $ chmod +x pdvimg_15061.png
