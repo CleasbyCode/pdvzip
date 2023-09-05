@@ -11,7 +11,7 @@ Image size limit is platform dependant:-
  
 Based on a similar idea from the original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), pdvzip uses different methods for storing and accessing embedded data within a PNG image file.  
 
- [**Video_Demo - 200MB PNG Image Embedded with 800+ Images. Uploaded to Flickr**](https://youtu.be/5UEaFDjQHuQ)  
+ [**Video_Demo - PNG Image Embedded With 200MB ZIP File, Posted on Flickr**](https://youtu.be/5UEaFDjQHuQ)  
 
 Compile and run the program under Windows or **Linux**.
 
