@@ -17,7 +17,7 @@ Compile and run the program under Windows or **Linux**.
 
 ## Usage
 
-```c
+```bash
 $ g++ pdvzip.cpp -s -o pdvzip
 $
 $ ./pdvzip
