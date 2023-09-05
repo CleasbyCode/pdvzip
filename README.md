@@ -31,8 +31,6 @@ Created output file 'pdvimg_15061.png' 5232104 bytes.
 
 All Done!
 
-$
-
 ```
 
 Once the ZIP file has been embedded within a PNG image, it's ready to be shared on your chosen hosting site or '*executed*' whenever you want to access the embedded file(s).
@@ -41,7 +39,7 @@ Once the ZIP file has been embedded within a PNG image, it's ready to be shared 
 
 ## Extracting Your Embedded File(s)
 **Linux** ***(Make sure image file has executable permissions)***
-```c
+```bash
 
 $ chmod +x pdvimg_15061.png
 $
@@ -51,7 +49,7 @@ $ ./pdvimg_15061.png
 Alternative execution (Linux).  Using ***wget*** to download & run image directly from the hosting site.  
 Hosting sites ***wget*** examples:-  
 * Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac) & ImbBB (python).
-```c
+```bash
 
 $ wget "https://raw.githubusercontent.com/CleasbyCode/pdvzip/main/demo_images/img_dem.png";chmod +x img_dem.png;./img_dem.png
 $ wget "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";mv "FsPOkPnWYAA0935?format=png" pdv_pic.png;chmod +x pdv_pic.png;./pdv_pic.png
@@ -63,7 +61,7 @@ $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonac
 
 **Windows**   
 First, rename the file extension to '*.cmd*'.
-```c
+```bash
 
 G:\demo> ren  pdvimg_15061.png  pdvimg_15061.cmd
 G:\demo>
@@ -73,7 +71,7 @@ G:\demo> .\pdvimg_15061.cmd
 Alternative execution (Windows).  Using ***curl*** to download & run image directly from the hosting site.  
 Hosting sites ***curl*** examples:-  
 * Github (mp4), Twitter (mp3), PostImage (pdf), Flickr (flac) & ImbBB (python).
-```c
+```bash
 
 $ curl -o img1.cmd "https://raw.githubusercontent.com/CleasbyCode/pdvzip/main/demo_images/img_dem.png";.\img1.cmd
 $ curl -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
