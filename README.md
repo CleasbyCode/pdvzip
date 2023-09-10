@@ -1,7 +1,7 @@
 # pdvzip
 Command-line tool for embedding a **ZIP** file within a tweetable and *"executable"* **PNG** image.  
 
-Share your *"ZIP-embedded"* image on the following compatible sites.
+Share your *ZIP-embedded* image on the following compatible sites.
 
 * ***Flickr (200MB), ImgBB (32MB), ImageShack (25MB),***
 * ***PostImage (24MB), ImgPile (8MB), Twitter & Imgur (5MB).***
