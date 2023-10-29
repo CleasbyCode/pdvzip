@@ -17,7 +17,7 @@ Compile and run the program under Windows or **Linux**.
 
 ## Usage
 
-```bash
+```console
 $ g++ pdvzip.cpp -O2 -s -o pdvzip
 $
 $ ./pdvzip
@@ -39,7 +39,7 @@ Once the ZIP file has been embedded within a PNG image, it's ready to be shared 
 
 ## Extracting Your Embedded File(s)
 **Linux** ***(Make sure image file has executable permissions)***
-```bash
+```console
 
 $ chmod +x pdvimg_15061.png
 $
@@ -49,7 +49,7 @@ $ ./pdvimg_15061.png
 Alternative execution (Linux).  Using ***wget*** to download & run image directly from the hosting site.  
 Hosting sites ***wget*** examples:-  
 * Twitter (mp3), Flickr (flac) & ImbBB (python).
-```bash
+```console
 
 $ wget "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";mv "FsPOkPnWYAA0935?format=png" pdv_pic.png;chmod +x pdv_pic.png;./pdv_pic.png
 $ wget "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";mv "53012539459_b05ca283d4_o_d.png" rain.png;chmod +x rain.png;./rain.png
@@ -59,7 +59,7 @@ $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonac
 
 **Windows**   
 First, rename the file extension to '*.cmd*'.
-```bash
+```console
 
 G:\demo> ren  pdvimg_15061.png  pdvimg_15061.cmd
 G:\demo>
@@ -69,7 +69,7 @@ G:\demo> .\pdvimg_15061.cmd
 Alternative execution (Windows).  Using ***curl*** to download & run image directly from the hosting site.  
 Hosting sites ***curl*** examples:-  
 * Twitter (mp3), Flickr (flac) & ImbBB (python).
-```bash
+```console
 
 $ curl -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
 $ curl -o img4.cmd "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";.\img4.cmd
