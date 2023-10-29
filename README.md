@@ -22,10 +22,10 @@ $ g++ pdvzip.cpp -O2 -s -o pdvzip
 $
 $ ./pdvzip
 
-Usage:  pdvzip  <png_image>  <zip_file>
-        pdvzip  --info
+Usage: pdvzip <png_image> <zip_file>
+       pdvzip --info
 
-$ ./pdvzip  joker.png  joker_mp4.zip
+$ ./pdvzip joker.png joker_mp4.zip
 
 Created output file 'pdvimg_15061.png' 5232104 bytes.
 
@@ -61,7 +61,7 @@ $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonac
 First, rename the file extension to '*.cmd*'.
 ```console
 
-G:\demo> ren  pdvimg_15061.png  pdvimg_15061.cmd
+G:\demo> ren pdvimg_15061.png pdvimg_15061.cmd
 G:\demo>
 G:\demo> .\pdvimg_15061.cmd
 
