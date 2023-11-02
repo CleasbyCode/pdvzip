@@ -3,7 +3,7 @@ Command-line tool for embedding a **ZIP** file within a tweetable and *"executab
 
 Share your *ZIP-embedded* image on the following compatible sites.
 
-* ***Flickr (200MB), ImgBB (32MB), ***PostImage (24MB), ImgPile (8MB), Twitter & Imgur (5MB).***
+* ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB), Twitter & Imgur (5MB).***
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/img_dem.png)  
  ***{Image Credit:*** [***@likelycoder*** ](https://twitter.com/likelycoder/status/1616908406874316804)***}***  
