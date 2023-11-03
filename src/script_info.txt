@@ -1,5 +1,5 @@
 
-Extraction script from vector ScriptVec.
+Extraction script from vector Script_Vec.
 ----------
 
 Script Example 1: Barebones script.
