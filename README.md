@@ -80,9 +80,9 @@ Hosting sites ***curl*** examples:-
 * Twitter (mp3), Flickr (flac) & ImbBB (python).
 ```console
 
-$ curl -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
-$ curl -o img4.cmd "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";.\img4.cmd
-$ curl -o img5.cmd "https://i.ibb.co/r6R7zdG/Fibonacci.png";.\img5.cmd
+G:\demo> curl -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
+G:\demo> curl -o img4.cmd "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";.\img4.cmd
+G:\demo> curl -o img5.cmd "https://i.ibb.co/r6R7zdG/Fibonacci.png";.\img5.cmd
 
 ```
 
