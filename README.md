@@ -10,8 +10,6 @@ Share your *ZIP-embedded* image on the following compatible sites.
  
 Based on a similar idea from the original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), pdvzip uses different methods for storing and accessing embedded data within a PNG image file.  
 
- [**Video - PNG Image Embedded with 200MB ZIP File, Posted on Flickr**](https://youtu.be/5UEaFDjQHuQ)  
-
 Compile and run the program under Windows or **Linux**.
 
 ## Usage
