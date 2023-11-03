@@ -5,8 +5,8 @@ Share your *ZIP-embedded* image on the following compatible sites.
 
 * ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB), Twitter & Imgur (5MB).***
 
-![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/img_dem.png)  
- ***{Image Credit:*** [***@likelycoder*** ](https://twitter.com/likelycoder/status/1616908406874316804)***}***  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/pdvzip_image_55183.png)  
+ ***{Image Credit:*** [***@LyricAIrtist*** ](https://twitter.com/LyricAIrtist/status/1720055981730680859)***}***  
  
 Based on a similar idea from the original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), pdvzip uses different methods for storing and accessing embedded data within a PNG image file.  
 
