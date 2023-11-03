@@ -36,7 +36,7 @@ Embedding zip file within the PNG image.
 
 Writing zip-embedded PNG image out to disk.
 
-Created zip-embedded PNG image: "pdvzip_image_60155.png" Size: "4038367 Bytes"
+Created zip-embedded PNG image: "pdvzip_image_55183.png" Size: "4038367 Bytes"
 
 Complete!
 
