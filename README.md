@@ -36,7 +36,7 @@ Embedding zip file within the PNG image.
 
 Writing zip-embedded PNG image out to disk.
 
-Created zip-embedded PNG image: "pdvzip_image_55183.png" Size: "4038367 Bytes"
+Created zip-embedded PNG image: "pdvimg_55183.png" Size: "4038367 Bytes"
 
 Complete!
 
@@ -52,9 +52,9 @@ Once the ZIP file has been embedded within a PNG image, it's ready to be shared 
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
 
-user1@linuxbox:~/Desktop$ chmod +x pdvzip_image_60155.png
+user1@linuxbox:~/Desktop$ chmod +x pdvimg_55183.png
 user1@linuxbox:~/Desktop$
-user1@linuxbox:~/Desktop$ ./pdvzip_image_60155.png
+user1@linuxbox:~/Desktop$ ./pdvimg_55183.png
 
 ```  
 Alternative execution (Linux).  Using ***wget*** to download & run image directly from the hosting site.  
@@ -72,9 +72,9 @@ $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonac
 First, rename the file extension to '*.cmd*'.
 ```console
 
-G:\demo> ren pdvimg_15061.png pdvimg_15061.cmd
+G:\demo> ren pdvimg_55183.png pdvimg_55183.cmd
 G:\demo>
-G:\demo> .\pdvimg_15061.cmd
+G:\demo> .\pdvimg_55183.cmd
 
 ```
 Alternative execution (Windows).  Using ***curl*** to download & run image directly from the hosting site.  
