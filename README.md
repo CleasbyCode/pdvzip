@@ -17,18 +17,30 @@ Compile and run the program under Windows or **Linux**.
 ## Usage
 
 ```console
-$ g++ pdvzip.cpp -O2 -s -o pdvzip
-$
-$ ./pdvzip
+user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
+user1@linuxbox:~/Desktop$
+user1@linuxbox:~/Desktop$ ./pdvzip
 
 Usage: pdvzip <png_image> <zip_file>
        pdvzip --info
 
-$ ./pdvzip joker.png joker_mp4.zip
+user1@linuxbox:~/Desktop$ ./pdvzip plate_image.png like_spinning_plates.zip
 
-Created output file 'pdvimg_15061.png' 5232104 bytes.
+Reading files. Please wait...
 
-All Done!
+Updating extraction script.
+
+Embedding extraction script within the PNG image.
+
+Embedding zip file within the PNG image.
+
+Writing zip-embedded PNG image out to disk.
+
+Created zip-embedded PNG image: "pdvzip_image_60155.png" Size: "4038367 Bytes"
+
+Complete!
+
+You can now share your zip-embedded PNG image on the relevant supported platforms.
 
 ```
 
@@ -40,9 +52,9 @@ Once the ZIP file has been embedded within a PNG image, it's ready to be shared 
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
 
-$ chmod +x pdvimg_15061.png
-$
-$ ./pdvimg_15061.png
+user1@linuxbox:~/Desktop$ chmod +x pdvzip_image_60155.png
+user1@linuxbox:~/Desktop$
+user1@linuxbox:~/Desktop$ ./pdvzip_image_60155.png
 
 ```  
 Alternative execution (Linux).  Using ***wget*** to download & run image directly from the hosting site.  
