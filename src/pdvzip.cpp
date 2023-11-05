@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-// #include <cstdint>	// Uncomment if required.
+#include <cstdint>	
 #include <string>
 #include <vector>
 
