@@ -5,13 +5,13 @@ Extraction script from vector Script_Vec.
 Script Example 1: Barebones script.
 
 (LINUX / WINDOWS)
-hIST
+iCCP
 REM;clear;mkdir ./pdvzip_extracted;mv "$0" ./pdvzip_extracted;cd ./pdvzip_extracted;unzip -qo "$0";clear;"";exit;
 #&cls&mkdir .\pdvzip_extracted&move "%~dpnx0" .\pdvzip_extracted&cd .\pdvzip_extracted&cls&tar -xf "%~n0%~x0"& ""&ren "%~n0%~x0" *.png&exit
 
 Split view.
 
-hIST (chunk name)
+iCCP (chunk name)
 (Linux)
 
 	REM;
@@ -41,7 +41,7 @@ hIST (chunk name)
 
 Script Example 2: Completed Script for MP4 Video (.mp4) File.
 
-hIST
+iCCP
 (Linux)
 
 	REM;
@@ -71,7 +71,7 @@ hIST
 
 Script Example 3: Completed Script for Bash Script (.sh) File, Containing Command-Line Args.
 
-hIST
+iCCP
 (Linux)
 
 	REM;
@@ -102,7 +102,7 @@ hIST
 
 Last Script Example: Completed Script for Python (.py) File.
 
-hIST
+iCCP
 (Linux)
 
 	REM;
