@@ -3,7 +3,8 @@ Command-line tool for embedding a **ZIP** file within a tweetable and *"executab
 
 Share your *ZIP-embedded* image on the following compatible sites.
 
-* ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
+* ***Flickr (200MB), ImgBB (32MB), PostImage (24MB),
+* Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/pdvimg_55183.png)  
  ***{Image Credit:*** [***@LyricAIrtist*** ](https://twitter.com/LyricAIrtist/status/1720055981730680859)***}***  
@@ -137,10 +138,10 @@ in which the platform will preserve as long as you keep within the image dimensi
 *Other platforms may differ in what chunks they preserve and which you can overfill.*
 
 ***bKGD, cHRM, gAMA, hIST,***  
-***iCCP,*** (Only 10KB max. with Twitter).
+***iCCP,*** (Only 10KB max. with Twitter).  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
 ***PLTE,*** (Use only with PNG-32 & PNG-24 for arbitrary data).  
-***pHYs, sBIT, sPLT, sRGB,*** (Imgur does not keep the pHYs chunk). 
+***pHYs, sBIT, sPLT, sRGB,*** (Imgur does not keep the pHYs chunk).   
 ***tRNS. (Not recommended, may distort image).***
   
 This program uses the ***iCCP*** (extraction script) and ***IDAT** (zip file) chunk names for storing arbitrary data.
