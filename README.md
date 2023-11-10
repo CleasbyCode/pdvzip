@@ -88,7 +88,7 @@ G:\demo> iwr -o img5.cmd "https://i.ibb.co/r6R7zdG/Fibonacci.png";.\img5.cmd
 Opening the cmd file from the desktop, on its first run, Windows may display a security warning.  
 Clear this by clicking '***More info***' then select '***Run anyway***'.  
 
-To avoid security warnings, run the image file from a Windows command terminal, as shown in the above example.  
+To avoid security warnings, run the image file from a Windows console, as shown in the above example.  
 
 For common video/audio files, Linux requires '***vlc (VideoLAN)***', Windows uses the set default media player.  
 PDF '*.pdf*', Linux requires the '***evince***' application, Windows uses the set default PDF viewer.  
