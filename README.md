@@ -74,14 +74,14 @@ G:\demo>
 G:\demo> .\pdvimg_55183.cmd
 
 ```
-Alternative execution (Windows).  Using ***curl*** to download & run image directly from the hosting site.  
-Hosting sites ***curl*** examples:-  
+Alternative execution (Windows).  Using ***iwr*** to download & run image directly from the hosting site.  
+Hosting sites ***iwr*** examples:-  
 * Twitter (mp3), Flickr (flac) & ImbBB (python).
 ```console
 
-G:\demo> curl -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
-G:\demo> curl -o img4.cmd "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";.\img4.cmd
-G:\demo> curl -o img5.cmd "https://i.ibb.co/r6R7zdG/Fibonacci.png";.\img5.cmd
+G:\demo> iwr -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
+G:\demo> iwr -o img4.cmd "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";.\img4.cmd
+G:\demo> iwr -o img5.cmd "https://i.ibb.co/r6R7zdG/Fibonacci.png";.\img5.cmd
 
 ```
 
@@ -135,14 +135,14 @@ Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of 
 For example, with **Twitter**, you can overfill the following PNG chunks with arbitrary data, 
 in which the platform will preserve as long as you keep within the image dimension & file size limits.  
 
-*Other platforms may differ in what chunks they preserve and which you can overfill.*
-
 ***bKGD, cHRM, gAMA, hIST,***  
 ***iCCP,*** (Only 10KB max. with Twitter).  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
 ***PLTE,*** (Use only with PNG-32 & PNG-24 for arbitrary data).  
 ***pHYs, sBIT, sPLT, sRGB,*** (Imgur does not keep the pHYs chunk).   
-***tRNS. (Not recommended, may distort image).***
+***tRNS. (Not recommended, may distort image).***  
+
+*Other platforms may differ in what chunks they preserve and which you can overfill.*
   
 This program uses the ***iCCP*** (extraction script) and ***IDAT** (zip file) chunk names for storing arbitrary data.
 
