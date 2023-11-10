@@ -3,7 +3,7 @@ Command-line tool for embedding a **ZIP** file within a tweetable and *"executab
 
 Share your *ZIP-embedded* image on the following compatible sites.
 
-* ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB), Twitter & Imgur (5MB).***
+* ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/pdvimg_55183.png)  
  ***{Image Credit:*** [***@LyricAIrtist*** ](https://twitter.com/LyricAIrtist/status/1720055981730680859)***}***  
@@ -43,8 +43,6 @@ You can now share your zip-embedded PNG image on the relevant supported platform
 ```
 
 Once the ZIP file has been embedded within a PNG image, it's ready to be shared on your chosen hosting site or '*executed*' whenever you want to access the embedded file(s).
-
-**Mobile Issue**: Sometimes when saving images from Twitter to a mobile, the file is saved with a '*.jpg*' extension. The file (most likely) has not been converted to a JPG. Twitter has just renamed the extension, so the image should still be the original PNG with embedded content.
 
 ## Extracting Your Embedded File(s)
 **Linux** ***(Make sure image file has executable permissions)***
@@ -114,6 +112,7 @@ The site will either refuse to upload your image or it will convert your image t
 **Dimensions:**
 
 The following dimension size limits are specific to **pdvzip** and not necessarily the extact hosting site's size limits.
+These dimension size limits are for compatibility reasons, allowing it to work with all the above listed platforms.
 
 **PNG-32** (Truecolour with alpha [6])  
 **PNG-24** (Truecolour [2]) 
@@ -132,16 +131,19 @@ Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of 
         
 **Chunks:**  
 
-PNG chunks that you can insert arbitrary data, in which the hosting site will preserve in conjuction  
-with the above dimensions & file size limits.  
+For example, with **Twitter**, you can overfill the following PNG chunks with arbitrary data, 
+in which the platform will preserve as long as you keep within the image dimension & file size limits.  
+
+*Other platforms may differ in what chunks they preserve and which you can overfill.*
 
 ***bKGD, cHRM, gAMA, hIST,***  
+***iCCP,*** (Only 10KB max. with Twitter).
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
 ***PLTE,*** (Use only with PNG-32 & PNG-24 for arbitrary data).  
-***pHYs, sBIT, sPLT, sRGB,***  
+***pHYs, sBIT, sPLT, sRGB,*** (Imgur does not keep the pHYs chunk). 
 ***tRNS. (Not recommended, may distort image).***
   
-This program uses hIST & IDAT chunk names for storing arbitrary data.
+This program uses the ***iCCP*** (extraction script) and ***IDAT** (zip file) chunk names for storing arbitrary data.
 
 ## ZIP File Size & Other Important Information
 
