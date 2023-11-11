@@ -4,12 +4,18 @@ Command-line tool for embedding a **ZIP** file within a tweetable and *"executab
 Share your *zip-embedded* image on the following compatible sites.
 
 * ***Flickr (200MB), ImgBB (32MB), PostImage (24MB),***
-* ***Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
+* ***Imgur (20MB / with --imgur option), Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/pdvimg_55183.png)  
  ***{Image Credit:*** [***@LyricAIrtist*** ](https://twitter.com/LyricAIrtist/status/1720055981730680859)***}***  
  
 Based on a similar idea from the original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), pdvzip, written in C++, uses different methods for storing and accessing embedded data within a PNG image file.  
+
+*Using the **--imgur** option with pdvzip, increases the Imgur PNG upload size limit from 5MB to **20MB**.*
+
+*Once the PNG image has been uploaded to your Imgur page, you can grab links of the image for sharing.  
+\*If the embedded image is over **5MB** I would **not recommend** posting the image to the **Imgur Community Page**, as the thumbnail preview fails
+and shows as a broken icon image (clicking the "broken" preview image will still take you to the correctly displayed full image).*
 
 Compile and run the program under Windows or **Linux**.
 
@@ -43,7 +49,7 @@ You can now share your zip-embedded PNG image on the relevant supported platform
 
 ```
 
-Once the ZIP file has been embedded within a PNG image, it's ready to be shared on your chosen hosting site or '*executed*' whenever you want to access the embedded file(s).
+Once the ZIP file has been embedded within a PNG image, it can be shared on your chosen hosting site or '*executed*' whenever you want to access the embedded file(s).
 
 ## Extracting Your Embedded File(s)
 **Linux** ***(Make sure image file has executable permissions)***
