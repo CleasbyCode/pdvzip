@@ -148,7 +148,7 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 			AVAILABLE_BYTES = MAX_PNG_SIZE_BYTES - (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES);
 
 		const std::string
-			SIZE_ERR = "Size Error: File must not exceed pdvzip's file size limit of 200MB (209,715,200 bytes).\n\n",
+			SIZE_ERR = "Size Error: File must not exceed pdvzip's file size limit of " + std::to_string(MAX_PNG_SIZE_BYTES) + " bytes.\n\n",
 			COMBINED_SIZE_ERR = "\nSize Error: " + std::to_string(COMBINED_SIZE) +
 			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds pdvzip's size limit by "
 			+ std::to_string(EXCEED_SIZE_LIMIT) + " bytes. Available ZIP file size is " + std::to_string(AVAILABLE_BYTES) + " bytes.\n\n",
