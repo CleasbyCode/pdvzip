@@ -150,7 +150,7 @@ in which the platform will preserve as long as you keep within the image dimensi
 ***bKGD, cHRM, gAMA, hIST,***  
 ***iCCP,*** (Only 10KB max. with Twitter).  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
-***PLTE,*** (Use only with PNG-32 & PNG-24 for arbitrary data).  
+***PLTE,*** (Use only with PNG-32/24 images).  
 ***pHYs, sBIT, sPLT, sRGB,*** (Imgur does not keep the pHYs chunk).   
 ***tRNS. (Not recommended, may distort image).***  
 
