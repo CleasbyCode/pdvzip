@@ -152,7 +152,7 @@ in which the platform will preserve as long as you keep within the image dimensi
 
 *Other platforms may differ in what chunks they preserve and which you can overfill.*
   
-This program uses the ***iCCP*** (extraction script) and ***IDAT** (zip file) chunk names for storing arbitrary data.
+This program uses the ***iCCP*** (extraction script) and ***IDAT*** (zip file) chunk names for storing arbitrary data.
 
 ## ZIP File Size & Other Important Information
 
