@@ -154,7 +154,7 @@ in which the platform will preserve as long as you keep within the image dimensi
 ***pHYs, sBIT, sPLT, sRGB,*** (Imgur does not keep the pHYs chunk).   
 ***tRNS. (Not recommended, may distort image).***  
 
-*Other platforms may differ in what chunks they preserve and which you can overfill.*
+*Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
 This program uses the ***iCCP*** (extraction script) and ***IDAT*** (zip file) chunk names for storing arbitrary data.
 
