@@ -714,7 +714,7 @@ Once the PNG image has been uploaded to your Imgur page, you can grab links of t
 
 *If the embedded image is over 5MB I would not recommend posting the image to the Imgur Community Page,
 as the thumbnail preview fails and shows as a broken icon image.
-(clicking the "broken" preview image will still take you to the correctly displayed full image).
+(Clicking the "broken" preview image will still take you to the correctly displayed full image).
 
 Once the ZIP file has been embedded within a PNG image, it can be shared on your chosen
 hosting site or 'executed' whenever you want to access the embedded file(s).
