@@ -15,6 +15,7 @@ pdvzip, written in C++, uses different methods for storing and accessing embedde
 *Using the **--imgur** option with pdvzip, increases the Imgur PNG upload size limit from 5MB to **20MB**.*
 
 *Once the PNG image has been uploaded to your Imgur page, you can grab links of the image for sharing.  
+
 \*If the embedded image is over **5MB** I would **not recommend** posting the image to the **Imgur Community Page**,  
 as the thumbnail preview fails and shows as a broken icon image.  
 (clicking the "broken" preview image will still take you to the correctly displayed full image).*
