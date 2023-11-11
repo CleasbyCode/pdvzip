@@ -1,5 +1,5 @@
 # pdvzip
-Command-line tool for embedding a **ZIP** file within a tweetable and *"executable"* **PNG** image.  
+Command-line tool for embedding a **ZIP** file within a *tweetable* and *"executable"* **PNG** image.  
 
 Share your *zip-embedded* image on the following compatible sites.
 
