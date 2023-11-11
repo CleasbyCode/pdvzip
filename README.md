@@ -1,7 +1,7 @@
 # pdvzip
 Command-line tool for embedding a **ZIP** file within a *tweetable* and *"executable"* **PNG** image.  
 
-Share your *zip-embedded* image on the following compatible sites.
+Share your *zip-embedded* image on the following compatible sites with there image size limits.
 
 * ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), Imgur (20MB / with --imgur option)***
 * ***Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
@@ -19,9 +19,9 @@ pdvzip, written in C++, uses different methods for storing and accessing embedde
 
 *Once the PNG image has been uploaded to your Imgur page, you can grab links of the image for sharing.* 
 
-\*If the embedded image is over **5MB** I would **not recommend** posting the image to the **Imgur Community Page**,  
+\**If the embedded image is over **5MB** I would **not recommend** posting the image to the **Imgur Community Page**,  
 as the thumbnail preview fails and shows as a broken icon image.  
-(clicking the "broken" preview image will still take you to the correctly displayed full image).*
+(Clicking the "broken" preview image will still take you to the correctly displayed full image).*
 
 Compile and run the program under Windows or **Linux**.
 
