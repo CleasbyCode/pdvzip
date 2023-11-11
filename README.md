@@ -9,7 +9,8 @@ Share your *zip-embedded* image on the following compatible sites.
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/pdvimg_55183.png)  
  ***{Image Credit:*** [***@LyricAIrtist*** ](https://twitter.com/LyricAIrtist/status/1720055981730680859)***}***  
  
-Based on a similar idea from the original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), pdvzip, written in C++, uses different methods for storing and accessing embedded data within a PNG image file.  
+Based on a similar idea from the original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png) created by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/),  
+pdvzip, written in C++, uses different methods for storing and accessing embedded data within a PNG image file.  
 
 *Using the **--imgur** option with pdvzip, increases the Imgur PNG upload size limit from 5MB to **20MB**.*
 
