@@ -33,7 +33,7 @@ public:
 
 void
 // Read-in user PNG image and ZIP file. Store the data in vectors.
-Store_Files(std::ifstream&, std::ifstream&, const std::string&, const std::string&),
+Store_Files(std::ifstream&, std::ifstream&, const std::string&, const std::string&, bool),
 
 // Make sure user PNG image and ZIP file fulfil valid program requirements. Display relevant error message and exit program if checks fail.
 Check_File_Requirements(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[]),
@@ -41,7 +41,7 @@ Check_File_Requirements(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[])
 // Search and remove all unnecessary PNG chunks found before the first "IDAT" chunk.
 Erase_Chunks(std::vector<BYTE>&),
 
-// Update default extraction script determined by embedded ZIP file content. 
+// Update barebones extraction script determined by embedded file content. 
 Complete_Extraction_Script(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[]),
 
 // Insert contents of vectors storing user ZIP file and the completed extraction script into the vector containing PNG image, then write vector's content out to file.
@@ -60,11 +60,18 @@ Crc(BYTE*, const uint32_t);
 
 int main(int argc, char** argv) {
 
+	bool imgur_size_hack = false;
+
+	if (argc == 4 && std::string(argv[3]) == "--imgur") {
+		imgur_size_hack = true;
+		argc = 3;
+	}
+
 	if (argc == 2 && std::string(argv[1]) == "--info") {
 		Display_Info();
 	}
 	else if (argc < 3 || argc > 3) {
-		std::cout << "\nUsage: pdvzip <png_image> <zip_file>\n\t\bpdvzip --info\n\n";
+		std::cout << "\nUsage: pdvzip <png_image> <zip_file> [--imgur]\n\t\bpdvzip --info\n\n";
 	}
 	else {
 		const std::string
@@ -80,7 +87,7 @@ int main(int argc, char** argv) {
 
 		if (read_image_fs && read_zip_fs) {
 			// OK, now read files into vectors.
-			Store_Files(read_image_fs, read_zip_fs, IMG_NAME, ZIP_NAME);
+			Store_Files(read_image_fs, read_zip_fs, IMG_NAME, ZIP_NAME, imgur_size_hack);
 		}
 		else { // Display relevant error message and exit program if any file fails to open.
 			const std::string
@@ -93,7 +100,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::string& IMG_FILE, const std::string& ZIP_FILE) {
+void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::string& IMG_FILE, const std::string& ZIP_FILE, bool imgur_size_hack) {
 
 	// Vector "Zip_Vec" will store the user's ZIP file. The contents of "Zip_Vec" will later be inserted into the vector "Image_Vec" as the last "IDAT" chunk. 
 	// We will need to update the crc value (last 4-bytes) and the chunk length field (first 4-bytes), within this vector. Both fields currently set to zero. 
@@ -122,8 +129,14 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 
 	const uint32_t
 		IMG_SIZE = static_cast<uint32_t>(Image_Vec.size()),
-		MAX_PNG_SIZE_BYTES = 209715200,	// 200MB, PNG "file-embedded" size limit.
+		MAX_PNG_SIZE_BYTES = imgur_size_hack ? 20971520 : 209715200,	// 200MB PNG "zip-embedded" size limit. (Flickr, the largest of the supported platforms.)
+										// or 20MB PNG "zip-embedded" size limit if the "--imgur" option used.
+
 		COMBINED_SIZE = IMG_SIZE + static_cast<uint32_t>(ZIP_SIZE) + MAX_SCRIPT_SIZE_BYTES;
+
+	if (imgur_size_hack && COMBINED_SIZE > 5242880) { // If user selected the --imgur option, only use it if the zip-embedded PNG image is over 5MB. 
+		Image_Vec[Image_Vec.size() - 9] = '\x58';
+	}
 
 	// Check size of files. Display relevant error message and exit program if files exceed size limits.
 	if ((IMG_SIZE + MAX_SCRIPT_SIZE_BYTES) > MAX_PNG_SIZE_BYTES
@@ -137,7 +150,7 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 		const std::string
 			SIZE_ERR = "Size Error: File must not exceed pdvzip's file size limit of 200MB (209,715,200 bytes).\n\n",
 			COMBINED_SIZE_ERR = "\nSize Error: " + std::to_string(COMBINED_SIZE) +
-			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds pdvzip's 200MB size limit by "
+			" bytes is the combined size of your PNG image + ZIP file + Script (750 bytes), \nwhich exceeds pdvzip's size limit by "
 			+ std::to_string(EXCEED_SIZE_LIMIT) + " bytes. Available ZIP file size is " + std::to_string(AVAILABLE_BYTES) + " bytes.\n\n",
 
 			ERR_MSG = (IMG_SIZE + MAX_SCRIPT_SIZE_BYTES > MAX_PNG_SIZE_BYTES) ? "\nPNG " + SIZE_ERR
@@ -267,8 +280,8 @@ void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& I
 	The barebones script is about 300 bytes. The script size limit is 750 bytes, which should be more than enough to account
 	for the later addition of filenames, application & argument strings, plus other required script commands.
 
-	Script supports both Linux & Windows. The completed script, when executed, will unzip the archive within the PNG image and
-	attempt to open/play/run (depending on file type) the first filename within the zip file record, using an application
+	Script supports both Linux & Windows. The completed script, when executed, will unzip the archive within
+	the PNG image & attempt to open/play/run (depending on file type) the first filename within the zip file record, using an application
 	command based on a matched file extension, or if no match found, defaulting to the operating system making the choice.
 
 	The zipped file needs to be compatible with the operating system you are running it on.
@@ -346,9 +359,9 @@ void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& I
 	// The vector "Sequence_Vec" can be split into four sequences containing "Script_Vec" index values (high numbers) used by the 
 	// "insert_index" variable and the corresponding "App_Vec" index values (low numbers) used by the "app_index" variable.
 
-	// For example, in the 1st sequence, Sequence_Vec[0] = index 241 of "Script_Vec" ("insert_index") corresponds with
+	// For example, in the 1st sequence, Sequence_Vec[0] = index 236 of "Script_Vec" ("insert_index") corresponds with
 	// Sequence_Vec[5] = "App_Vec" index 33 ("app_index"), which is the "first_zip_name" string element (first filename within the zip record). 
-	// "App_Vec" string element 33 (first_zip_name) will be inserted into the script (vector "Script_Vec") at index 241.
+	// "App_Vec" string element 33 (first_zip_name) will be inserted into the script (vector "Script_Vec") at index 236.
 
 	uint8_t
 		app_index = 0,		// Uses the "App_Vec" index values from the vector Sequence_Vec.
@@ -469,18 +482,19 @@ void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& I
 	// Due to its small size, the "iCCP" chunk will only use 2 bytes maximum (bits=16) of the 4 byte length field.
 	update->Value(Script_Vec, chunk_length_index, static_cast<uint32_t>(Script_Vec.size() - 12), bits, false);
 
-	// Check the 4th byte of the "iCCP" chunk length field to make sure the updated chunk length does not match 
+	// Check the first byte of the "iCCP" chunk length field to make sure the updated chunk length does not match 
 	// any of the "BAD_CHAR" characters that will break the Linux extraction script.
 	for (uint8_t i = 0; i < 7; i++) {
 
 		if (Script_Vec[3] == BAD_CHAR[i]) {
-			// "BAD_CHAR" found. Insert 10 bytes of "." at the end of "Script_Vec" to increase chunk length. Update chunk length field. 
-			// This should now skip over all BAD_CHAR characters, regardless of the chunk size (within its size limit). No need to recheck new size.
+			// "BAD_CHAR" found. Insert 10 bytes "." at the end of "Script_Vec" to increase chunk length. Update chunk length field. 
+			// This should now skip over any BAD_CHAR characters, regardless of the chunk size (within its size limit).
+
 			const std::string INCREASE_LENGTH_STRING = "..........";
 
 			Script_Vec.insert(Script_Vec.begin() + Script_Vec.size() - 4, INCREASE_LENGTH_STRING.begin(), INCREASE_LENGTH_STRING.end());
 
-			update->Value(Script_Vec, chunk_length_index, static_cast<uint32_t>(Script_Vec.size() - 12), bits, false); // Update size.
+			update->Value(Script_Vec, chunk_length_index, static_cast<uint32_t>(Script_Vec.size() - 12), bits, false); // Update size again.
 
 			break;
 		}
@@ -571,15 +585,20 @@ void Combine_Vectors(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zip_Vec, s
 		REDDIT_SIZE = 		20971520, 	// 20MB
 		POST_IMAGE_SIZE = 	25165824,	// 24MB
 		IMGBB_SIZE = 		33554432;	// 32MB
-	// Flickr is 200MB, this programs max size, no need to to make a variable for it.
+		// Flickr is 200MB, this programs max size, no need to to make a variable for it.
 
 	size_warning = (IMG_SIZE > IMG_PILE_SIZE && IMG_SIZE <= REDDIT_SIZE ? size_warning.substr(0, MSG_LEN - 10)
 		: (IMG_SIZE > REDDIT_SIZE && IMG_SIZE <= POST_IMAGE_SIZE ? size_warning.substr(0, MSG_LEN - 18)
 		: (IMG_SIZE > POST_IMAGE_SIZE && IMG_SIZE <= IMGBB_SIZE ? size_warning.substr(0, MSG_LEN - 29)
 		: (IMG_SIZE > IMGBB_SIZE ? size_warning.substr(0, MSG_LEN - 36) : size_warning))));
 
-	if (IMG_SIZE > IMGUR_TWITTER_SIZE) {
+	if (IMG_SIZE > IMGUR_TWITTER_SIZE && Image_Vec[Image_Vec.size() -9] != 'X') {
 		std::cerr << size_warning << ".\n";
+	}
+
+	// Test to see if --imgur option has been used.
+	if (Image_Vec[Image_Vec.size() -9] == 'X') {
+		std::cout << "\n**Warning**\n\nDue to the selection of the --imgur option, you should only post this zip-embedded PNG image on Imgur.\n";
 	}
 
 	std::cout << "\nCreated zip-embedded PNG image: \"" + PDV_FILENAME + "\" Size: \"" << Image_Vec.size() << " Bytes\"";
@@ -624,6 +643,11 @@ void Fix_Zip_Offset(std::vector<BYTE>& Image_Vec, const uint32_t LAST_IDAT_INDEX
 	// or run the command: java -jar your_image_file_name.png
 	uint16_t comment_length = 16 + (Image_Vec[comment_length_index] << 8) | Image_Vec[comment_length_index - 1];
 
+	// Test to see if --imgur option has been used.
+	if (Image_Vec[Image_Vec.size() - 9] == 'X') {
+		comment_length++;
+	}
+
 	bits = 16;
 
 	// Write the ZIP comment length value into the comment length index location within vector "Image_Vec".
@@ -635,25 +659,25 @@ uint32_t Crc_Update(const uint32_t Crc, BYTE* buf, const uint32_t len)
 {
 	// Table of CRCs of all 8-bit messages.
 	const uint32_t Crc_Table[256]{
-	0x00, 	    0x77073096, 0xEE0E612C, 0x990951BA, 0x76DC419,  0x706AF48F, 0xE963A535, 0x9E6495A3, 0xEDB8832,  0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x9B64C2B,  0x7EB17CBD,
-	0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2, 0xF3B97148, 0x84BE41DE, 0x1ADAD47D, 0x6DDDE4EB, 0xF4D4B551, 0x83D385C7, 0x136C9856, 0x646BA8C0, 0xFD62F97A, 0x8A65C9EC,
-	0x14015C4F, 0x63066CD9, 0xFA0F3D63, 0x8D080DF5, 0x3B6E20C8, 0x4C69105E, 0xD56041E4, 0xA2677172, 0x3C03E4D1, 0x4B04D447, 0xD20D85FD, 0xA50AB56B, 0x35B5A8FA, 0x42B2986C,
-	0xDBBBC9D6, 0xACBCF940, 0x32D86CE3, 0x45DF5C75, 0xDCD60DCF, 0xABD13D59, 0x26D930AC, 0x51DE003A, 0xC8D75180, 0xBFD06116, 0x21B4F4B5, 0x56B3C423, 0xCFBA9599, 0xB8BDA50F,
-	0x2802B89E, 0x5F058808, 0xC60CD9B2, 0xB10BE924, 0x2F6F7C87, 0x58684C11, 0xC1611DAB, 0xB6662D3D, 0x76DC4190, 0x1DB7106,  0x98D220BC, 0xEFD5102A, 0x71B18589, 0x6B6B51F,
-	0x9FBFE4A5, 0xE8B8D433, 0x7807C9A2, 0xF00F934,  0x9609A88E, 0xE10E9818, 0x7F6A0DBB, 0x86D3D2D,  0x91646C97, 0xE6635C01, 0x6B6B51F4, 0x1C6C6162, 0x856530D8, 0xF262004E,
-	0x6C0695ED, 0x1B01A57B, 0x8208F4C1, 0xF50FC457, 0x65B0D9C6, 0x12B7E950, 0x8BBEB8EA, 0xFCB9887C, 0x62DD1DDF, 0x15DA2D49, 0x8CD37CF3, 0xFBD44C65, 0x4DB26158, 0x3AB551CE,
-	0xA3BC0074, 0xD4BB30E2, 0x4ADFA541, 0x3DD895D7, 0xA4D1C46D, 0xD3D6F4FB, 0x4369E96A, 0x346ED9FC, 0xAD678846, 0xDA60B8D0, 0x44042D73, 0x33031DE5, 0xAA0A4C5F, 0xDD0D7CC9,
-	0x5005713C, 0x270241AA, 0xBE0B1010, 0xC90C2086, 0x5768B525, 0x206F85B3, 0xB966D409, 0xCE61E49F, 0x5EDEF90E, 0x29D9C998, 0xB0D09822, 0xC7D7A8B4, 0x59B33D17, 0x2EB40D81,
-	0xB7BD5C3B, 0xC0BA6CAD, 0xEDB88320, 0x9ABFB3B6, 0x3B6E20C,  0x74B1D29A, 0xEAD54739, 0x9DD277AF, 0x4DB2615,  0x73DC1683, 0xE3630B12, 0x94643B84, 0xD6D6A3E,  0x7A6A5AA8,
-	0xE40ECF0B, 0x9309FF9D, 0xA00AE27,  0x7D079EB1, 0xF00F9344, 0x8708A3D2, 0x1E01F268, 0x6906C2FE, 0xF762575D, 0x806567CB, 0x196C3671, 0x6E6B06E7, 0xFED41B76, 0x89D32BE0,
-	0x10DA7A5A, 0x67DD4ACC, 0xF9B9DF6F, 0x8EBEEFF9, 0x17B7BE43, 0x60B08ED5, 0xD6D6A3E8, 0xA1D1937E, 0x38D8C2C4, 0x4FDFF252, 0xD1BB67F1, 0xA6BC5767, 0x3FB506DD, 0x48B2364B,
-	0xD80D2BDA, 0xAF0A1B4C, 0x36034AF6, 0x41047A60, 0xDF60EFC3, 0xA867DF55, 0x316E8EEF, 0x4669BE79, 0xCB61B38C, 0xBC66831A, 0x256FD2A0, 0x5268E236, 0xCC0C7795, 0xBB0B4703,
-	0x220216B9, 0x5505262F, 0xC5BA3BBE, 0xB2BD0B28, 0x2BB45A92, 0x5CB36A04, 0xC2D7FFA7, 0xB5D0CF31, 0x2CD99E8B, 0x5BDEAE1D, 0x9B64C2B0, 0xEC63F226, 0x756AA39C, 0x26D930A,
-	0x9C0906A9, 0xEB0E363F, 0x72076785, 0x5005713,  0x95BF4A82, 0xE2B87A14, 0x7BB12BAE, 0xCB61B38,  0x92D28E9B, 0xE5D5BE0D, 0x7CDCEFB7, 0xBDBDF21,  0x86D3D2D4, 0xF1D4E242,
-	0x68DDB3F8, 0x1FDA836E, 0x81BE16CD, 0xF6B9265B, 0x6FB077E1, 0x18B74777, 0x88085AE6, 0xFF0F6A70, 0x66063BCA, 0x11010B5C, 0x8F659EFF, 0xF862AE69, 0x616BFFD3, 0x166CCF45,
-	0xA00AE278, 0xD70DD2EE, 0x4E048354, 0x3903B3C2, 0xA7672661, 0xD06016F7, 0x4969474D, 0x3E6E77DB, 0xAED16A4A, 0xD9D65ADC, 0x40DF0B66, 0x37D83BF0, 0xA9BCAE53, 0xDEBB9EC5,
-	0x47B2CF7F, 0x30B5FFE9, 0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD70693, 0x54DE5729, 0x23D967BF, 0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94,
-	0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D };
+		0x00, 	    0x77073096, 0xEE0E612C, 0x990951BA, 0x76DC419,  0x706AF48F, 0xE963A535, 0x9E6495A3, 0xEDB8832,  0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x9B64C2B,  0x7EB17CBD,
+		0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2, 0xF3B97148, 0x84BE41DE, 0x1ADAD47D, 0x6DDDE4EB, 0xF4D4B551, 0x83D385C7, 0x136C9856, 0x646BA8C0, 0xFD62F97A, 0x8A65C9EC,
+		0x14015C4F, 0x63066CD9, 0xFA0F3D63, 0x8D080DF5, 0x3B6E20C8, 0x4C69105E, 0xD56041E4, 0xA2677172, 0x3C03E4D1, 0x4B04D447, 0xD20D85FD, 0xA50AB56B, 0x35B5A8FA, 0x42B2986C,
+		0xDBBBC9D6, 0xACBCF940, 0x32D86CE3, 0x45DF5C75, 0xDCD60DCF, 0xABD13D59, 0x26D930AC, 0x51DE003A, 0xC8D75180, 0xBFD06116, 0x21B4F4B5, 0x56B3C423, 0xCFBA9599, 0xB8BDA50F,
+		0x2802B89E, 0x5F058808, 0xC60CD9B2, 0xB10BE924, 0x2F6F7C87, 0x58684C11, 0xC1611DAB, 0xB6662D3D, 0x76DC4190, 0x1DB7106,  0x98D220BC, 0xEFD5102A, 0x71B18589, 0x6B6B51F,
+		0x9FBFE4A5, 0xE8B8D433, 0x7807C9A2, 0xF00F934,  0x9609A88E, 0xE10E9818, 0x7F6A0DBB, 0x86D3D2D,  0x91646C97, 0xE6635C01, 0x6B6B51F4, 0x1C6C6162, 0x856530D8, 0xF262004E,
+		0x6C0695ED, 0x1B01A57B, 0x8208F4C1, 0xF50FC457, 0x65B0D9C6, 0x12B7E950, 0x8BBEB8EA, 0xFCB9887C, 0x62DD1DDF, 0x15DA2D49, 0x8CD37CF3, 0xFBD44C65, 0x4DB26158, 0x3AB551CE,
+		0xA3BC0074, 0xD4BB30E2, 0x4ADFA541, 0x3DD895D7, 0xA4D1C46D, 0xD3D6F4FB, 0x4369E96A, 0x346ED9FC, 0xAD678846, 0xDA60B8D0, 0x44042D73, 0x33031DE5, 0xAA0A4C5F, 0xDD0D7CC9,
+		0x5005713C, 0x270241AA, 0xBE0B1010, 0xC90C2086, 0x5768B525, 0x206F85B3, 0xB966D409, 0xCE61E49F, 0x5EDEF90E, 0x29D9C998, 0xB0D09822, 0xC7D7A8B4, 0x59B33D17, 0x2EB40D81,
+		0xB7BD5C3B, 0xC0BA6CAD, 0xEDB88320, 0x9ABFB3B6, 0x3B6E20C,  0x74B1D29A, 0xEAD54739, 0x9DD277AF, 0x4DB2615,  0x73DC1683, 0xE3630B12, 0x94643B84, 0xD6D6A3E,  0x7A6A5AA8,
+		0xE40ECF0B, 0x9309FF9D, 0xA00AE27,  0x7D079EB1, 0xF00F9344, 0x8708A3D2, 0x1E01F268, 0x6906C2FE, 0xF762575D, 0x806567CB, 0x196C3671, 0x6E6B06E7, 0xFED41B76, 0x89D32BE0,
+		0x10DA7A5A, 0x67DD4ACC, 0xF9B9DF6F, 0x8EBEEFF9, 0x17B7BE43, 0x60B08ED5, 0xD6D6A3E8, 0xA1D1937E, 0x38D8C2C4, 0x4FDFF252, 0xD1BB67F1, 0xA6BC5767, 0x3FB506DD, 0x48B2364B,
+		0xD80D2BDA, 0xAF0A1B4C, 0x36034AF6, 0x41047A60, 0xDF60EFC3, 0xA867DF55, 0x316E8EEF, 0x4669BE79, 0xCB61B38C, 0xBC66831A, 0x256FD2A0, 0x5268E236, 0xCC0C7795, 0xBB0B4703,
+		0x220216B9, 0x5505262F, 0xC5BA3BBE, 0xB2BD0B28, 0x2BB45A92, 0x5CB36A04, 0xC2D7FFA7, 0xB5D0CF31, 0x2CD99E8B, 0x5BDEAE1D, 0x9B64C2B0, 0xEC63F226, 0x756AA39C, 0x26D930A,
+		0x9C0906A9, 0xEB0E363F, 0x72076785, 0x5005713,  0x95BF4A82, 0xE2B87A14, 0x7BB12BAE, 0xCB61B38,  0x92D28E9B, 0xE5D5BE0D, 0x7CDCEFB7, 0xBDBDF21,  0x86D3D2D4, 0xF1D4E242,
+		0x68DDB3F8, 0x1FDA836E, 0x81BE16CD, 0xF6B9265B, 0x6FB077E1, 0x18B74777, 0x88085AE6, 0xFF0F6A70, 0x66063BCA, 0x11010B5C, 0x8F659EFF, 0xF862AE69, 0x616BFFD3, 0x166CCF45,
+		0xA00AE278, 0xD70DD2EE, 0x4E048354, 0x3903B3C2, 0xA7672661, 0xD06016F7, 0x4969474D, 0x3E6E77DB, 0xAED16A4A, 0xD9D65ADC, 0x40DF0B66, 0x37D83BF0, 0xA9BCAE53, 0xDEBB9EC5,
+		0x47B2CF7F, 0x30B5FFE9, 0xBDBDF21C, 0xCABAC28A, 0x53B39330, 0x24B4A3A6, 0xBAD03605, 0xCDD70693, 0x54DE5729, 0x23D967BF, 0xB3667A2E, 0xC4614AB8, 0x5D681B02, 0x2A6F2B94,
+		0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B, 0x2D02EF8D };
 
 	// Update a running CRC with the bytes buf[0..len - 1] the CRC should be initialized to all 1's, 
 	// and the transmitted value is the 1's complement of the final running CRC (see the crc() routine below).
@@ -681,9 +705,18 @@ PDVZIP enables you to embed a ZIP file within a *tweetable and "executable" PNG 
 The hosting sites will retain the embedded arbitrary data within the PNG image.  
 		
 PNG image size limits are platform dependant:  
-Flickr (200MB), Imgbb (32MB), PostImage (24MB), Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).
+Flickr (200MB), Imgbb (32MB), PostImage (24MB), Imgur (20MB / with --imgur option),
+Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).
 
-Once the ZIP file has been embedded within a PNG image, it's ready to be shared on your chosen
+Using the --imgur option with pdvzip, increases the Imgur PNG upload size limit from 5MB to 20MB.
+
+Once the PNG image has been uploaded to your Imgur page, you can grab links of the image for sharing.
+
+*If the embedded image is over 5MB I would not recommend posting the image to the Imgur Community Page,
+as the thumbnail preview fails and shows as a broken icon image.
+(clicking the "broken" preview image will still take you to the correctly displayed full image).
+
+Once the ZIP file has been embedded within a PNG image, it can be shared on your chosen
 hosting site or 'executed' whenever you want to access the embedded file(s).
 
 From a Linux terminal: ./pdvzip_your_image.png (Image file requires executable permissions).
