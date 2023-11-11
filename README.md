@@ -144,7 +144,7 @@ Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of 
         
 **Chunks:**  
 
-With **Twitter**, for example, you can overfill the following PNG chunks with arbitrary data, 
+With **Twitter**, for example, you can overfill the following PNG chunks with arbitrary data,  
 in which the platform will preserve as long as you keep within the image dimension & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,***  
