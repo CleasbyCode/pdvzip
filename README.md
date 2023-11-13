@@ -32,7 +32,8 @@ user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
 user1@linuxbox:~/Desktop$
 user1@linuxbox:~/Desktop$ ./pdvzip
 
-Usage: pdvzip <png_image> <zip_file> [--imgur]
+Usage: pdvzip <png_image> <zip_file>
+       pdvzip <png_image> <zip_file> [--imgur]
        pdvzip --info
 
 user1@linuxbox:~/Desktop$ ./pdvzip plate_image.png like_spinning_plates.zip
