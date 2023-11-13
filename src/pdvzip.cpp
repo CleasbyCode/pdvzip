@@ -380,9 +380,9 @@ void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& I
 
 	std::vector<uint16_t>Sequence_Vec{
 		241, 239, 121, 120, 119, 33, 28, 27, 33, 20,	// 1st sequence for case "VIDEO_AUDIO".
-			241, 239, 120, 119, 33, 28, 33, 21,	// 2nd sequence for cases "PDF, FOLDER_INVOKE_ITEM, DEFAULT".
-			264, 242, 241, 239, 121, 120, 119, 29, 35, 33, 22, 34, 33, 22,	// 3rd sequence for cases "PYTHON, POWERSHELL".
-			264, 242, 241, 239, 121, 120, 119, 119, 119, 119, 29, 35, 33, 28, 34, 33, 24, 32, 33, 31 }; // 4th sequence for cases "EXECUTABLE & BASH_XDG_OPEN".
+		241, 239, 120, 119, 33, 28, 33, 21,		// 2nd sequence for cases "PDF, FOLDER_INVOKE_ITEM, DEFAULT".
+		264, 242, 241, 239, 121, 120, 119, 29, 35, 33, 22, 34, 33, 22,	// 3rd sequence for cases "PYTHON, POWERSHELL".
+		264, 242, 241, 239, 121, 120, 119, 119, 119, 119, 29, 35, 33, 28, 34, 33, 24, 32, 33, 31 }; // 4th sequence for cases "EXECUTABLE & BASH_XDG_OPEN".
 
 	/*  [Sequence_Vec](insert_index)[Sequence_Vec](app_index)
 		Build script example below is using the first sequence (see vector "Sequence_Vec" above).
