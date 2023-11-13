@@ -19,7 +19,7 @@ bool isBig = true;
 
 void 
 	// Update values, such as chunk lengths, crc, file sizes and other values. Writes them into the relevant vector index locations. Overwrites previous values.
-	Value_Updater(std::vector<BYTE>&, size_t, const size_t&, uint8_t, bool),
+	Value_Updater(std::vector<BYTE>&, uint_fast64_t, const uint_fast64_t&, uint8_t, bool),
 
 	// Read-in user PNG image and ZIP file. Store the data in vectors.
 	Store_Files(std::ifstream&, std::ifstream&, const std::string&, const std::string&, bool),
@@ -37,15 +37,15 @@ void
 	Combine_Vectors(std::vector< BYTE>&, std::vector<BYTE>&, std::vector<BYTE>&),
 
 	// Adjust embedded ZIP file offsets within the PNG image, so that it remains a valid, working ZIP archive.
-	Fix_Zip_Offset(std::vector<BYTE>&, const uint32_t),
+	Fix_Zip_Offset(std::vector<BYTE>&, const uint_fast64_t&),
 
 	// Output to screen detailed program usage information.
 	Display_Info();
 
-uint_fast32_t
+uint_fast64_t
 	// Code to compute CRC32 (for "IDAT" & "iCCP" chunks within this program) was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-	Crc_Update(const uint_fast32_t, BYTE*, const uint32_t),
-	Crc(BYTE*, const uint_fast32_t);
+	Crc_Update(const uint_fast64_t, BYTE*, const uint_fast64_t),
+	Crc(BYTE*, const uint_fast64_t);
 
 int main(int argc, char** argv) {
 
@@ -113,13 +113,15 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 
 	Erase_Image_Chunks(Image_Vec);
 
-	const size_t IMAGE_SIZE = static_cast<uint32_t>(Image_Vec.size());
+	// New image size after removing chunks.
+	const size_t IMAGE_SIZE = Image_Vec.size();
 
-	const uint16_t MAX_SCRIPT_SIZE_BYTES = 750;	// Extraction script size limit, 750 bytes.
+	const unsigned short MAX_SCRIPT_SIZE_BYTES = 750;	// Extraction script size limit, 750 bytes.
 
-	const uint_fast32_t MAX_PNG_SIZE_BYTES = imgur_size_hack ? 20971520 : 209715200;	// 200MB PNG "zip-embedded" size limit. (Flickr, the largest of the supported platforms.)
-												// or 20MB PNG "zip-embedded" size limit if the "--imgur" option used.
-	const size_t COMBINED_SIZE = IMAGE_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES;
+	const uint_fast64_t 
+		MAX_PNG_SIZE_BYTES = imgur_size_hack ? 20971520 : 209715200,	// 200MB PNG "zip-embedded" size limit. (Flickr, the largest of the supported platforms.)
+										// or 20MB PNG "zip-embedded" size limit if the "--imgur" option used.
+		COMBINED_SIZE = IMAGE_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES;
 
 	if (imgur_size_hack && COMBINED_SIZE > 5242880) { // If user selected the --imgur option, only enable it if the zip-embedded PNG image is over 5MB. 
 		Image_Vec[Image_Vec.size() - 9] = '\x58';
@@ -130,7 +132,7 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 		|| ZIP_SIZE > MAX_PNG_SIZE_BYTES
 		|| COMBINED_SIZE > MAX_PNG_SIZE_BYTES) {
 
-		const size_t
+		const uint_fast64_t
 			EXCEED_SIZE_LIMIT = (IMAGE_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES) - MAX_PNG_SIZE_BYTES,
 			AVAILABLE_BYTES = MAX_PNG_SIZE_BYTES - (IMAGE_SIZE + MAX_SCRIPT_SIZE_BYTES);
 		
@@ -152,7 +154,7 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 		bits = 32;
 
 	// Write the updated "IDAT" chunk length of vector "Zip_Vec" within its length field. 
-	Value_Updater(Zip_Vec, chunk_length_index, static_cast<uint_fast32_t>(ZIP_SIZE), bits, isBig);
+	Value_Updater(Zip_Vec, chunk_length_index, ZIP_SIZE, bits, isBig);
 
 	// Finish building extraction script.
 	Complete_Extraction_Script(Zip_Vec, Image_Vec, BAD_CHAR);
@@ -181,15 +183,15 @@ void Check_File_Requirements(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zi
 		MIN_INZIP_NAME_LENGTH = 4;		// Minimum filename length of zipped file. (First filename record within zip archive).
 
 	const bool
-		VALID_COLOR_TYPE = (PNG_COLOR_TYPE == PNG_INDEXED_COLOR) ? true	// Checking for valid color type of PNG image (PNG-32/24 Truecolor or PNG-8 Indexed color only).
+		VALID_COLOR_TYPE = (PNG_COLOR_TYPE == PNG_INDEXED_COLOR) ? true		// Checking for valid color type of PNG image (PNG-32/24 Truecolor or PNG-8 Indexed color only).
 		: ((PNG_COLOR_TYPE == PNG_TRUECOLOUR) ? true : false),
 
-		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOUR		// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
+		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOUR			// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
 			&& MAX_PNG_TRUECOLOR_DIMS >= IMAGE_WIDTH_DIMS
 			&& MAX_PNG_TRUECOLOR_DIMS >= IMAGE_HEIGHT_DIMS
 			&& IMAGE_WIDTH_DIMS >= MIN_PNG_DIMS
 			&& IMAGE_HEIGHT_DIMS >= MIN_PNG_DIMS) ? true
-		: ((PNG_COLOR_TYPE == PNG_INDEXED_COLOR				// Checking for valid dimension size for PNG Indexed color (PNG-8) images.
+		: ((PNG_COLOR_TYPE == PNG_INDEXED_COLOR					// Checking for valid dimension size for PNG Indexed color (PNG-8) images.
 			&& MAX_PNG_INDEXED_COLOR_DIMS >= IMAGE_WIDTH_DIMS 
 			&& MAX_PNG_INDEXED_COLOR_DIMS >= IMAGE_HEIGHT_DIMS
 			&& IMAGE_WIDTH_DIMS >= MIN_PNG_DIMS
@@ -205,8 +207,8 @@ void Check_File_Requirements(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zi
 		// Requirements check failure, display relevant error message and exit program.
 		const std::string
 			FORMAT_ERR_MSG = "Format Error: File does not appear to be a valid",
-			IMAGE_ERR_MSG1 = "\nPNG Image Error: Dimensions of PNG image do not meet program requirements.\nSee 'pdvzip --info' for more details.\n\n",
-			IMAGE_ERR_MSG2 = "\nPNG Image Error: Colour type of PNG image does not meet program requirements.\nSee 'pdvzip --info' for more details.\n\n",
+			IMAGE_ERR_MSG1 = "\nImage Error: Dimensions of PNG image are not within the supported range.\n\nPNG-32/24 Truecolor: [68 x 68] -- [899 x 899]\nPNG-8 Indexed color: [68 x 68] -- [4096 x 4096]\n\n",
+			IMAGE_ERR_MSG2 = "\nImage Error: Color type of PNG image is not supported.\n\nPNG-32/24 (Truecolor) or PNG-8 (Indexed color) only.\n\n",
 			ZIP_ERR_MSG = "\nZIP Error: Media filename length within ZIP archive is too short. Four characters, minimum."
 			"\n\t   Increase the length of the media filename and make sure it contains a valid extension.\n\n",
 
@@ -258,7 +260,7 @@ void Erase_Image_Chunks(std::vector<BYTE>& Image_Vec) {
 		const std::string PLTE_SIG = "PLTE";
 
 		// Find PLTE chunk index and copy its contents into Temp_Vec.
-		const size_t PLTE_CHUNK_INDEX = std::search(Image_Vec.begin(), Image_Vec.end(), PLTE_SIG.begin(), PLTE_SIG.end()) - Image_Vec.begin() - 4;
+		const uint_fast64_t PLTE_CHUNK_INDEX = std::search(Image_Vec.begin(), Image_Vec.end(), PLTE_SIG.begin(), PLTE_SIG.end()) - Image_Vec.begin() - 4;
 
 		if (idat_index > PLTE_CHUNK_INDEX) {
 			const size_t CHUNK_SIZE = (Image_Vec[PLTE_CHUNK_INDEX + 1] << 16) | Image_Vec[PLTE_CHUNK_INDEX + 2] << 8 | Image_Vec[PLTE_CHUNK_INDEX + 3];
@@ -357,7 +359,7 @@ void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& I
 		args_windows{};
 
 	// Check for "." character to see if the "first_zip_name" has a file extension.
-	const uint_fast32_t CHECK_FILE_EXT = static_cast<uint32_t>(first_zip_name.find_last_of('.'));
+	const auto CHECK_FILE_EXT = first_zip_name.find_last_of('.');
 
 	// Store this filename (first filename within the zip record) in "App_Vec" vector (33).
 	App_Vec.emplace_back(first_zip_name);
@@ -424,10 +426,10 @@ void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& I
 		std::getline(std::cin, args_windows);
 
 		args_linux.insert(0, "\x20"),
-			args_windows.insert(0, "\x20");
+		args_windows.insert(0, "\x20");
 
-		App_Vec.emplace_back(args_linux),		// "App_Vec" (34).
-			App_Vec.emplace_back(args_windows);	// "App_Vec" (35).
+		App_Vec.emplace_back(args_linux),	// "App_Vec" (34).
+		App_Vec.emplace_back(args_windows);	// "App_Vec" (35).
 	}
 
 	std::cout << "\nUpdating extraction script.\n";
@@ -504,7 +506,7 @@ void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& I
 
 			Script_Vec.insert(Script_Vec.begin() + Script_Vec.size() - 4, INCREASE_LENGTH_STRING.begin(), INCREASE_LENGTH_STRING.end());
 
-			Value_Updater(Script_Vec, chunk_length_index, static_cast<uint_fast32_t>(Script_Vec.size() - 12), bits, isBig); // Update size again.
+			Value_Updater(Script_Vec, chunk_length_index, Script_Vec.size() - 12, bits, isBig); // Update size again.
 
 			break;
 		}
@@ -514,10 +516,10 @@ void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& I
 
 	// Now the "iCCP" chunk is complete with the extraction script, we need to update the chunk's crc value.
 	// Pass these two values (ICCP_CHUNK_INDEX & iCCP chunk size - 8) to the crc function to get correct "iCCP" chunk crc value.
-	const uint_fast32_t ICCP_CHUNK_CRC = Crc(&Script_Vec[ICCP_CHUNK_INDEX], static_cast<uint32_t>(Script_Vec.size() - 8));
+	const uint_fast64_t ICCP_CHUNK_CRC = Crc(&Script_Vec[ICCP_CHUNK_INDEX], Script_Vec.size() - 8);
 
 	// Get vector index location for the "iCCP" chunk's crc field.
-	uint_fast32_t iccp_crc_index = static_cast<uint32_t>(Script_Vec.size() - 4);
+	uint_fast64_t iccp_crc_index = Script_Vec.size() - 4;
 
 	bits = 32;
 
@@ -543,7 +545,7 @@ void Combine_Vectors(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zip_Vec, s
 
 	// Set the index insert location within vector "Image_Vec" for contents of vector "Zip_Vec".
 	// The insert location is just after the current last "IDAT" chuck within the vector "Image_Vec".
-	const uint_fast32_t LAST_IDAT_END_INDEX = static_cast<uint32_t>(Image_Vec.size() + Script_Vec.size()) - 12;
+	const uint_fast64_t LAST_IDAT_END_INDEX = Image_Vec.size() + Script_Vec.size() - 12;
 
 	std::cout << "\nEmbedding extraction script within the PNG image.\n";
 
@@ -561,9 +563,9 @@ void Combine_Vectors(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zip_Vec, s
 
 	// Generate crc value for our (new) last "IDAT" chunk.
 	// The +4 value points LAST_IDAT_INDEX variable value to the chunk name field, which is where the crc calculation needs to begin/include.
-	const uint_fast32_t LAST_IDAT_CRC = Crc(&Image_Vec[LAST_IDAT_END_INDEX + 4], static_cast<uint32_t>(Zip_Vec.size()) - 8); // We don't include the length or crc fields (8 bytes).
+	const uint_fast64_t LAST_IDAT_CRC = Crc(&Image_Vec[LAST_IDAT_END_INDEX + 4], Zip_Vec.size() - 8); // We don't include the length or crc fields (8 bytes).
 
-	uint_fast32_t crc_insert_index = static_cast<uint_fast32_t>(Image_Vec.size()) - 16;	// Get index location for last "IDAT" chunk's 4-byte crc field, from vector "Image_Vec".
+	uint_fast64_t crc_insert_index = Image_Vec.size() - 16;	// Get index location for last "IDAT" chunk's 4-byte crc field, from vector "Image_Vec".
 
 	uint8_t bits = 32;
 
@@ -589,10 +591,11 @@ void Combine_Vectors(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zip_Vec, s
 		"\n**Warning**\n\nDue to the file size of your zip-embedded PNG image,\nyou will only be able to share this image on the following platforms:\n\n"
 		"Flickr, ImgBB, PostImage, Reddit & ImgPile";
 
-	const uint8_t MSG_LEN = static_cast<uint8_t>(size_warning.length());
+	const auto MSG_LEN = size_warning.length();
 
-	const uint_fast32_t
-		IMG_SIZE = static_cast<uint32_t>(Image_Vec.size()),
+	const uint_fast64_t IMG_SIZE = Image_Vec.size();
+
+	const uint_fast32_t 
 		IMGUR_TWITTER_SIZE = 5242880,	// 5MB
 		IMG_PILE_SIZE = 8388608,	// 8MB
 		REDDIT_SIZE = 20971520, 	// 20MB
@@ -618,7 +621,7 @@ void Combine_Vectors(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zip_Vec, s
 	std::cout << "\n\nComplete!\n\nYou can now share your zip-embedded PNG image on the relevant supported platforms.\n\n";
 }
 
-void Fix_Zip_Offset(std::vector<BYTE>& Image_Vec, const uint32_t LAST_IDAT_END_INDEX) {
+void Fix_Zip_Offset(std::vector<BYTE>& Image_Vec, const uint_fast64_t& LAST_IDAT_END_INDEX) {
 
 	const std::string
 		START_CENTRAL_DIR_SIG = "PK\x01\x02",
@@ -626,11 +629,11 @@ void Fix_Zip_Offset(std::vector<BYTE>& Image_Vec, const uint32_t LAST_IDAT_END_I
 		ZIP_SIG = "PK\x03\x04";
 
 	// Search vector "Image_Vec" (start from last "IDAT" chunk index) to get locations for "Start Central Directory" & "End Central Directory".
-	const size_t
+	const uint_fast64_t
 		START_CENTRAL_DIR_INDEX = std::search(Image_Vec.begin() + LAST_IDAT_END_INDEX, Image_Vec.end(), START_CENTRAL_DIR_SIG.begin(), START_CENTRAL_DIR_SIG.end()) - Image_Vec.begin(),
 		END_CENTRAL_DIR_INDEX = std::search(Image_Vec.begin() + START_CENTRAL_DIR_INDEX, Image_Vec.end(), END_CENTRAL_DIR_SIG.begin(), END_CENTRAL_DIR_SIG.end()) - Image_Vec.begin();
 
-	size_t
+	uint_fast64_t
 		zip_records_index = END_CENTRAL_DIR_INDEX + 11,		// Index location for ZIP file records value.
 		comment_length_index = END_CENTRAL_DIR_INDEX + 21,	// Index location for ZIP comment length.
 		end_central_start_index = END_CENTRAL_DIR_INDEX + 19,	// Index location for End Central Start offset.
@@ -671,10 +674,10 @@ void Fix_Zip_Offset(std::vector<BYTE>& Image_Vec, const uint32_t LAST_IDAT_END_I
 }
 
 // The following code (slightly modified) to compute CRC32 (for "IDAT" & "iCCP" chunks) was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-uint_fast32_t Crc_Update(const uint_fast32_t Crc, BYTE* buf, const uint_fast32_t len)
+uint_fast64_t Crc_Update(const uint_fast64_t Crc, BYTE* buf, const uint_fast64_t len)
 {
 	// Table of CRCs of all 8-bit messages.
-	const uint_fast32_t Crc_Table[256]{
+	const uint_fast64_t Crc_Table[256]{
 		0x00, 	    0x77073096, 0xEE0E612C, 0x990951BA, 0x76DC419,  0x706AF48F, 0xE963A535, 0x9E6495A3, 0xEDB8832,  0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x9B64C2B,  0x7EB17CBD,
 		0xE7B82D07, 0x90BF1D91, 0x1DB71064, 0x6AB020F2, 0xF3B97148, 0x84BE41DE, 0x1ADAD47D, 0x6DDDE4EB, 0xF4D4B551, 0x83D385C7, 0x136C9856, 0x646BA8C0, 0xFD62F97A, 0x8A65C9EC,
 		0x14015C4F, 0x63066CD9, 0xFA0F3D63, 0x8D080DF5, 0x3B6E20C8, 0x4C69105E, 0xD56041E4, 0xA2677172, 0x3C03E4D1, 0x4B04D447, 0xD20D85FD, 0xA50AB56B, 0x35B5A8FA, 0x42B2986C,
@@ -697,7 +700,7 @@ uint_fast32_t Crc_Update(const uint_fast32_t Crc, BYTE* buf, const uint_fast32_t
 
 	// Update a running CRC with the bytes buf[0..len - 1] the CRC should be initialized to all 1's, 
 	// and the transmitted value is the 1's complement of the final running CRC (see the crc() routine below).
-	uint_fast32_t c = Crc;
+	uint_fast64_t c = Crc;
 	unsigned int n;
 
 	for (n = 0; n < len; n++) {
@@ -707,12 +710,12 @@ uint_fast32_t Crc_Update(const uint_fast32_t Crc, BYTE* buf, const uint_fast32_t
 }
 
 // Return the CRC of the bytes buf[0..len-1].
-uint_fast32_t Crc(BYTE* buf, const uint_fast32_t len)
+uint_fast64_t Crc(BYTE* buf, const uint_fast64_t len)
 {
 	return Crc_Update(0xffffffffL, buf, len) ^ 0xffffffffL;
 }
 
-void Value_Updater(std::vector<BYTE>& vec, size_t value_insert_index, const size_t& VALUE, uint8_t bits, bool isBig) {
+void Value_Updater(std::vector<BYTE>& vec, uint_fast64_t value_insert_index, const uint_fast64_t& VALUE, uint8_t bits, bool isBig) {
 
 	if (isBig) {
 		while (bits) vec[value_insert_index++] = (VALUE >> (bits -= 8)) & 0xff;
