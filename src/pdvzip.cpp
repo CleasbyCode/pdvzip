@@ -19,7 +19,7 @@ bool isBig = true;
 
 void 
 	// Update values, such as chunk lengths, crc, file sizes and other values. Writes them into the relevant vector index locations.
-	Value_Updater(std::vector<BYTE>&, size_t, const size_t&, uint8_t, bool),
+	Value_Updater(std::vector<BYTE>&, size_t, const size_t&, uint_fast8_t, bool),
 
 	// Read-in user PNG image and ZIP file and store in vectors.
 	Store_Files(std::ifstream&, std::ifstream&, const std::string&, const std::string&, bool),
@@ -714,7 +714,7 @@ uint_fast64_t Crc(BYTE* buf, const uint_fast64_t len)
 	return Crc_Update(0xffffffffL, buf, len) ^ 0xffffffffL;
 }
 
-void Value_Updater(std::vector<BYTE>& vec, size_t value_insert_index, const size_t& VALUE, uint8_t bits, bool isBig) {
+void Value_Updater(std::vector<BYTE>& vec, size_t value_insert_index, const size_t& VALUE, uint_fast8_t bits, bool isBig) {
 
 	if (isBig) {
 		while (bits) vec[value_insert_index++] = (VALUE >> (bits -= 8)) & 0xff;
