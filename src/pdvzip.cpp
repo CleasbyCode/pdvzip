@@ -637,7 +637,7 @@ void Fix_Zip_Offset(std::vector<BYTE>& Image_Vec, const size_t& LAST_IDAT_END_IN
 		comment_length_index = END_CENTRAL_DIR_INDEX + 21,	// Index location for ZIP comment length.
 		end_central_start_index = END_CENTRAL_DIR_INDEX + 19,	// Index location for End Central Start offset.
 		central_local_index = START_CENTRAL_DIR_INDEX - 1,	// Initialise variable to just before Start Central index location.
-		new_offset = LAST_IDAT_END_INDEX;				// Initialise variable to last "IDAT" chunk's end index location.
+		new_offset = LAST_IDAT_END_INDEX;			// Initialise variable to last "IDAT" chunk's end index location.
 
 	uint_fast16_t zip_records = (Image_Vec[zip_records_index] << 8) | Image_Vec[zip_records_index - 1];	// Get ZIP file records value from index location of vector "Image_Vec".
 
