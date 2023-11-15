@@ -68,12 +68,9 @@ user1@linuxbox:~/Desktop$ ./pdvimg_55183.png
 
 ```  
 Alternative execution (Linux).  Using ***wget*** to download & run image directly from the hosting site.  
-Hosting sites ***wget*** examples:-  
-* Twitter (mp3), Flickr (flac) & ImbBB (python).
+Hosting site ***wget*** example: **ImbBB (image with embedded python script)**.
 ```console
 
-$ wget "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";mv "FsPOkPnWYAA0935?format=png" pdv_pic.png;chmod +x pdv_pic.png;./pdv_pic.png
-$ wget "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";mv "53012539459_b05ca283d4_o_d.png" rain.png;chmod +x rain.png;./rain.png
 $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonacci.png
 
 ```   
