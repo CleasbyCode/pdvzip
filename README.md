@@ -84,14 +84,11 @@ G:\demo>
 G:\demo> .\pdvimg_55183.cmd
 
 ```
-Alternative execution (Windows).  Using ***iwr*** to download & run image directly from the hosting site.  
-Hosting sites ***iwr*** examples:-  
-* Twitter (mp3), Flickr (flac) & ImbBB (python).
+Alternative execution (Windows).  Using ***iwr*** to download & run the image directly from the hosting site.  
+Hosting site **Twitter** *iwr* example: **Image with embedded mp3 music file.**
 ```console
 
 G:\demo> iwr -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
-G:\demo> iwr -o img4.cmd "https://live.staticflickr.com/65535/53012539459_b05ca283d4_o_d.png";.\img4.cmd
-G:\demo> iwr -o img5.cmd "https://i.ibb.co/r6R7zdG/Fibonacci.png";.\img5.cmd
 
 ```
 
