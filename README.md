@@ -128,18 +128,18 @@ The site will either refuse to upload your image or it will convert your image t
 The following dimension size limits are specific to **pdvzip** and not necessarily the extact hosting site's size limits.
 These dimension size limits are for compatibility reasons, allowing it to work with all the above listed platforms.
 
-**PNG-32** (Truecolour with alpha [6])  
-**PNG-24** (Truecolour [2]) 
+**PNG-32** (Truecolor with alpha [6])  
+**PNG-24** (Truecolor [2]) 
 
 Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of ***899 x 899***.
 
 *Note: Images that are created & saved within your image editor as **PNG-32/24** that are either
-black & white/grayscale, images with 256 colours or less, will be converted by **Twitter** to
-**PNG-8** and you will lose the embedded content. If you want to use a simple "single" colour
-**PNG-32/24** image, then fill an area with a gradient colour instead of a single solid colour. 
+black & white/grayscale, images with 256 colors or less, will be converted by **Twitter** to
+**PNG-8** and you will lose the embedded content. If you want to use a simple "single" color
+**PNG-32/24** image, then fill an area with a gradient color instead of a single solid color. 
 **Twitter** should then keep the image as **PNG-32/24**. [**(Example).**](https://twitter.com/CleasbyCode/status/1694992647121965554)*
     
-**PNG-8 (Indexed-colour [3])**
+**PNG-8 (Indexed-color [3])**
 
 Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of ***4096 x 4096***.
         
