@@ -25,13 +25,13 @@ void
 	Store_Files(std::ifstream&, std::ifstream&, const std::string&, const std::string&, bool),
 
 	// Make sure user PNG image and ZIP file fulfil valid program requirements. Display relevant error message and exit program if checks fail.
-	Check_File_Requirements(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[]),
+	Check_File_Requirements(std::vector<BYTE>&, std::vector<BYTE>&, const std::string&),
 
 	// Keep critical PNG chunks, remove the rest.
 	Erase_Image_Chunks(std::vector<BYTE>&),
 
 	// Update barebones extraction script determined by embedded zip-file content. 
-	Complete_Extraction_Script(std::vector<BYTE>&, std::vector<BYTE>&, const char(&)[]),
+	Complete_Extraction_Script(std::vector<BYTE>&, std::vector<BYTE>&, const std::string&),
 
 	// Insert contents of vectors storing user ZIP file and the completed extraction script into the vector containing PNG image, then write vector's content out to file.
 	Combine_Vectors(std::vector< BYTE>&, std::vector<BYTE>&, std::vector<BYTE>&),
@@ -103,8 +103,8 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 	Zip_Vec.insert(Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(readzip), std::istreambuf_iterator<char>());
 	
 	// Occurrence of these characters in the "IHDR" chunk (data & crc field), or the "iCCP" chunk (length field), breaks the Linux extraction script.
-	const char BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' };
-
+	const std::string BAD_CHAR = "\x22\x27\x28\x29\x3B\x3E\x60";
+	
 	// Make sure PNG and ZIP file specs meet program requirements. 
 	Check_File_Requirements(Image_Vec, Zip_Vec, BAD_CHAR);
 
@@ -157,7 +157,7 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 	Complete_Extraction_Script(Zip_Vec, Image_Vec, BAD_CHAR);
 }
 
-void Check_File_Requirements(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zip_Vec, const char(&BAD_CHAR)[]) {
+void Check_File_Requirements(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zip_Vec, const std::string& BAD_CHAR) {
 
 	const std::string
 		PNG_SIG = "\x89PNG",	// Valid file header signature of PNG image.
@@ -168,22 +168,22 @@ void Check_File_Requirements(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zi
 	const uint_fast16_t
 		IMAGE_WIDTH_DIMS = Image_Vec[18] << 8 | Image_Vec[19],	// Get image width dimensions from vector "Image_Vec".
 		IMAGE_HEIGHT_DIMS = Image_Vec[22] << 8 | Image_Vec[23],	// Get image height dimensions from vector "Image_Vec".
-		MAX_PNG_TRUECOLOR_DIMS = 899,		// 899 x 899 maximum supported dimensions for PNG truecolour (PNG-32/PNG-24, Colour types 2 & 6).
-		MAX_PNG_INDEXED_COLOR_DIMS = 4096;	// 4096 x 4096 maximum supported dimensions for PNG indexed-colour (PNG-8, Colour type 3).
+		MAX_PNG_TRUECOLOR_DIMS = 899,		// 899 x 899 maximum supported dimensions for PNG truecolor (PNG-32/PNG-24, Color types 2 & 6).
+		MAX_PNG_INDEXED_COLOR_DIMS = 4096;	// 4096 x 4096 maximum supported dimensions for PNG indexed-color (PNG-8, Color type 3).
 
 	const uint_fast8_t
-		MIN_PNG_DIMS = 68,			// 68 x 68 minimum supported dimensions for PNG indexed-colour and truecolour.
-		PNG_COLOR_TYPE = Image_Vec[25] == 6 ? 2 : Image_Vec[25],	// Get image colour type value from vector "Image_Vec". If value is 6 (Truecolour with alpha), set the value to 2 (Truecolour).
-		PNG_INDEXED_COLOR = 3,			// PNG-8, indexed colour.
-		PNG_TRUECOLOUR = 2,			// PNG-24, Truecolour. (We also use this for PNG-32 / truecolour with alpha, 6) as we deal with them the same way.
+		MIN_PNG_DIMS = 68,			// 68 x 68 minimum supported dimensions for PNG indexed-color and truecolor.
+		PNG_COLOR_TYPE = Image_Vec[25] == 6 ? 2 : Image_Vec[25],	// Get image color type value from vector "Image_Vec". If value is 6 (Truecolor with alpha), set the value to 2 (Truecolor).
+		PNG_INDEXED_COLOR = 3,			// PNG-8, indexed color.
+		PNG_TRUECOLOR = 2,			// PNG-24, Truecolor. (We also use this for PNG-32 / truecolor with alpha, 6) as we deal with them the same way.
 		INZIP_NAME_LENGTH = Zip_Vec[34],	// Get length of zipped media filename from vector "Zip_Vec".
 		MIN_INZIP_NAME_LENGTH = 4;		// Minimum filename length of zipped file. (First filename record within zip archive).
 
 	const bool
 		VALID_COLOR_TYPE = (PNG_COLOR_TYPE == PNG_INDEXED_COLOR) ? true		// Checking for valid color type of PNG image (PNG-32/24 Truecolor or PNG-8 Indexed color only).
-		: ((PNG_COLOR_TYPE == PNG_TRUECOLOUR) ? true : false),
+		: ((PNG_COLOR_TYPE == PNG_TRUECOLOR) ? true : false),
 
-		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOUR			// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
+		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOR			// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
 			&& MAX_PNG_TRUECOLOR_DIMS >= IMAGE_WIDTH_DIMS
 			&& MAX_PNG_TRUECOLOR_DIMS >= IMAGE_HEIGHT_DIMS
 			&& IMAGE_WIDTH_DIMS >= MIN_PNG_DIMS
@@ -279,7 +279,7 @@ void Erase_Image_Chunks(std::vector<BYTE>& Image_Vec) {
 	Temp_Vec.swap(Image_Vec);
 }
 
-void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& Image_Vec, const char(&BAD_CHAR)[]) {
+void Complete_Extraction_Script(std::vector<BYTE>& Zip_Vec, std::vector<BYTE>& Image_Vec, const std::string& BAD_CHAR) {
 
 	/* Vector "Script_Vec" (See "script_info.txt" in this repo).
 
@@ -764,19 +764,19 @@ Dimensions:
 
 The following dimension size limits are specific to pdvzip and not necessarily the extact hosting site's size limits.
 
-PNG-32 (Truecolour with alpha [6])
-PNG-24 (Truecolour [2])
+PNG-32 (Truecolor with alpha [6])
+PNG-24 (Truecolor [2])
 
 Image dimensions can be set between a minimum of 68 x 68 and a maximum of 899 x 899.
 These dimension size limits are for compatibility reasons, allowing it to work with all the above listed platforms.
 
 Note: Images that are created & saved within your image editor as PNG-32/24 that are either 
-black & white/grayscale, images with 256 colours or less, will be converted by Twitter to 
-PNG-8 and you will lose the embedded content. If you want to use a simple "single" colour PNG-32/24 image,
-then fill an area with a gradient colour instead of a single solid colour.
+black & white/grayscale, images with 256 colors or less, will be converted by Twitter to 
+PNG-8 and you will lose the embedded content. If you want to use a simple "single" color PNG-32/24 image,
+then fill an area with a gradient color instead of a single solid color.
 Twitter should then keep the image as PNG-32/24.
 
-PNG-8 (Indexed-colour [3])
+PNG-8 (Indexed-color [3])
 
 Image dimensions can be set between a minimum of 68 x 68 and a maximum of 4096 x 4096.
 
