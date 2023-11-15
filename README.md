@@ -67,8 +67,8 @@ user1@linuxbox:~/Desktop$
 user1@linuxbox:~/Desktop$ ./pdvimg_55183.png
 
 ```  
-Alternative execution (Linux).  Using ***wget*** to download & run image directly from the hosting site.  
-Hosting site ***wget*** example: **ImbBB (image with embedded python script)**.
+Alternative execution (Linux).  Using ***wget*** to download & run the image directly from the hosting site.  
+Hosting site **ImgBB** *wget* example: **Image with embedded python script**.
 ```console
 
 $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonacci.png
