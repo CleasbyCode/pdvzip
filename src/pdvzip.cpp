@@ -44,8 +44,8 @@ void
 
 uint_fast64_t
 	// Code to compute CRC32 (for "IDAT" & "iCCP" chunks within this program) is taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-	Crc_Update(const uint_fast64_t, BYTE*, const uint_fast64_t),
-	Crc(BYTE*, const uint_fast64_t);
+	Crc_Update(const uint_fast64_t&, BYTE*, const uint_fast64_t&),
+	Crc(BYTE*, const uint_fast64_t&);
 
 int main(int argc, char** argv) {
 
@@ -101,10 +101,7 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 
 	// Insert user's ZIP file into vector "Zip_Vec" from index 8, just after "IDAT" chunk name.
 	Zip_Vec.insert(Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(readzip), std::istreambuf_iterator<char>());
-
-	// Get size of user's ZIP file from vector "Zip_Vec", minux 12 bytes.  We don't count chunk name "IDAT"(4), chunk length field(4), chunk crc field(4).
-	const size_t ZIP_SIZE = Zip_Vec.size() - 12;
-
+	
 	// Occurrence of these characters in the "IHDR" chunk (data & crc field), or the "iCCP" chunk (length field), breaks the Linux extraction script.
 	const char BAD_CHAR[7]{ '(', ')', '\'', '`', '"', '>', ';' };
 
@@ -112,13 +109,13 @@ void Store_Files(std::ifstream& readimage, std::ifstream& readzip, const std::st
 	Check_File_Requirements(Image_Vec, Zip_Vec, BAD_CHAR);
 
 	Erase_Image_Chunks(Image_Vec);
-
-	// New image size after removing chunks.
-	const size_t IMAGE_SIZE = Image_Vec.size();
-
+	
 	const uint_fast16_t MAX_SCRIPT_SIZE_BYTES = 750;	// Extraction script size limit, 750 bytes.
 
 	const size_t
+		IMAGE_SIZE = Image_Vec.size(),					// Get new image size after removing chunks.
+		ZIP_SIZE = Zip_Vec.size() - 12, 				// Get size of user's ZIP file from vector "Zip_Vec", minux 12 bytes.  
+										// We don't count chunk name "IDAT"(4), chunk length field(4), chunk crc field(4).
 		MAX_PNG_SIZE_BYTES = imgur_size_hack ? 20971520 : 209715200,	// 200MB PNG "zip-embedded" size limit. (Flickr, the largest of the supported platforms.)
 										// or 20MB PNG "zip-embedded" size limit if the "--imgur" option used.
 		COMBINED_SIZE = IMAGE_SIZE + ZIP_SIZE + MAX_SCRIPT_SIZE_BYTES;
@@ -589,11 +586,11 @@ void Combine_Vectors(std::vector<BYTE>& Image_Vec, std::vector<BYTE>& Zip_Vec, s
 	std::string size_warning =
 		"\n**Warning**\n\nDue to the file size of your zip-embedded PNG image,\nyou will only be able to share this image on the following platforms:\n\n"
 		"Flickr, ImgBB, PostImage, Reddit & ImgPile";
-
-	const auto MSG_LEN = size_warning.length();
-
-	const size_t IMG_SIZE = Image_Vec.size();
-
+	
+	const size_t 
+		IMG_SIZE = Image_Vec.size(),
+		MSG_LEN = size_warning.length();
+	
 	const uint_fast32_t 
 		IMGUR_TWITTER_SIZE = 5242880,	// 5MB
 		IMG_PILE_SIZE = 8388608,	// 8MB
@@ -673,7 +670,7 @@ void Fix_Zip_Offset(std::vector<BYTE>& Image_Vec, const size_t& LAST_IDAT_END_IN
 }
 
 // The following code (slightly modified) to compute CRC32 (for "IDAT" & "iCCP" chunks) was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-uint_fast64_t Crc_Update(const uint_fast64_t Crc, BYTE* buf, const uint_fast64_t len)
+uint_fast64_t Crc_Update(const uint_fast64_t& Crc, BYTE* buf, const uint_fast64_t& len)
 {
 	// Table of CRCs of all 8-bit messages.
 	const size_t Crc_Table[256]{
@@ -709,7 +706,7 @@ uint_fast64_t Crc_Update(const uint_fast64_t Crc, BYTE* buf, const uint_fast64_t
 }
 
 // Return the CRC of the bytes buf[0..len-1].
-uint_fast64_t Crc(BYTE* buf, const uint_fast64_t len)
+uint_fast64_t Crc(BYTE* buf, const uint_fast64_t& len)
 {
 	return Crc_Update(0xffffffffL, buf, len) ^ 0xffffffffL;
 }
