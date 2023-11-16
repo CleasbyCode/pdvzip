@@ -9,7 +9,7 @@ Share your *zip-embedded* image on the following compatible sites.
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_images/pdvimg_55183.png)  
  ***{Image Credit:*** [***@LyricAIrtist*** ](https://twitter.com/LyricAIrtist/status/1720055981730680859)***}***  
  
-pdvzip, written in C++, is based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png)
+pdvzip, written in C++, is based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program ["***tweetable-polyglot-png***"](https://github.com/DavidBuchanan314/tweetable-polyglot-png).
 
 pdvzip uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***accessing***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded data within a PNG image file.  
 
