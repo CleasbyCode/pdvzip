@@ -2,7 +2,7 @@
 A simple command-line tool used to embed a **ZIP** file within a PNG image,  
 creating a *tweetable* and *"executable"* **PNG-ZIP** polyglot image file.  
 
-Share your *zip-embedded* image on the following compatible sites.
+Share your *zip-embedded* PNG image on the following compatible sites.
 
 * ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), Imgur (20MB / with --imgur option)***
 * ***Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
