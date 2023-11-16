@@ -31,7 +31,6 @@ Compile and run the program under Windows or **Linux**.
 
 ```console
 user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
-user1@linuxbox:~/Desktop$
 user1@linuxbox:~/Desktop$ ./pdvzip
 
 Usage: pdvzip <png_image> <zip_file>
