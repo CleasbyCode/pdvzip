@@ -64,7 +64,6 @@ Once the ZIP file has been embedded within a PNG image, it can be shared on your
 ```console
 
 user1@linuxbox:~/Desktop$ chmod +x pdvimg_55183.png
-user1@linuxbox:~/Desktop$
 user1@linuxbox:~/Desktop$ ./pdvimg_55183.png
 
 ```  
@@ -80,7 +79,6 @@ $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonac
 ```console
 
 G:\demo> ren pdvimg_55183.png pdvimg_55183.cmd
-G:\demo>
 G:\demo> .\pdvimg_55183.cmd
 
 ```
