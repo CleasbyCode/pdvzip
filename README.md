@@ -13,8 +13,8 @@ pdvzip, written in C++, is based on the similar idea by [***David Buchanan***](h
 
 pdvzip uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***accessing***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded data within a PNG image file.  
 
-[***Video Demo 1: PNG Image (20MB) Posted to Reddit***](https://youtu.be/c9s1KFQ7wB8)  
-[***Video Demo 2: PNG Image (20MB) Posted to Imgur (Using --imgur option)***](https://youtu.be/_QUDNH9OaTM)  
+Video Demo 1: [***PNG Image (20MB) Posted to Reddit***](https://youtu.be/c9s1KFQ7wB8)  
+Video Demo 2: [***PNG Image (20MB) Posted to Imgur (Using --imgur option)***](https://youtu.be/_QUDNH9OaTM)  
 
 *Using the **--imgur** option with pdvzip, increases the Imgur PNG upload size limit from 5MB to **20MB**.*
 
