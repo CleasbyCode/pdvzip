@@ -1,6 +1,6 @@
 # pdvzip
-A simple command-line tool used for embedding a **ZIP** file within a PNG image  
-to create a *tweetable* and *"executable"* **PNG-ZIP** polyglot file.  
+A simple command-line tool used to embed a **ZIP** file within a PNG image,  
+creating a *tweetable* and *"executable"* **PNG-ZIP** polyglot image file.  
 
 Share your *zip-embedded* image on the following compatible sites.
 
