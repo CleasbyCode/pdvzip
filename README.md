@@ -16,7 +16,7 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 Video Demo 1: [***Reddit***](https://youtu.be/yAcjc3qdiSk)  
 Video Demo 2: [***Twitter***](https://youtu.be/sq6GELZ9G_I)  
-Video Demo 3: [***Imgur (Using --imgur option)***](https://youtu.be/_QUDNH9OaTM)  
+Video Demo 3: [***Imgur (Using --imgur option)***](https://youtu.be/vOGkbm57P90)  
 
 *Using the **--imgur** option with pdvzip, increases the Imgur PNG upload size limit from 5MB to **20MB**.*
 
