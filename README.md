@@ -24,7 +24,9 @@ Video Demo 3: [***Imgur (Using --imgur option)***](https://youtu.be/_QUDNH9OaTM)
 
 \**If the PNG-ZIP is over **5MB** (when using the **--imgur** option) I would **not recommend** posting the  
 image to the **Imgur Community Page**, as the thumbnail preview fails and shows as a broken icon image.  
-(Clicking the "broken" preview image will still take you to the correctly displayed full image).*
+(Clicking the "broken" preview image will still take you to the correctly displayed full image).*  
+
+***When saving PNG-ZIP images from Twitter, always click the image first to fully expand it, before saving.***
 
 Compile and run the program under Windows or **Linux**.
 
