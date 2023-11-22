@@ -75,7 +75,7 @@ $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonac
 
 ```   
 
-**Windows** ***(Rename the image file extension to '*.cmd*')***
+**Windows** ***(Rename the image file extension to '.cmd')***
 ```console
 
 G:\demo> ren pdvimg_55183.png pdvimg_55183.cmd
