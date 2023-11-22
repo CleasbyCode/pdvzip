@@ -21,7 +21,7 @@ Video Demo 2: [***PNG Image (20MB) Posted to Imgur (Using --imgur option)***](ht
 
 *Once the PNG image has been uploaded to your Imgur page, you can grab links of the image for sharing.* 
 
-\**If the embedded image is over **5MB** I would **not recommend** posting the image to the **Imgur Community Page**,  
+\**If the embedded image is over **5MB** (when using the **--imgur** option) I would **not recommend** posting the image to the **Imgur Community Page**,  
 as the thumbnail preview fails and shows as a broken icon image.  
 (Clicking the "broken" preview image will still take you to the correctly displayed full image).*
 
