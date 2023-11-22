@@ -14,7 +14,7 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 **pdvzip** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***accessing***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a PNG image.  
 
-Video Demo 1: [***Reddit***](https://youtu.be/c9s1KFQ7wB8)  
+Video Demo 1: [***Reddit***](https://youtu.be/yAcjc3qdiSk)  
 Video Demo 2: [***Twitter***](https://youtu.be/sq6GELZ9G_I)  
 Video Demo 3: [***Imgur (Using --imgur option)***](https://youtu.be/_QUDNH9OaTM)  
 
