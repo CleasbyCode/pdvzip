@@ -71,7 +71,7 @@ user1@linuxbox:~/Desktop$ ./pdvimg_55183.png
 
 ```  
 Alternative execution (Linux).  Using ***wget*** to download & run the image directly from the hosting site.  
-Hosting site **ImgBB** *wget* example: **Image with embedded python script**.
+**ImgBB** *wget* example: **Image with embedded python script**.
 ```console
 
 $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonacci.png
@@ -86,7 +86,7 @@ G:\demo> .\pdvimg_55183.cmd
 
 ```
 Alternative execution (Windows).  Using ***iwr*** to download & run the image directly from the hosting site.  
-Hosting site **Twitter** *iwr* example: **Image with embedded mp3 music file.**
+**Twitter** *iwr* example: **Image with embedded mp3 music file.**
 ```console
 
 G:\demo> iwr -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
