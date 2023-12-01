@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 		Display_Info();
 	}
 	else if (argc < 3 || argc > 3) {
-		std::cout << "\nUsage: pdvzip <png_image> <zip_file>\n\t\bpdvzip <png_image> <zip_file> [--imgur]\n\t\bpdvzip --info\n\n";
+		std::cout << "\nUsage: pdvzip <cover_image> <zip_file>\n\t\bpdvzip <cover_image> <zip_file> [--imgur]\n\t\bpdvzip --info\n\n";
 	}
 	else {
 		const std::string
