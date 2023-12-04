@@ -15,13 +15,13 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 Video Demos: [***Reddit***](https://youtu.be/yAcjc3qdiSk) / [***Twitter***](https://youtu.be/sq6GELZ9G_I) / [***Imgur (Using --imgur option)***](https://youtu.be/vOGkbm57P90) 
  
-*Using the **--imgur** option with pdvzip, increases the Imgur PNG upload size limit from 5MB to **20MB**.*
+*{Using the **--imgur** option with pdvzip, increases the Imgur PNG upload size limit from 5MB to **20MB**.*
 
 *Once the PNG image has been uploaded to your Imgur page, you can grab links of the image for sharing.* 
 
 \**If the PNG-ZIP is over **5MB** (when using the **--imgur** option) I would **avoid** posting the image to  
 the **Imgur Community Page**, as the thumbnail preview fails and shows as a broken icon image.  
-(Clicking the "broken" preview image will still take you to the correctly displayed full image).*  
+(Clicking the "broken" preview image will still take you to the correctly displayed full image).}*  
 
 ***When saving PNG-ZIP images from Twitter, always click the image first to fully expand it, before saving.***
 
