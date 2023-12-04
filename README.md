@@ -56,7 +56,7 @@ Complete!
 You can now share your zip-embedded PNG image on the relevant supported platforms.
 
 ```
-After embedding the ZIP within an image, it can then be posted on a variety of social media/image hosting sites. "Execute" the image whenever you want to access the embedded file(s).
+After embedding the ZIP within an image, it can then be posted on a variety of social media/image hosting sites. "*Execute*" the image whenever you want to access the embedded file(s).
 
 ## Extracting Your Embedded File(s)
 **Linux** ***(Make sure image file has executable permissions)***
