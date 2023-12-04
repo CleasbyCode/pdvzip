@@ -11,7 +11,6 @@ Post and share your **PNG-ZIP** image on the following compatible sites.
  ***{Image Credit:*** [***@LyricAIrtist*** ](https://twitter.com/LyricAIrtist/status/1720055981730680859)***}***  
  
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
-
 **pdvzip** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***accessing***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a PNG image.  
 
 Video Demos: [***Reddit***](https://youtu.be/yAcjc3qdiSk) / [***Twitter***](https://youtu.be/sq6GELZ9G_I) / [***Imgur (Using --imgur option)***](https://youtu.be/vOGkbm57P90) 
