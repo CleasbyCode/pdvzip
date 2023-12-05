@@ -777,7 +777,7 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 
 	// Test to see if --imgur option has been used.
 	if (pdv.Image_Vec[pdv.image_size - 9] == 'X') {
-		std::cout << "\n**Warning**\n\nDue to the selection of the --imgur option, you should only post this ZIP embedded PNG image on Imgur.\n";
+		std::cout << "\n**Warning**\n\nDue to the selection of the --imgur option,\nyou should only post this ZIP embedded PNG image on Imgur.\n";
 	}
 
 	std::cout << "\nCreated ZIP embedded PNG image: \"" + PDV_FILENAME + "\" Size: \"" << pdv.image_size << " Bytes\"";
