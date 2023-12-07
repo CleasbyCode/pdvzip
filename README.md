@@ -60,7 +60,9 @@ You can now share your zip-embedded PNG image on the relevant supported platform
 ```
 After embedding the ZIP within an image, it can then be posted on a variety of social media/image hosting sites. "*Execute*" the image whenever you want to access the embedded file(s).
 
-## Extracting Your Embedded File(s)
+## Extracting Your Embedded File(s)  
+*For the embedded extraction script, please make sure **Windows** has the **tar** tool installed and **Linux** has the **unzip** tool installed. While these are commom utils, they are not always included by default.*
+
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
 
