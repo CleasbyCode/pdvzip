@@ -5,7 +5,7 @@ creating a *tweetable* and *["executable"](https://github.com/CleasbyCode/pdvzip
 Post and share your **PNG-ZIP** image on the following *compatible sites.
 
 * ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), Imgur (20MB / with --imgur option)***
-* ***Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
+* ***Reddit (20MB / Desktop, Browser only), ImgPile (8MB), Twitter & Imgur (5MB).***
     
 ***pdvzip** creates a ***PNG-ZIP*** polyglot image that is not a "*fully compliant **PNG** file*".  
 In some cases, stricter **PNG** utils may give errors and/or refuse to use the image. Also be aware that the currently compatible sites listed above, could stop working in the near furture, if the platforms decide to tighten their image format rules, resulting in the embedded data no longer being preserved.  
