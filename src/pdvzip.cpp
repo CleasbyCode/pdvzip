@@ -20,7 +20,7 @@ typedef unsigned char BYTE;
 namespace fs = std::filesystem;
 
 struct PDV_STRUCT {
-	const size_t MAX_FILE_SIZE = 209715200, MAX_FILE_SIZE_IMGUR = 20971520,  MAX_EXTRACTION_SCRIPT_SIZE = 750;
+	const size_t MAX_FILE_SIZE = 209715200, MAX_FILE_SIZE_IMGUR = 20971520, MAX_EXTRACTION_SCRIPT_SIZE = 750;
 	std::vector<BYTE> Image_Vec, Zip_Vec, Script_Vec;
 	const std::string BAD_CHAR = "\x22\x27\x28\x29\x3B\x3E\x60";
 	std::string image_name, zip_name;
@@ -71,22 +71,20 @@ int main(int argc, char** argv) {
 	if (argc == 4 && std::string(argv[3]) == "--imgur") {
 		pdv.imgur_size_hack = true;
 		argc = 3;
-	}
-
+	} 
+	
 	if (argc == 2 && std::string(argv[1]) == "--info") {
 		Display_Info();
-	}
-	else if (argc < 3 || argc > 3) {
-		std::cout << "\nUsage: pdvzip <cover_image> <zip_file>\n\t\bpdvzip <cover_image> <zip_file> [--imgur]\n\t\bpdvzip --info\n\n";
-	}
-	else {
+	} else if (argc < 3 || argc > 3) {
+		std::cout << "\nUsage: pdvzip <cover_image> <zip_file> [--imgur]\n\t\bpdvzip --info\n\n";
+	} else {
 		pdv.image_name = argv[1];
 		pdv.zip_name = argv[2];
 
 		const std::string GET_IMAGE_EXTENSION = pdv.image_name.length() > 2 ? pdv.image_name.substr(pdv.image_name.length() - 3) : pdv.image_name;
 		const std::string GET_ZIP_EXTENSION = pdv.zip_name.length() > 2 ? pdv.zip_name.substr(pdv.zip_name.length() - 3) : pdv.zip_name;
-		
-		if (GET_IMAGE_EXTENSION != "png" || GET_ZIP_EXTENSION !="zip") {
+
+		if (GET_IMAGE_EXTENSION != "png" || GET_ZIP_EXTENSION != "zip") {
 			// Either file contains an incorrect extension. Display error message and exit program.
 			std::cerr << "\nFile Error: Invalid file extension found. Only expecting 'png' followed by 'zip'.\n\n";
 			std::exit(EXIT_FAILURE);
@@ -106,7 +104,7 @@ int main(int argc, char** argv) {
 }
 
 void Open_Files(PDV_STRUCT& pdv) {
-	
+
 	std::cout << "\nReading files. Please wait...\n";
 
 	// Attempt to open user files.
@@ -114,47 +112,45 @@ void Open_Files(PDV_STRUCT& pdv) {
 		read_image_fs(pdv.image_name, std::ios::binary),
 		read_zip_fs(pdv.zip_name, std::ios::binary);
 
-		if (!read_image_fs || !read_zip_fs) {
-			// Display relevant error message and exit program if any file fails to open.
-			const std::string
-				READ_ERR = "\nRead File Error: ",
-				IMAGE_ERR_MSG = READ_ERR + "Unable to open image file.\n\n",
-				ZIP_ERR_MSG = READ_ERR + "Unable to open ZIP file.\n\n",
+	if (!read_image_fs || !read_zip_fs) {
+		// Display relevant error message and exit program if any file fails to open.
+		const std::string
+			READ_ERR = "\nRead File Error: ",
+			IMAGE_ERR_MSG = READ_ERR + "Unable to open image file.\n\n",
+			ZIP_ERR_MSG = READ_ERR + "Unable to open ZIP file.\n\n",
 
-				ERR_MSG = !read_image_fs ? IMAGE_ERR_MSG : ZIP_ERR_MSG;
+			ERR_MSG = !read_image_fs ? IMAGE_ERR_MSG : ZIP_ERR_MSG;
+
+		std::cerr << ERR_MSG;
+		std::exit(EXIT_FAILURE);
+	} else {
+		// Initial file size checks. We will need to check sizes again, later in the program.
+		const uint_fast8_t
+			MIN_IMAGE_SIZE = 68,
+			MIN_ZIP_SIZE = 40;
+
+		pdv.image_size = fs::file_size(pdv.image_name);
+		pdv.zip_size = fs::file_size(pdv.zip_name);
+		pdv.combined_file_size = pdv.image_size + pdv.zip_size;
+		pdv.file_size_check = pdv.image_size > MIN_IMAGE_SIZE && pdv.zip_size > MIN_ZIP_SIZE && (pdv.imgur_size_hack && pdv.combined_file_size > 5242880 ? pdv.MAX_FILE_SIZE_IMGUR : pdv.MAX_FILE_SIZE) >= pdv.combined_file_size;
+
+		if (!pdv.file_size_check) {
+			// Display relevant error message and exit program if any size check fails.
+			const std::string
+				FILE_SIZE_ERR = "\nFile Size Error: ",
+				IMAGE_MIN_SIZE_ERR = "Not a valid PNG image. File too small.\n\n",
+				ZIP_MIN_SIZE_ERR = "Not a valid ZIP archive. File too small.\n\n",
+				COMBINED_SIZE_ERR = "\n\nThe combined file size of your PNG image (" + std::to_string(pdv.image_size) + ") + ZIP file (" + std::to_string(pdv.zip_size) + "),\nexceeds file size limit.\n\n",
+
+				ERR_MSG = MIN_IMAGE_SIZE > pdv.image_size ? FILE_SIZE_ERR + IMAGE_MIN_SIZE_ERR
+					: MIN_ZIP_SIZE > pdv.zip_size ? FILE_SIZE_ERR + ZIP_MIN_SIZE_ERR
+					: FILE_SIZE_ERR + COMBINED_SIZE_ERR;
 
 			std::cerr << ERR_MSG;
 			std::exit(EXIT_FAILURE);
 		}
-
-		else { 
-			// Initial file size checks. We will need to check sizes again, later in the program.
-			const uint_fast8_t
-				MIN_IMAGE_SIZE = 68,
-				MIN_ZIP_SIZE = 40;
-			
-			pdv.image_size = fs::file_size(pdv.image_name);
-			pdv.zip_size = fs::file_size(pdv.zip_name);
-			pdv.combined_file_size = pdv.image_size + pdv.zip_size;
-			pdv.file_size_check = pdv.image_size > MIN_IMAGE_SIZE && pdv.zip_size > MIN_ZIP_SIZE && (pdv.imgur_size_hack && pdv.combined_file_size > 5242880 ? pdv.MAX_FILE_SIZE_IMGUR : pdv.MAX_FILE_SIZE ) >= pdv.combined_file_size;
-
-			if (!pdv.file_size_check) {
-				// Display relevant error message and exit program if any size check fails.
-				const std::string
-					FILE_SIZE_ERR = "\nFile Size Error: ",
-					IMAGE_MIN_SIZE_ERR = "Not a valid PNG image. File too small.\n\n",
-					ZIP_MIN_SIZE_ERR = "Not a valid ZIP archive. File too small.\n\n",
-					COMBINED_SIZE_ERR = "\n\nThe combined file size of your PNG image (" + std::to_string(pdv.image_size) + ") + ZIP file (" + std::to_string(pdv.zip_size) + "),\nexceeds file size limit.\n\n",
-
-					ERR_MSG = MIN_IMAGE_SIZE > pdv.image_size ? FILE_SIZE_ERR + IMAGE_MIN_SIZE_ERR 
-							: MIN_ZIP_SIZE > pdv.zip_size ? FILE_SIZE_ERR + ZIP_MIN_SIZE_ERR 
-							: FILE_SIZE_ERR + COMBINED_SIZE_ERR;
-
-				std::cerr << ERR_MSG;
-				std::exit(EXIT_FAILURE);
-			}
-			Check_Image_File(pdv, read_image_fs, read_zip_fs);
-		}
+		Check_Image_File(pdv, read_image_fs, read_zip_fs);
+	}
 }
 
 void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstream& read_zip_fs) {
@@ -168,12 +164,12 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstre
 	const std::string
 		PNG_SIG = "\x89\x50\x4E\x47",	// PNG image signature. 
 		GET_IMAGE_SIG{ pdv.Image_Vec.begin(), pdv.Image_Vec.begin() + PNG_SIG.length() };	// Get PNG signature from file stored in vector. 
-	
-		if (GET_IMAGE_SIG != PNG_SIG) {
-			// Invalid image file, display error message and exit program.
-			std::cerr << "\nImage File Error: File does not appear to be a valid PNG image.\n\n";
-			std::exit(EXIT_FAILURE);
-		}
+
+	if (GET_IMAGE_SIG != PNG_SIG) {
+		// Invalid image file, display error message and exit program.
+		std::cerr << "\nImage File Error: File does not appear to be a valid PNG image.\n\n";
+		std::exit(EXIT_FAILURE);
+	}
 
 	// Check a range of bytes within the "IHDR" chunk to make sure we have no "BAD_CHAR" characters that will break the Linux extraction script.
 	// A script breaking character can appear within the width & height fields or the 4 byte CRC field of the "IHDR" chunk.
@@ -209,18 +205,18 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstre
 
 	const bool
 		VALID_COLOR_TYPE = (PNG_COLOR_TYPE == PNG_INDEXED_COLOR) ? true		// Checking for valid color type of PNG image (PNG-32/24 Truecolor or PNG-8 Indexed color only).
-				: ((PNG_COLOR_TYPE == PNG_TRUECOLOR) ? true : false),
-		
-		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOR			// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
-					&& MAX_TRUECOLOR_DIMS >= IMAGE_WIDTH_DIMS	
-					&& MAX_TRUECOLOR_DIMS >= IMAGE_HEIGHT_DIMS
-					&& IMAGE_WIDTH_DIMS >= MIN_DIMS
-					&& IMAGE_HEIGHT_DIMS >= MIN_DIMS) ? true
-					: ((PNG_COLOR_TYPE == PNG_INDEXED_COLOR		// Checking for valid dimension size for PNG Indexed color (PNG-8) images.
-					&& MAX_INDEXED_COLOR_DIMS >= IMAGE_WIDTH_DIMS
-					&& MAX_INDEXED_COLOR_DIMS >= IMAGE_HEIGHT_DIMS
-					&& IMAGE_WIDTH_DIMS >= MIN_DIMS
-					&& IMAGE_HEIGHT_DIMS >= MIN_DIMS) ? true : false);
+		: ((PNG_COLOR_TYPE == PNG_TRUECOLOR) ? true : false),
+
+		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOR	// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
+			&& MAX_TRUECOLOR_DIMS >= IMAGE_WIDTH_DIMS
+			&& MAX_TRUECOLOR_DIMS >= IMAGE_HEIGHT_DIMS
+			&& IMAGE_WIDTH_DIMS >= MIN_DIMS
+			&& IMAGE_HEIGHT_DIMS >= MIN_DIMS) ? true
+			: ((PNG_COLOR_TYPE == PNG_INDEXED_COLOR		// Checking for valid dimension size for PNG Indexed color (PNG-8) images.
+			&& MAX_INDEXED_COLOR_DIMS >= IMAGE_WIDTH_DIMS
+			&& MAX_INDEXED_COLOR_DIMS >= IMAGE_HEIGHT_DIMS
+			&& IMAGE_WIDTH_DIMS >= MIN_DIMS
+			&& IMAGE_HEIGHT_DIMS >= MIN_DIMS) ? true : false);
 
 	if (!VALID_COLOR_TYPE || !VALID_IMAGE_DIMS) {
 
@@ -257,18 +253,18 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 
 	// Get first IDAT chunk length value
 	const size_t FIRST_IDAT_LENGTH = ((static_cast<size_t>(pdv.Image_Vec[idat_index]) << 24)
-			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
-			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
-			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3])));
+				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
+				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
+				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3])));
 
 	// Get first IDAT chunk's CRC index
 	size_t first_idat_crc_index = idat_index + FIRST_IDAT_LENGTH + 8;
 
 	const size_t FIRST_IDAT_CRC = ((static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index]) << 24)
-			| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 1]) << 16)
-			| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 2]) << 8)
-			| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 3])));
-
+				| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 1]) << 16)
+				| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 2]) << 8)
+				| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 3])));
+	
 	const size_t CALC_FIRST_IDAT_CRC = Crc(&pdv.Image_Vec[idat_index + 4], FIRST_IDAT_LENGTH + 4);
 
 	// Make sure values match.
@@ -287,12 +283,11 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 
 		if (idat_index > PLTE_CHUNK_INDEX) {
 			const size_t CHUNK_SIZE = ((static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 1]) << 16)
-					| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 2]) << 8)
-					| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 3])));
+						| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 2]) << 8)
+						| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 3])));
 
 			Temp_Vec.insert(Temp_Vec.end(), pdv.Image_Vec.begin() + PLTE_CHUNK_INDEX, pdv.Image_Vec.begin() + PLTE_CHUNK_INDEX + (CHUNK_SIZE + 12));
-		}
-		else {
+		} else {
 			std::cerr << "\nImage File Error: Required PLTE chunk not found for Indexed-color (PNG-8) image.\n\n";
 			std::exit(EXIT_FAILURE);
 		}
@@ -304,6 +299,7 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
 				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
 				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3])));
+		
 		Temp_Vec.insert(Temp_Vec.end(), pdv.Image_Vec.begin() + idat_index, pdv.Image_Vec.begin() + idat_index + (CHUNK_SIZE + 12));
 		idat_index = std::search(pdv.Image_Vec.begin() + idat_index + 6, pdv.Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - pdv.Image_Vec.begin() - 4;
 	}
@@ -324,12 +320,12 @@ void Check_Zip_File(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 
 	// Vector "Zip_Vec" will store the user's ZIP file. The contents of "Zip_Vec" will later be inserted into the vector "Image_Vec" as the last "IDAT" chunk. 
 	// We will need to update the CRC value (last 4-bytes) and the chunk length field (first 4-bytes) within this vector. Both fields currently set to zero. 
-	
+
 	pdv.Zip_Vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };	// "IDAT" chunk name with 4-byte chunk length and crc fields.
 
 	// Insert user's ZIP file into vector "Zip_Vec" from index 8, just after "IDAT" chunk name.
-	pdv.Zip_Vec.insert(pdv.Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(read_zip_fs), std::istreambuf_iterator<char>()); 
-	
+	pdv.Zip_Vec.insert(pdv.Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(read_zip_fs), std::istreambuf_iterator<char>());
+
 	pdv.zip_size = pdv.Zip_Vec.size();
 
 	// Location of "IDAT" chunk length field for vector "Zip_Vec".
@@ -374,37 +370,38 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	The barebones script is about 300 bytes. The script size limit is 750 bytes, which should be more than enough to account
 	for the later addition of filenames, application & argument strings, plus other required script commands.
 
-	Script supports both Linux & Windows. The completed script, when executed, will unzip the archive within the 
+	Script supports both Linux & Windows. The completed script, when executed, will unzip the archive within the
 	PNG image and (depending on file type) attempt to open/display/play/run the first filename within the ZIP file record by using an application
 	command based on the matched file extension, or if no match found, defaulting to the operating system making the choice.
 
 	The zipped file needs to be compatible with the operating system you are running it on.
 	The completed script within the "iCCP" chunk will later be inserted into the vector "Image_Vec" which contains the user's PNG image file */
 
-	pdv.Script_Vec = { 	0x00, 0x00, 0x00, 0xFD, 0x69, 0x43, 0x43, 0x50, 0x73, 0x63, 0x72, 0x00, 0x00, 0x0D, 0x52,
-				0x45, 0x4D, 0x3B, 0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x6D, 0x6B, 0x64, 0x69, 0x72, 0x20,
-				0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63,
-				0x74, 0x65, 0x64, 0x3B, 0x6D, 0x76, 0x20, 0x22, 0x24, 0x30, 0x22, 0x20, 0x2E, 0x2F, 0x70,
-				0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64,
-				0x3B, 0x63, 0x64, 0x20, 0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78,
-				0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x3B, 0x75, 0x6E, 0x7A, 0x69, 0x70, 0x20, 0x2D,
-				0x71, 0x6F, 0x20, 0x22, 0x24, 0x30, 0x22, 0x3B, 0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x22,
-				0x22, 0x3B, 0x65, 0x78, 0x69, 0x74, 0x3B, 0x0D, 0x0A, 0x23, 0x26, 0x63, 0x6C, 0x73, 0x26,
-				0x6D, 0x6B, 0x64, 0x69, 0x72, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F,
-				0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x6D, 0x6F, 0x76, 0x65, 0x20,
-				0x22, 0x25, 0x7E, 0x64, 0x70, 0x6E, 0x78, 0x30, 0x22, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76,
-				0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x63,
-				0x64, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72,
-				0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x63, 0x6C, 0x73, 0x26, 0x74, 0x61, 0x72, 0x20, 0x2D,
-				0x78, 0x66, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78, 0x30, 0x22, 0x26, 0x20,
-				0x22, 0x22, 0x26, 0x72, 0x65, 0x6E, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78,
-				0x30, 0x22, 0x20, 0x2A, 0x2E, 0x70, 0x6E, 0x67, 0x26, 0x65, 0x78, 0x69, 0x74, 0x0D, 0x0A,
-				0x00, 0x00, 0x00, 0x00};
+	pdv.Script_Vec = { 
+			0x00, 0x00, 0x00, 0xFD, 0x69, 0x43, 0x43, 0x50, 0x73, 0x63, 0x72, 0x00, 0x00, 0x0D, 0x52,
+			0x45, 0x4D, 0x3B, 0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x6D, 0x6B, 0x64, 0x69, 0x72, 0x20,
+			0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63,
+			0x74, 0x65, 0x64, 0x3B, 0x6D, 0x76, 0x20, 0x22, 0x24, 0x30, 0x22, 0x20, 0x2E, 0x2F, 0x70,
+			0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64,
+			0x3B, 0x63, 0x64, 0x20, 0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78,
+			0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x3B, 0x75, 0x6E, 0x7A, 0x69, 0x70, 0x20, 0x2D,
+			0x71, 0x6F, 0x20, 0x22, 0x24, 0x30, 0x22, 0x3B, 0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x22,
+			0x22, 0x3B, 0x65, 0x78, 0x69, 0x74, 0x3B, 0x0D, 0x0A, 0x23, 0x26, 0x63, 0x6C, 0x73, 0x26,
+			0x6D, 0x6B, 0x64, 0x69, 0x72, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F,
+			0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x6D, 0x6F, 0x76, 0x65, 0x20,
+			0x22, 0x25, 0x7E, 0x64, 0x70, 0x6E, 0x78, 0x30, 0x22, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76,
+			0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x63,
+			0x64, 0x20, 0x2E, 0x5C, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72,
+			0x61, 0x63, 0x74, 0x65, 0x64, 0x26, 0x63, 0x6C, 0x73, 0x26, 0x74, 0x61, 0x72, 0x20, 0x2D,
+			0x78, 0x66, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78, 0x30, 0x22, 0x26, 0x20,
+			0x22, 0x22, 0x26, 0x72, 0x65, 0x6E, 0x20, 0x22, 0x25, 0x7E, 0x6E, 0x30, 0x25, 0x7E, 0x78,
+			0x30, 0x22, 0x20, 0x2A, 0x2E, 0x70, 0x6E, 0x67, 0x26, 0x65, 0x78, 0x69, 0x74, 0x0D, 0x0A,
+			0x00, 0x00, 0x00, 0x00 };
 
 	// "App_Vec" string vector. 
 	// Stores file extensions for some popular media types, along with several default application commands (+ args) that support those extensions.
 	// These vector string elements will be used in the completion of our extraction script.
-	
+
 	std::vector<std::string> App_Vec{ "aac", "mp3", "mp4", "avi", "asf", "flv", "ebm", "mkv", "peg", "wav", "wmv", "wma", "mov", "3gp", "ogg", "pdf", ".py", "ps1", "exe",
 		".sh", "vlc --play-and-exit --no-video-title-show ", "evince ", "python3 ", "pwsh ", "./", "xdg-open ", "powershell;Invoke-Item ",
 		" &> /dev/null", "start /b \"\"", "pause&", "powershell", "chmod +x ", ";" };
@@ -461,17 +458,17 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 		sequence_limit = 0;	// Stores the length limit of each of the four sequences. 
 
 	std::vector<uint_fast16_t>Sequence_Vec{
-		241, 239, 121, 120, 119,	// 1st sequence for case "VIDEO_AUDIO".
-		33, 28, 27, 33, 20,		
+			241, 239, 121, 120, 119,	// 1st sequence for case "VIDEO_AUDIO".
+			33, 28, 27, 33, 20,
 
-		241, 239, 120, 119,		// 2nd sequence for cases "PDF, FOLDER_INVOKE_ITEM, DEFAULT".
-		33, 28, 33, 21,			
+			241, 239, 120, 119,		// 2nd sequence for cases "PDF, FOLDER_INVOKE_ITEM, DEFAULT".
+			33, 28, 33, 21,
 
-		264, 242, 241, 239, 121, 120, 119,			// 3rd sequence for cases "PYTHON, POWERSHELL".
-		29, 35, 33, 22, 34, 33, 22,									
+			264, 242, 241, 239, 121, 120, 119,			// 3rd sequence for cases "PYTHON, POWERSHELL".
+			29, 35, 33, 22, 34, 33, 22,
 
-		264, 242, 241, 239, 121, 120, 119, 119, 119, 119,	// 4th sequence for cases "EXECUTABLE & BASH_XDG_OPEN".
-		29, 35, 33, 28, 34, 33, 24, 32, 33, 31 }; 	
+			264, 242, 241, 239, 121, 120, 119, 119, 119, 119,	// 4th sequence for cases "EXECUTABLE & BASH_XDG_OPEN".
+			29, 35, 33, 28, 34, 33, 24, 32, 33, 31 };
 
 	/*  	[Sequence_Vec](insert_index)[Sequence_Vec](app_index)
 		Build script example below is using the first sequence (see vector "Sequence_Vec" above).
@@ -507,7 +504,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	// Provide the user with the option to add command-line arguments for file types: 
 	// Python (.py), PowerShell (.ps1), Shell script (.sh) and executable (.exe). (no extension, defaults to .exe, if not a folder).
 	// The provided arguments for your file type will be stored within the PNG image, along with the extraction script.
-	
+
 	if (app_index > 21 && app_index < 26) {
 		std::cout << "\nFor this file type you can provide command-line arguments here, if required.\n\nLinux: ";
 		std::getline(std::cin, args_linux);
@@ -524,70 +521,70 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	std::cout << "\nUpdating extraction script.\n";
 
 	switch (app_index) {
-	case VIDEO_AUDIO:	// Case uses 1st sequence: [241,239,121,120,119] , [33,28,27,33,20].
-		app_index = 5;
-		break;
-	case PDF:		// These two cases (with minor changes) use the 2nd sequence: [241,239,120,119] , [33,28,33,21].
-	case FOLDER_INVOKE_ITEM:
-		Sequence_Vec[15] = app_index == FOLDER_INVOKE_ITEM ? FOLDER_INVOKE_ITEM : START_B;
-		Sequence_Vec[17] = app_index == FOLDER_INVOKE_ITEM ? BASH_XDG_OPEN : PDF;
-		insert_index = 10;
-		app_index = 14;
-		break;
-	case PYTHON:		// These two cases (with some changes) use the 3rd sequence: [264,242,241,239,121,120,119] , [29,35,33,22,34,33,22].
-	case POWERSHELL:
-		if (app_index == POWERSHELL) {
-			first_zip_name.insert(0, ".\\");		//  ".\" prepend to "first_zip_name". Required for Windows PowerShell, e.g. powershell ".\my_ps_script.ps1".
-			App_Vec.emplace_back(first_zip_name);		// Add the filename with the prepended ".\" to the "AppVec" vector (36).
-			Sequence_Vec[31] = POWERSHELL;			// Swap index number to Linux PowerShell (pwsh 23)
-			Sequence_Vec[28] = WIN_POWERSHELL;		// Swap index number to Windows PowerShell (powershell 30)
-			Sequence_Vec[27] = PREPEND_FIRST_ZIP_NAME_REC;	// Swap index number to PREPEND_FIRST_ZIP_NAME_REC (36), used with the Windows powershell command.
-		}
-		insert_index = 18;
-		app_index = 25;
-		break;
-	case EXECUTABLE:	// These two cases (with minor changes) use the 4th sequence: [264,242,241,239,121,120,119,119,119,119] , [29,35,33,28,34,33,24,32,33,31].
-	case BASH_XDG_OPEN:
-		insert_index = app_index == EXECUTABLE ? 32 : 33;
-		app_index = insert_index == 32 ? 42 : 43;
-		break;
-	default:			// Unmatched file extensions. Rely on operating system to use the set default program for dealing with unknown file types.
-		insert_index = 10;	// Default uses 2nd sequence, we just need to alter one index number.
-		app_index = 14;
-		Sequence_Vec[17] = BASH_XDG_OPEN;	// Swap index number to BASH_XDG_OPEN (25)
+		case VIDEO_AUDIO:	// Case uses 1st sequence: [241,239,121,120,119] , [33,28,27,33,20].
+			app_index = 5;
+			break;
+		case PDF:		// These two cases (with minor changes) use the 2nd sequence: [241,239,120,119] , [33,28,33,21].
+		case FOLDER_INVOKE_ITEM:
+			Sequence_Vec[15] = app_index == FOLDER_INVOKE_ITEM ? FOLDER_INVOKE_ITEM : START_B;
+			Sequence_Vec[17] = app_index == FOLDER_INVOKE_ITEM ? BASH_XDG_OPEN : PDF;
+			insert_index = 10;
+			app_index = 14;
+			break;
+		case PYTHON:		// These two cases (with some changes) use the 3rd sequence: [264,242,241,239,121,120,119] , [29,35,33,22,34,33,22].
+		case POWERSHELL:
+			if (app_index == POWERSHELL) {
+				first_zip_name.insert(0, ".\\");		//  ".\" prepend to "first_zip_name". Required for Windows PowerShell, e.g. powershell ".\my_ps_script.ps1".
+				App_Vec.emplace_back(first_zip_name);		// Add the filename with the prepended ".\" to the "AppVec" vector (36).
+				Sequence_Vec[31] = POWERSHELL;			// Swap index number to Linux PowerShell (pwsh 23)
+				Sequence_Vec[28] = WIN_POWERSHELL;		// Swap index number to Windows PowerShell (powershell 30)
+				Sequence_Vec[27] = PREPEND_FIRST_ZIP_NAME_REC;	// Swap index number to PREPEND_FIRST_ZIP_NAME_REC (36), used with the Windows powershell command.
+			}
+			insert_index = 18;
+			app_index = 25;
+			break;
+		case EXECUTABLE:	// These two cases (with minor changes) use the 4th sequence: [264,242,241,239,121,120,119,119,119,119] , [29,35,33,28,34,33,24,32,33,31].
+		case BASH_XDG_OPEN:
+			insert_index = app_index == EXECUTABLE ? 32 : 33;
+			app_index = insert_index == 32 ? 42 : 43;
+			break;
+		default:			// Unmatched file extensions. Rely on operating system to use the set default program for dealing with unknown file types.
+			insert_index = 10;	// Default uses 2nd sequence, we just need to alter one index number.
+			app_index = 14;
+			Sequence_Vec[17] = BASH_XDG_OPEN;	// Swap index number to BASH_XDG_OPEN (25)
 	}
 
 	// Set the sequence_limit variable using the first app_index value from each switch case sequence.
 	// Reduce sequence_limit variable value by 1 if insert_index is 33 (case BASH_XDG_OPEN).
-	
+
 	sequence_limit = insert_index == 33 ? app_index - 1 : app_index;
 
 	// With just a single vector insert command within the "while-loop", we can insert all the required strings into the extraction script (vector "Script_Vec"), 
 	// based on the sequence, which is selected by the relevant Case from the above switch statement after the extension match. 
-	
+
 	while (sequence_limit > insert_index) {
 		pdv.Script_Vec.insert(pdv.Script_Vec.begin() + Sequence_Vec[insert_index], App_Vec[Sequence_Vec[app_index]].begin(), App_Vec[Sequence_Vec[app_index]].end());
 		insert_index++;
 		app_index++;
 	}
-	
+
 	pdv.script_size = pdv.Script_Vec.size();
-	
-	uint_fast8_t 
+
+	uint_fast8_t
 		chunk_length_index = 2,	// "Script_Vec" vector's index location for the "iCCP" chunk length field.
 		bits = 16;
-	
+
 	// Call function to write updated chunk length value for the "iCCP" chunk into its length field. 
 	// Due to its small size, the "iCCP" chunk will only use 2 bytes maximum (bits=16) of the 4 byte length field.
-	
+
 	Value_Updater(pdv.Script_Vec, chunk_length_index, pdv.script_size - 12, bits, pdv.big_endian);
-	
+
 	// Check the first byte of the "iCCP" chunk length field to make sure the updated chunk length does not match 
 	// any of the "BAD_CHAR" characters that will break the Linux extraction script.
-	
+
 	for (uint_fast8_t i = 0; i < 7; i++) {
 		if (pdv.Script_Vec[3] == pdv.BAD_CHAR[i]) {
-			
+
 			// "BAD_CHAR" found. Insert 10 bytes "." at the end of "Script_Vec" to increase chunk length. Update chunk length field. 
 			// This should now skip over any BAD_CHAR characters, regardless of the chunk size (within its size limit).
 
@@ -602,9 +599,9 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 			break;
 		}
 	}
-	
+
 	pdv.combined_file_size = pdv.Script_Vec.size() + pdv.Image_Vec.size() + pdv.Zip_Vec.size();
-	
+
 	// Display relevant error message and exit program if extraction script exceeds size limit.
 	if (pdv.script_size > pdv.MAX_EXTRACTION_SCRIPT_SIZE || pdv.combined_file_size > (pdv.imgur_size_hack ? pdv.MAX_FILE_SIZE_IMGUR : pdv.MAX_FILE_SIZE)) {
 
@@ -616,7 +613,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
 	}
-	
+
 	if (pdv.imgur_size_hack && pdv.combined_file_size > 5242880) { // If user selected the --imgur option, only enable it if the ZIP embedded PNG image is over 5MB. 
 		pdv.Image_Vec[pdv.Image_Vec.size() - 9] = '\x58';
 	}
@@ -625,7 +622,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 
 	// Now the "iCCP" chunk is complete with the extraction script, we need to update the chunk's CRC value.
 	// Pass these two values (ICCP_CHUNK_INDEX & iCCP chunk size (script_size) - 8) to the CRC function to get correct "iCCP" chunk CRC value.
-	
+
 	const size_t ICCP_CHUNK_CRC = Crc(&pdv.Script_Vec[ICCP_CHUNK_INDEX], pdv.script_size - 8);
 
 	// Get vector index location for the "iCCP" chunk's CRC field.
@@ -644,7 +641,7 @@ void Combine_Vectors(PDV_STRUCT& pdv) {
 
 	// This value will be used as the insert location within vector "Image_Vec" for contents of vector "Script_Vec". 
 	// Script_Vec's inserted contents will appear within the "iCCP" chunk, just after the "IHDR" chunk of "Image_Vec".
-	
+
 	const uint_fast8_t FIRST_IDAT_INDEX = 33;
 
 	std::cout << "\nEmbedding extraction script within the PNG image.\n";
@@ -656,7 +653,7 @@ void Combine_Vectors(PDV_STRUCT& pdv) {
 
 	// Insert contents of vector "Zip_Vec" ("IDAT" chunk with ZIP file) into vector "Image_Vec".
 	// This now becomes the new last "IDAT" chunk of the PNG image within vector "Image_Vec".
-	
+
 	pdv.Image_Vec.insert((pdv.Image_Vec.end() - 12), pdv.Zip_Vec.begin(), pdv.Zip_Vec.end());
 
 	const size_t LAST_IDAT_END_INDEX = pdv.image_size + pdv.script_size - 8;
@@ -666,7 +663,7 @@ void Combine_Vectors(PDV_STRUCT& pdv) {
 
 	// Get CRC value for our (new) last "IDAT" chunk.
 	// The +4 value points LAST_IDAT_END_INDEX variable value to the chunk name field, which is where the CRC calculation needs to begin/include.
-	
+
 	const size_t LAST_IDAT_CRC = Crc(&pdv.Image_Vec[LAST_IDAT_END_INDEX], pdv.zip_size - 8); // We don't include the length or CRC fields (8 bytes).
 
 	pdv.image_size = pdv.Image_Vec.size();
@@ -717,8 +714,8 @@ void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& new_offset_start_index) {
 	// JAR file support. Get global comment length value from ZIP file within vector "Image_Vec" and increase it by 16 bytes to cover end of PNG file.
 	// To run a JAR file, you will need to rename the '.png' extension to '.jar'.  
 	// or run the command: "java -jar image_file_name.png"
-	
-	uint_fast16_t comment_length = 16 + (pdv.Image_Vec[comment_length_index] << 8) | pdv.Image_Vec[comment_length_index - 1];
+
+	uint_fast16_t comment_length = 16 + (static_cast<size_t>(pdv.Image_Vec[comment_length_index] << 8) | (static_cast<size_t>(pdv.Image_Vec[comment_length_index - 1])));
 
 	// Test to see if --imgur option has been used.
 	if (pdv.Image_Vec[pdv.Image_Vec.size() - 9] == 'X') {
@@ -736,8 +733,8 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 	srand((unsigned)time(NULL));  // For output filename.
 
 	const std::string
-	NAME_VALUE = std::to_string(rand()),
-	PDV_FILENAME = "pdvimg_" + NAME_VALUE.substr(0, 5) + ".png"; // Unique filename for the complete polyglot image.
+		NAME_VALUE = std::to_string(rand()),
+		PDV_FILENAME = "pdvimg_" + NAME_VALUE.substr(0, 5) + ".png"; // Unique filename for the complete polyglot image.
 	std::ofstream write_file_fs(PDV_FILENAME, std::ios::binary);
 
 	if (!write_file_fs) {
@@ -767,9 +764,9 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 		// Flickr is 200MB, this programs max size, no need to to make a variable for it.
 
 	size_warning = (IMG_SIZE > IMG_PILE_SIZE && IMG_SIZE <= REDDIT_SIZE ? size_warning.substr(0, MSG_LEN - 10)
-				: (IMG_SIZE > REDDIT_SIZE && IMG_SIZE <= POST_IMAGE_SIZE ? size_warning.substr(0, MSG_LEN - 18)
-				: (IMG_SIZE > POST_IMAGE_SIZE && IMG_SIZE <= IMGBB_SIZE ? size_warning.substr(0, MSG_LEN - 29)
-				: (IMG_SIZE > IMGBB_SIZE ? size_warning.substr(0, MSG_LEN - 36) : size_warning))));
+		: (IMG_SIZE > REDDIT_SIZE && IMG_SIZE <= POST_IMAGE_SIZE ? size_warning.substr(0, MSG_LEN - 18)
+		: (IMG_SIZE > POST_IMAGE_SIZE && IMG_SIZE <= IMGBB_SIZE ? size_warning.substr(0, MSG_LEN - 29)
+		: (IMG_SIZE > IMGBB_SIZE ? size_warning.substr(0, MSG_LEN - 36) : size_warning))));
 
 	if (IMG_SIZE > IMGUR_TWITTER_SIZE && pdv.Image_Vec[pdv.image_size - 9] != 'X') {
 		std::cerr << size_warning << ".\n";
@@ -826,16 +823,15 @@ uint_fast64_t Crc(BYTE* buf, const uint_fast64_t& len)
 	return Crc_Update(0xffffffffL, buf, len) ^ 0xffffffffL;
 }
 
-void Value_Updater(std::vector<BYTE>& vec, size_t value_insert_index, const size_t& VALUE, uint_fast8_t bits, bool big_endian) {
+void Value_Updater(std::vector<BYTE>& vec, size_t value_insert_index, const size_t& NEW_VALUE, uint_fast8_t bits, bool big_endian) {
 
 	if (big_endian) {
 		while (bits) {
-			static_cast<size_t>(vec[value_insert_index++] = (VALUE >> (bits -= 8)) & 0xff);
+			static_cast<size_t>(vec[value_insert_index++] = (NEW_VALUE >> (bits -= 8)) & 0xff);
 		}
-	}
-	else {
+	} else {
 		while (bits) {
-			static_cast<size_t>(vec[value_insert_index--] = (VALUE >> (bits -= 8)) & 0xff);
+			static_cast<size_t>(vec[value_insert_index--] = (NEW_VALUE >> (bits -= 8)) & 0xff);
 		}
 	}
 }
