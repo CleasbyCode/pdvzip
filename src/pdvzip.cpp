@@ -609,7 +609,9 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 			FILE_SIZE_ERR = "\nFile Size Error: ",
 			SCRIPT_SIZE_ERR = "\nScript Size Error: Extraction script exceeds maximum size of 750 bytes.\n\n",
 			COMBINED_SIZE_ERR = "\n\nThe combined file size of your PNG image (" + std::to_string(pdv.image_size) + ") + ZIP file (" + std::to_string(pdv.zip_size) + ") + Extraction Script (" + std::to_string(pdv.script_size) + "),\nexceeds file size limit.\n\n",
+		
 			ERR_MSG = pdv.script_size > pdv.MAX_EXTRACTION_SCRIPT_SIZE ? SCRIPT_SIZE_ERR : COMBINED_SIZE_ERR;
+		
 		std::cerr << ERR_MSG;
 		std::exit(EXIT_FAILURE);
 	}
