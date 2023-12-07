@@ -33,8 +33,7 @@ Compile and run the program under Windows or **Linux**.
 user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
 user1@linuxbox:~/Desktop$ ./pdvzip
 
-Usage: pdvzip <cover_image> <zip_file>
-       pdvzip <cover_image> <zip_file> [--imgur]
+Usage: pdvzip <cover_image> <zip_file> [--imgur]
        pdvzip --info
 
 user1@linuxbox:~/Desktop$ ./pdvzip plate_image.png like_spinning_plates.zip
