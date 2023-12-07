@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 
 		if (GET_IMAGE_EXTENSION != "png" || GET_ZIP_EXTENSION != "zip") {
 			// Either file contains an incorrect extension. Display error message and exit program.
-			std::cerr << "\nFile Error: Invalid file extension found. Only expecting 'png' followed by 'zip'.\n\n";
+			std::cerr << "\nFile Type Error: Invalid file extension found. Only expecting 'png' followed by 'zip'.\n\n";
 			std::exit(EXIT_FAILURE);
 		}
 
