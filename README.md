@@ -7,7 +7,7 @@ Post and share your **PNG-ZIP** image on the following *compatible sites.
 * ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), Imgur (20MB / with --imgur option)***
 * ***Reddit (20MB / Desktop, Browser only), ImgPile (8MB), Twitter & Imgur (5MB).***
     
-**Pleaese note that the compatible sites listed above could stop working at anytime, if the platforms maintainers decide to tighten their image format rules, resulting in the embedded data no longer being preserved. **pdvzip** ouputs a ***PNG-ZIP*** polyglot image that is not a "*fully compliant **PNG** file*". You may find that stricter **PNG** utils give errors and/or refuse to use the image.*
+**Pleaese note that the compatible sites listed above could stop working at anytime, if the platform maintainers decide to tighten their image format rules, resulting in the embedded data no longer being preserved. Also be aware that **pdvzip** ouputs a ***PNG-ZIP*** polyglot image that is not a "*fully compliant **PNG** file*". While this should still work most of the time, occasionally you may find that stricter **PNG** utils give errors and/or refuse to use the image.*
 
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pdvimg_21365.png)  
  ***{Image Credit:*** [***@xhbaolxo*** ](https://twitter.com/xhbaolxo/status/1732200144857420104)***}***  
