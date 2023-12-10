@@ -75,11 +75,9 @@ int main(int argc, char** argv) {
 
 	if (argc == 2 && std::string(argv[1]) == "--info") {
 		Display_Info();
-	}
-	else if (argc < 3 || argc > 3) {
+	} else if (argc < 3 || argc > 3) {
 		std::cout << "\nUsage: pdvzip <cover_image> <zip_file> [--imgur]\n\t\bpdvzip --info\n\n";
-	}
-	else {
+	} else {
 		pdv.image_name = argv[1];
 		pdv.zip_name = argv[2];
 		
@@ -114,8 +112,7 @@ void Open_Files(PDV_STRUCT& pdv) {
 		// Display relevant error message and exit program if any file fails to open.
 		std::cerr << "\nRead File Error: " << (!read_image_fs ? "Unable to open image file" : "Unable to open ZIP file") << ".\n\n";
 		std::exit(EXIT_FAILURE);
-	}
-	else {
+	} else {
 		// Initial file size checks. We will need to check sizes again, later in the program.
 		const uint_fast8_t
 			MIN_IMAGE_SIZE = 68,
@@ -269,8 +266,7 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 				| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 3])));
 
 			Temp_Vec.insert(Temp_Vec.end(), pdv.Image_Vec.begin() + PLTE_CHUNK_INDEX, pdv.Image_Vec.begin() + PLTE_CHUNK_INDEX + (CHUNK_SIZE + 12));
-		}
-		else {
+		} else {
 			std::cerr << "\nImage File Error: Required PLTE chunk not found for Indexed-color (PNG-8) image.\n\n";
 			std::exit(EXIT_FAILURE);
 		}
