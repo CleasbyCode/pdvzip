@@ -71,33 +71,31 @@ int main(int argc, char** argv) {
 	if (argc == 4 && std::string(argv[3]) == "--imgur") {
 		pdv.imgur_size_hack = true;
 		argc = 3;
-	} 
-	
+	}
+
 	if (argc == 2 && std::string(argv[1]) == "--info") {
 		Display_Info();
-	} else if (argc < 3 || argc > 3) {
+	}
+	else if (argc < 3 || argc > 3) {
 		std::cout << "\nUsage: pdvzip <cover_image> <zip_file> [--imgur]\n\t\bpdvzip --info\n\n";
-	} else {
+	}
+	else {
 		pdv.image_name = argv[1];
 		pdv.zip_name = argv[2];
-
-		const std::string GET_IMAGE_EXTENSION = pdv.image_name.length() > 2 ? pdv.image_name.substr(pdv.image_name.length() - 3) : pdv.image_name;
-		const std::string GET_ZIP_EXTENSION = pdv.zip_name.length() > 2 ? pdv.zip_name.substr(pdv.zip_name.length() - 3) : pdv.zip_name;
-
-		if (GET_IMAGE_EXTENSION != "png" || GET_ZIP_EXTENSION != "zip") {
-			// Either file contains an incorrect extension. Display error message and exit program.
-			std::cerr << "\nFile Type Error: Invalid file extension found. Only expecting 'png' followed by 'zip'.\n\n";
-			std::exit(EXIT_FAILURE);
-		}
-
-		// Check arguments for invalid input strings.
+		
 		const std::regex REG_EXP("(\\.[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+)?[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+?(\\.[a-zA-Z0-9]+)?");
 
-		if (!regex_match(pdv.image_name, REG_EXP) || !regex_match(pdv.zip_name, REG_EXP)) {
-			std::cerr << "\nInvalid Input Error: Characters not supported by this program found within file name arguments.\n\n";
+		const std::string 
+			// Get file extensions from image and data file names.
+			GET_PNG_EXT = pdv.image_name.length() > 2 ? pdv.image_name.substr(pdv.image_name.length() - 3) : pdv.image_name,
+			GET_ZIP_EXT = pdv.zip_name.length() > 2 ? pdv.zip_name.substr(pdv.zip_name.length() - 3) : pdv.zip_name;
+
+		if (GET_PNG_EXT != "png" || GET_ZIP_EXT != "zip" || !regex_match(pdv.image_name, REG_EXP) || !regex_match(pdv.zip_name, REG_EXP)) {
+			// Either file contains an incorrect file extension and/or invalid input. Display error message and exit program.
+			std::cerr << (GET_PNG_EXT != "png" || GET_ZIP_EXT != "zip" ? "\nFile Type Error: Invalid file extension found. Only expecting 'png' followed by 'zip'"
+						: "\nInvalid Input Error: Characters not supported by this program found within file name arguments") << ".\n\n";
 			std::exit(EXIT_FAILURE);
 		}
-
 		Open_Files(pdv);
 	}
 	return 0;
@@ -107,23 +105,17 @@ void Open_Files(PDV_STRUCT& pdv) {
 
 	std::cout << "\nReading files. Please wait...\n";
 
-	// Attempt to open user files.
+	// Attempt to open user's files.
 	std::ifstream
 		read_image_fs(pdv.image_name, std::ios::binary),
 		read_zip_fs(pdv.zip_name, std::ios::binary);
 
 	if (!read_image_fs || !read_zip_fs) {
 		// Display relevant error message and exit program if any file fails to open.
-		const std::string
-			READ_ERR = "\nRead File Error: ",
-			IMAGE_ERR_MSG = READ_ERR + "Unable to open image file.\n\n",
-			ZIP_ERR_MSG = READ_ERR + "Unable to open ZIP file.\n\n",
-
-			ERR_MSG = !read_image_fs ? IMAGE_ERR_MSG : ZIP_ERR_MSG;
-
-		std::cerr << ERR_MSG;
+		std::cerr << "\nRead File Error: " << (!read_image_fs ? "Unable to open image file" : "Unable to open ZIP file") << ".\n\n";
 		std::exit(EXIT_FAILURE);
-	} else {
+	}
+	else {
 		// Initial file size checks. We will need to check sizes again, later in the program.
 		const uint_fast8_t
 			MIN_IMAGE_SIZE = 68,
@@ -132,21 +124,14 @@ void Open_Files(PDV_STRUCT& pdv) {
 		pdv.image_size = fs::file_size(pdv.image_name);
 		pdv.zip_size = fs::file_size(pdv.zip_name);
 		pdv.combined_file_size = pdv.image_size + pdv.zip_size;
+
 		pdv.file_size_check = pdv.image_size > MIN_IMAGE_SIZE && pdv.zip_size > MIN_ZIP_SIZE && (pdv.imgur_size_hack && pdv.combined_file_size > 5242880 ? pdv.MAX_FILE_SIZE_IMGUR : pdv.MAX_FILE_SIZE) >= pdv.combined_file_size;
 
 		if (!pdv.file_size_check) {
 			// Display relevant error message and exit program if any size check fails.
-			const std::string
-				FILE_SIZE_ERR = "\nFile Size Error: ",
-				IMAGE_MIN_SIZE_ERR = "Not a valid PNG image. File too small.\n\n",
-				ZIP_MIN_SIZE_ERR = "Not a valid ZIP archive. File too small.\n\n",
-				COMBINED_SIZE_ERR = "\n\nThe combined file size of your PNG image (" + std::to_string(pdv.image_size) + ") + ZIP file (" + std::to_string(pdv.zip_size) + "),\nexceeds file size limit.\n\n",
-
-				ERR_MSG = MIN_IMAGE_SIZE > pdv.image_size ? FILE_SIZE_ERR + IMAGE_MIN_SIZE_ERR
-					: MIN_ZIP_SIZE > pdv.zip_size ? FILE_SIZE_ERR + ZIP_MIN_SIZE_ERR
-					: FILE_SIZE_ERR + COMBINED_SIZE_ERR;
-
-			std::cerr << ERR_MSG;
+			std::cerr << "\nFile Size Error: " << (MIN_IMAGE_SIZE > pdv.image_size ? "Invalid PNG image. File too small"
+					: (MIN_ZIP_SIZE > pdv.zip_size ? "Invalid ZIP file. File too small"
+					: "The combined file size of your PNG image and ZIP file exceeds maximum limit")) << ".\n\n";
 			std::exit(EXIT_FAILURE);
 		}
 		Check_Image_File(pdv, read_image_fs, read_zip_fs);
@@ -162,10 +147,13 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstre
 
 	// Make sure we are dealing with a valid PNG image file.
 	const std::string
-		PNG_SIG = "\x89\x50\x4E\x47",	// PNG image signature. 
-		GET_IMAGE_SIG{ pdv.Image_Vec.begin(), pdv.Image_Vec.begin() + PNG_SIG.length() };	// Get PNG signature from file stored in vector. 
+		PNG_HEADER_SIG = "\x89\x50\x4E\x47", // PNG image header signature. 
+		PNG_END_SIG = "\x49\x45\x4E\x44\xAE\x42\x60\x82", // PNG image end signature.
+		GET_PNG_HEADER_SIG{ pdv.Image_Vec.begin(), pdv.Image_Vec.begin() + PNG_HEADER_SIG.length() },	// Attempt to get both image signatures from file stored in vector. 
+		GET_PNG_END_SIG{ pdv.Image_Vec.end() - PNG_END_SIG.length(), pdv.Image_Vec.end() };
 
-	if (GET_IMAGE_SIG != PNG_SIG) {
+	// Make sure image has valid PNG signatures.
+	if (GET_PNG_HEADER_SIG != PNG_HEADER_SIG || GET_PNG_END_SIG != PNG_END_SIG) {
 		// Invalid image file, display error message and exit program.
 		std::cerr << "\nImage File Error: File does not appear to be a valid PNG image.\n\n";
 		std::exit(EXIT_FAILURE);
@@ -207,31 +195,25 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstre
 		VALID_COLOR_TYPE = (PNG_COLOR_TYPE == PNG_INDEXED_COLOR) ? true		// Checking for valid color type of PNG image (PNG-32/24 Truecolor or PNG-8 Indexed color only).
 		: ((PNG_COLOR_TYPE == PNG_TRUECOLOR) ? true : false),
 
-		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOR	// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
+		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOR			// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
 			&& MAX_TRUECOLOR_DIMS >= IMAGE_WIDTH_DIMS
 			&& MAX_TRUECOLOR_DIMS >= IMAGE_HEIGHT_DIMS
 			&& IMAGE_WIDTH_DIMS >= MIN_DIMS
 			&& IMAGE_HEIGHT_DIMS >= MIN_DIMS) ? true
-			: ((PNG_COLOR_TYPE == PNG_INDEXED_COLOR		// Checking for valid dimension size for PNG Indexed color (PNG-8) images.
+		: ((PNG_COLOR_TYPE == PNG_INDEXED_COLOR					// Checking for valid dimension size for PNG Indexed color (PNG-8) images.
 			&& MAX_INDEXED_COLOR_DIMS >= IMAGE_WIDTH_DIMS
 			&& MAX_INDEXED_COLOR_DIMS >= IMAGE_HEIGHT_DIMS
 			&& IMAGE_WIDTH_DIMS >= MIN_DIMS
 			&& IMAGE_HEIGHT_DIMS >= MIN_DIMS) ? true : false);
 
 	if (!VALID_COLOR_TYPE || !VALID_IMAGE_DIMS) {
-
 		// Requirements check failure, display relevant error message and exit program.
-		const std::string
-			IMAGE_ERR_MSG1 = "\nImage File Error: Color type of PNG image is not supported.\n\nPNG-32/24 (Truecolor) or PNG-8 (Indexed color) only.\n\n",
-			IMAGE_ERR_MSG2 = "\nImage File Error: Dimensions of PNG image are not within the supported range.\n\nPNG-32/24 Truecolor: [68 x 68] -- [899 x 899]\nPNG-8 Indexed color: [68 x 68] -- [4096 x 4096]\n\n",
-
-			ERR_MSG = (!VALID_COLOR_TYPE) ? IMAGE_ERR_MSG1 : IMAGE_ERR_MSG2;
-
-		std::cerr << ERR_MSG;
+		std::cerr << "\nImage File Error: " << (!VALID_COLOR_TYPE ? "Color type of PNG image is not supported.\n\nPNG-32/24 (Truecolor) or PNG-8 (Indexed Color) only"
+				: "Dimensions of PNG image are not within the supported range.\n\nPNG-32/24 Truecolor: [68 x 68]<->[899 x 899].\nPNG-8 Indexed Color: [68 x 68]<->[4096 x 4096]") << ".\n\n";	
 		std::exit(EXIT_FAILURE);
 	}
 
-	// We appear to have a compatible PNG image to use for our cover image. Now erase all unnecessary chunks.
+	// We appear to have a compatible PNG image to use as our cover image. Now erase all unnecessary chunks.
 	Erase_Image_Chunks(pdv, read_zip_fs);
 }
 
@@ -253,18 +235,18 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 
 	// Get first IDAT chunk length value
 	const size_t FIRST_IDAT_LENGTH = ((static_cast<size_t>(pdv.Image_Vec[idat_index]) << 24)
-				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
-				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
-				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3])));
+		| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
+		| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
+		| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3])));
 
 	// Get first IDAT chunk's CRC index
 	size_t first_idat_crc_index = idat_index + FIRST_IDAT_LENGTH + 8;
 
 	const size_t FIRST_IDAT_CRC = ((static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index]) << 24)
-				| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 1]) << 16)
-				| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 2]) << 8)
-				| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 3])));
-	
+		| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 1]) << 16)
+		| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 2]) << 8)
+		| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 3])));
+
 	const size_t CALC_FIRST_IDAT_CRC = Crc(&pdv.Image_Vec[idat_index + 4], FIRST_IDAT_LENGTH + 4);
 
 	// Make sure values match.
@@ -283,11 +265,12 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 
 		if (idat_index > PLTE_CHUNK_INDEX) {
 			const size_t CHUNK_SIZE = ((static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 1]) << 16)
-						| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 2]) << 8)
-						| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 3])));
+				| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 2]) << 8)
+				| (static_cast<size_t>(pdv.Image_Vec[PLTE_CHUNK_INDEX + 3])));
 
 			Temp_Vec.insert(Temp_Vec.end(), pdv.Image_Vec.begin() + PLTE_CHUNK_INDEX, pdv.Image_Vec.begin() + PLTE_CHUNK_INDEX + (CHUNK_SIZE + 12));
-		} else {
+		}
+		else {
 			std::cerr << "\nImage File Error: Required PLTE chunk not found for Indexed-color (PNG-8) image.\n\n";
 			std::exit(EXIT_FAILURE);
 		}
@@ -296,10 +279,10 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 	// Find all the IDAT chunks and copy them into Temp_Vec.
 	while (pdv.image_size != idat_index + 4) {
 		const size_t CHUNK_SIZE = ((static_cast<size_t>(pdv.Image_Vec[idat_index]) << 24)
-				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
-				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
-				| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3])));
-		
+			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
+			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
+			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3])));
+
 		Temp_Vec.insert(Temp_Vec.end(), pdv.Image_Vec.begin() + idat_index, pdv.Image_Vec.begin() + idat_index + (CHUNK_SIZE + 12));
 		idat_index = std::search(pdv.Image_Vec.begin() + idat_index + 6, pdv.Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - pdv.Image_Vec.begin() - 4;
 	}
@@ -346,15 +329,8 @@ void Check_Zip_File(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 
 	if (GET_ZIP_SIG != ZIP_SIG || MIN_INZIP_NAME_LENGTH > INZIP_NAME_LENGTH) {
 		// Display relevant error message and exit program.
-		const std::string
-			FILE_ERR_MSG = "\nZIP File Error: ",
-			FORMAT_ERR_MSG = "File does not appear to be a valid ZIP archive.\n\n",
-			LENGTH_ERR_MSG = "\n\nName length of first file within ZIP archive is too short.\n"
-			"Increase its length (minimum 4 characters) and make sure it has a valid extension.\n\n",
-
-			ERR_MSG = GET_ZIP_SIG != ZIP_SIG ? FILE_ERR_MSG + FORMAT_ERR_MSG : FILE_ERR_MSG + LENGTH_ERR_MSG;
-
-		std::cerr << ERR_MSG;
+		std::cerr << "\nZIP File Error: " << (GET_ZIP_SIG != ZIP_SIG ? "File does not appear to be a valid ZIP archive"
+			: "\n\nName length of first file within ZIP archive is too short.\nIncrease its length (minimum 4 characters) and make sure it has a valid extension") << ".\n\n";
 		std::exit(EXIT_FAILURE);
 	}
 	Complete_Extraction_Script(pdv);
@@ -377,7 +353,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	The zipped file needs to be compatible with the operating system you are running it on.
 	The completed script within the "iCCP" chunk will later be inserted into the vector "Image_Vec" which contains the user's PNG image file */
 
-	pdv.Script_Vec = { 
+	pdv.Script_Vec = {
 			0x00, 0x00, 0x00, 0xFD, 0x69, 0x43, 0x43, 0x50, 0x73, 0x63, 0x72, 0x00, 0x00, 0x0D, 0x52,
 			0x45, 0x4D, 0x3B, 0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x6D, 0x6B, 0x64, 0x69, 0x72, 0x20,
 			0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63,
@@ -552,7 +528,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 			insert_index = 10;	// Default uses 2nd sequence, we just need to alter one index number.
 			app_index = 14;
 			Sequence_Vec[17] = BASH_XDG_OPEN;	// Swap index number to BASH_XDG_OPEN (25)
-	}
+		}
 
 	// Set the sequence_limit variable using the first app_index value from each switch case sequence.
 	// Reduce sequence_limit variable value by 1 if insert_index is 33 (case BASH_XDG_OPEN).
@@ -604,15 +580,8 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 
 	// Display relevant error message and exit program if extraction script exceeds size limit.
 	if (pdv.script_size > pdv.MAX_EXTRACTION_SCRIPT_SIZE || pdv.combined_file_size > (pdv.imgur_size_hack ? pdv.MAX_FILE_SIZE_IMGUR : pdv.MAX_FILE_SIZE)) {
-
-		const std::string
-			FILE_SIZE_ERR = "\nFile Size Error: ",
-			SCRIPT_SIZE_ERR = "\nScript Size Error: Extraction script exceeds maximum size of 750 bytes.\n\n",
-			COMBINED_SIZE_ERR = "\n\nThe combined file size of your PNG image (" + std::to_string(pdv.image_size) + ") + ZIP file (" + std::to_string(pdv.zip_size) + ") + Extraction Script (" + std::to_string(pdv.script_size) + "),\nexceeds file size limit.\n\n",
-		
-			ERR_MSG = pdv.script_size > pdv.MAX_EXTRACTION_SCRIPT_SIZE ? SCRIPT_SIZE_ERR : COMBINED_SIZE_ERR;
-		
-		std::cerr << ERR_MSG;
+		std::cerr << "\nFile Size Error: " << (pdv.script_size > pdv.MAX_EXTRACTION_SCRIPT_SIZE ? "Extraction script exceeds size limit"
+				: "The combined file size of your PNG image, ZIP file and Extraction Script, exceeds file size limit") << ".\n\n";
 		std::exit(EXIT_FAILURE);
 	}
 
@@ -737,6 +706,7 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 	const std::string
 		NAME_VALUE = std::to_string(rand()),
 		PDV_FILENAME = "pdvimg_" + NAME_VALUE.substr(0, 5) + ".png"; // Unique filename for the complete polyglot image.
+	
 	std::ofstream write_file_fs(PDV_FILENAME, std::ios::binary);
 
 	if (!write_file_fs) {
