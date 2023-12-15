@@ -59,6 +59,9 @@ After embedding the ZIP within an image, it can then be posted on a variety of s
 the **Imgur Community Page**, as the thumbnail preview fails and shows as a broken icon image.  
 (Clicking the "broken" preview image will still take you to the correctly displayed full image).*  
 
+**Only use this option for posting PNG-ZIP images over 5MB on Imgur, as the image with the --imgur option  
+is not compatible with the over listed sites.*
+
 ## Extracting Your Embedded File(s)  
 *For the embedded extraction script, please make sure **Windows** has the **tar** tool installed and **Linux** has the **unzip** tool installed. While these are common utils, they are not always included by default.*
 
