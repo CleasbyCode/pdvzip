@@ -23,6 +23,7 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 Video Demos: [***Reddit***](https://youtu.be/yAcjc3qdiSk) / [***Twitter***](https://youtu.be/sq6GELZ9G_I) / [***Imgur (Using --imgur option)***](https://youtu.be/vOGkbm57P90) 
  
 ***When saving PNG-ZIP images from Twitter, always click the image first to fully expand it, before saving.***
+***When posting a PNG-ZIP image on Reddit, always the select the "Image & Video" box.***
 
 Compile and run the program under Windows or **Linux**.
 
