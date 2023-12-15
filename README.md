@@ -24,7 +24,10 @@ Video Demos: [***Reddit***](https://youtu.be/yAcjc3qdiSk) / [***Twitter***](http
  
 When ***saving*** PNG-ZIP images from Twitter, always ***click the image first to fully expand it***, before saving.
 
-When ***posting*** a PNG-ZIP image on Reddit, always the select the "***Images & Video***" box.
+When ***posting*** a PNG-ZIP image on Reddit, always the select the "***Images & Video***" box.  
+
+When **saving** a PNG-ZIP image from **Reddit**, click the image in the post to expand it, then save it.  
+You should see the filename with a *.png* extension in the address bar of your browser.
 
 Compile and run the program under Windows or **Linux**.
 
