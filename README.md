@@ -9,7 +9,7 @@ You can share your image on several *social media sites, which will preserve the
 * ***Flickr (200MB), ImgBB (32MB), PostImage (24MB), Imgur (*20MB / with --imgur option*)***
 * ***Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).***
     
-Pleaese note that the compatible sites listed above, could stop working at anytime if the platform maintainers  
+Please note that the compatible sites listed above, could stop working at anytime if the platform maintainers  
 decide to tighten their image format rules, resulting in the embedded data no longer being preserved.  
 Also be aware that **pdvzip** ouputs a ***PNG-ZIP*** polyglot image that is not a "*fully compliant **PNG** file*".  
 This should still work most of the time, although stricter **PNG** utils may refuse to use the image.
