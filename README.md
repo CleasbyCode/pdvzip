@@ -14,8 +14,8 @@ decide to tighten their image format rules, resulting in the embedded data no lo
 Also be aware that **pdvzip** ouputs a ***PNG-ZIP*** polyglot image that is not a "*fully compliant **PNG** file*".  
 This should still work most of the time, although stricter **PNG** utils may refuse to use the image.
 
-![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pdvimg_21365.png)  
- ***{Image Credit:*** [***@xhbaolxo*** ](https://twitter.com/xhbaolxo/status/1732200144857420104)***}***  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pdvimg_30657.png)  
+***{Image credit: [MΞV.ai / @aest_artificial](https://twitter.com/aest_artificial)}*** 
  
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
 **pdvzip** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***accessing***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a PNG image.  
