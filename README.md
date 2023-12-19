@@ -7,7 +7,7 @@ You can share your image on several *social media sites, which will preserve the
 **Image size limits vary across platforms:**
 
 * *Flickr (200MB), ImgBB (32MB), PostImage (24MB), Imgur (20MB / with --imgur option)*
-* \*Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).*
+* \*~~Reddit (20MB)~~, ImgPile (8MB), Twitter & Imgur (5MB).*
   
 *Status update: \*Reddit (currently) no longer working with pdvzip.*
 
