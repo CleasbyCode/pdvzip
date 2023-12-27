@@ -11,11 +11,6 @@ You can share your image on several *social media sites, which will preserve the
   
 *Status update: \*Reddit no longer works with pdvzip. Use [pdvrdt](https://github.com/CleasbyCode/pdvrdt) (PNG) or [jdvrif](https://github.com/CleasbyCode/jdvrif) (JPG) instead.*
 
-Please note that the compatible sites listed above, could stop working at anytime if the platform maintainers  
-decide to tighten their image format rules, resulting in the embedded data no longer being preserved.  
-Also be aware that **pdvzip** ouputs a ***PNG-ZIP*** polyglot image that is not a "*fully compliant **PNG** file*".  
-This should still work most of the time, although stricter **PNG** utils may refuse to use the image.
-
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pdvimg_30657.png)  
 ***{Image credit: [MΞV.ai / @aest_artificial](https://twitter.com/aest_artificial)}*** 
  
