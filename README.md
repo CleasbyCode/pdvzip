@@ -26,11 +26,6 @@ Demo Videos: [***Reddit***](https://youtu.be/yAcjc3qdiSk) / [***Twitter***](http
  
 When ***saving*** PNG-ZIP images from Twitter, always ***click the image first to fully expand it***, before saving.
 
-When ***posting*** a PNG-ZIP image on Reddit, always the select the "***Images & Video***" box.  
-
-When **saving** a PNG-ZIP image from **Reddit**, click the image in the post to expand it, then save it.  
-You should see the filename with a *.png* extension in the address bar of your browser.
-
 Compile and run the program under Windows or **Linux**.
 
 ## Usage
@@ -67,12 +62,9 @@ After embedding the ZIP within an image, it can then be posted on a variety of s
 
 *Once the PNG image has been uploaded to your Imgur page, you can grab links of the image for sharing.* 
 
-*If the PNG-ZIP is over **5MB** (when using the **--imgur** option) I would **avoid** posting the image to  
+*If the PNG-ZIP is over **5MB** (when using the **--imgur** option), **avoid** posting the image to  
 the **Imgur Community Page**, as the thumbnail preview fails and shows as a broken icon image.  
 (Clicking the "broken" preview image will still take you to the correctly displayed full image).*  
-
-**Only use this option for posting PNG-ZIP images over 5MB on Imgur, as the image with the --imgur option  
-is not compatible with the other listed sites.*
 
 ## Extracting Your Embedded File(s)  
 *For the embedded extraction script, please make sure **Windows** has the **tar** tool installed and **Linux** has the **unzip** tool installed. While these are common utils, they are not always included by default.*
