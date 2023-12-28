@@ -720,7 +720,7 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 		std::cout << "\n**Warning**\n\nDue to the selection of the --imgur option,\nyou should only post this ZIP embedded PNG image on Imgur.\n";
 	}
 
-	std::cout << "\nSaved PNG image: " + PDV_FILENAME + '\x20' + std::to_string(pdv.image_size) << " Bytes.";
+	std::cout << "\nSaved PNG image: " + PDV_FILENAME + '\x20' + std::to_string(pdv.image_size) + " Bytes.";
 	std::cout << "\n\nComplete!\n\nYou can now share your PNG-ZIP polyglot image on the relevant supported platforms.\n\n";
 }
 
