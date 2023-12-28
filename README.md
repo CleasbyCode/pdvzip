@@ -40,15 +40,15 @@ Updating extraction script.
 
 Embedding extraction script within the PNG image.
 
-Embedding zip file within the PNG image.
+Embedding ZIP file within the PNG image.
 
-Writing zip-embedded PNG image out to disk.
+Writing ZIP embedded PNG image out to disk.
 
-Created zip-embedded PNG image: "pdvimg_55183.png" Size: "4038367 Bytes"
+Saved PNG image: pzip_55183.png 4038367 Bytes.
 
 Complete!
 
-You can now share your zip-embedded PNG image on the relevant supported platforms.
+You can now share your PNG-ZIP polyglot image on the relevant supported platforms.
 
 ```
 After embedding the ZIP within an image, it can then be posted on a variety of social media/image hosting sites. "*Execute*" the image whenever you want to access the embedded file(s).
@@ -67,8 +67,8 @@ the **Imgur Community Page**, as the thumbnail preview fails and shows as a brok
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
 
-user1@linuxbox:~/Desktop$ chmod +x pdvimg_55183.png
-user1@linuxbox:~/Desktop$ ./pdvimg_55183.png
+user1@linuxbox:~/Desktop$ chmod +x pzip_55183.png
+user1@linuxbox:~/Desktop$ ./pzip_55183.png
 
 ```  
 Alternative execution (Linux).  Using ***wget*** to download & run the image directly from the hosting site.  
@@ -82,8 +82,8 @@ $ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonac
 **Windows** ***(Rename the image file extension to '.cmd')***
 ```console
 
-G:\demo> ren pdvimg_55183.png pdvimg_55183.cmd
-G:\demo> .\pdvimg_55183.cmd
+G:\demo> ren pzip_55183.png pzip_55183.cmd
+G:\demo> .\pzip_55183.cmd
 
 ```
 Alternative execution (Windows).  Using ***iwr*** to download & run the image directly from the hosting site.  
