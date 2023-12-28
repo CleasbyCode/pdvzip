@@ -685,7 +685,7 @@ void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& new_offset_start_index) {
 	uint_fast16_t comment_length = 16 + (static_cast<size_t>(pdv.Image_Vec[comment_length_index] << 8) | (static_cast<size_t>(pdv.Image_Vec[comment_length_index - 1])));
 
 	// Test to see if --imgur option has been used.
-	if (pdv.Image_Vec[pdv.Image_Vec.size() - 9] == 'X') {
+	if (pdv.Image_Vec[pdv.Image_Vec.size() - 9] == 0x0D) {
 		comment_length++;
 	}
 
