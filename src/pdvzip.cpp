@@ -701,7 +701,7 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 
 	const std::string
 		NAME_VALUE = std::to_string(rand()),
-		PDV_FILENAME = "pdvimg_" + NAME_VALUE.substr(0, 5) + ".png"; // Unique filename for the complete polyglot image.
+		PDV_FILENAME = "pzip_" + NAME_VALUE.substr(0, 5) + ".png"; // Unique filename for the complete polyglot image.
 	
 	std::ofstream write_file_fs(PDV_FILENAME, std::ios::binary);
 
