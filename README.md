@@ -4,7 +4,7 @@ creating a *tweetable* and "[*executable*](https://github.com/CleasbyCode/pdvzip
 
 You can share your image on several *social media sites, which will preserve the embedded **ZIP** file.
 
-**Image size limits vary across platforms:**
+***Image size limits vary across platforms:**
 
 * *Flickr (200MB), ImgBB (32MB), PostImage (24MB), Imgur (20MB / --imgur option)*
 * *\*~~Reddit (20MB)~~, ImgPile (8MB), Twitter & Imgur (5MB).*
