@@ -582,7 +582,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	}
 
 	if (pdv.imgur_size_hack && pdv.combined_file_size > 5242880) { // If user selected the --imgur option, only enable it if the ZIP embedded PNG image is over 5MB. 
-		pdv.Image_Vec[pdv.Image_Vec.size() - 9] = '\x58';
+		pdv.Image_Vec[pdv.Image_Vec.size() - 9] = '\x0D';
 	}
 
 	const uint_fast8_t ICCP_CHUNK_INDEX = 4;
@@ -715,37 +715,12 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 	// Write out to file vector "Image_Vec" now containing the completed polyglot image (Image + Script + ZIP).
 	write_file_fs.write((char*)&pdv.Image_Vec[0], pdv.image_size);
 
-	std::string size_warning =
-		"\n**Warning**\n\nDue to the file size of your ZIP embedded PNG image,\nyou will only be able to share this image on the following platforms:\n\n"
-		"Flickr, ImgBB, PostImage, Reddit & ImgPile";
-
-	const size_t
-		IMG_SIZE = pdv.image_size,
-		MSG_LEN = size_warning.length();
-
-	const uint_fast32_t
-		IMGUR_TWITTER_SIZE = 5242880,	// 5MB
-		IMG_PILE_SIZE = 8388608,	// 8MB
-		REDDIT_SIZE = 20971520, 	// 20MB
-		POST_IMAGE_SIZE = 25165824,	// 24MB
-		IMGBB_SIZE = 33554432;		// 32MB
-		// Flickr is 200MB, this programs max size, no need to to make a variable for it.
-
-	size_warning = (IMG_SIZE > IMG_PILE_SIZE && IMG_SIZE <= REDDIT_SIZE ? size_warning.substr(0, MSG_LEN - 10)
-		: (IMG_SIZE > REDDIT_SIZE && IMG_SIZE <= POST_IMAGE_SIZE ? size_warning.substr(0, MSG_LEN - 18)
-		: (IMG_SIZE > POST_IMAGE_SIZE && IMG_SIZE <= IMGBB_SIZE ? size_warning.substr(0, MSG_LEN - 29)
-		: (IMG_SIZE > IMGBB_SIZE ? size_warning.substr(0, MSG_LEN - 36) : size_warning))));
-
-	if (IMG_SIZE > IMGUR_TWITTER_SIZE && pdv.Image_Vec[pdv.image_size - 9] != 'X') {
-		std::cerr << size_warning << ".\n";
-	}
-
 	// Test to see if --imgur option has been used.
-	if (pdv.Image_Vec[pdv.image_size - 9] == 'X') {
+	if (pdv.Image_Vec[pdv.image_size - 9] == 0xD) {
 		std::cout << "\n**Warning**\n\nDue to the selection of the --imgur option,\nyou should only post this ZIP embedded PNG image on Imgur.\n";
 	}
 
-	std::cout << "\nCreated ZIP embedded PNG image: \"" + PDV_FILENAME + "\" Size: \"" << pdv.image_size << " Bytes\"";
+	std::cout << "\nSaved PNG image: " + PDV_FILENAME + '0x20' + std::to_string(pdv.image_size) << " Bytes.";
 	std::cout << "\n\nComplete!\n\nYou can now share your PNG-ZIP polyglot image on the relevant supported platforms.\n\n";
 }
 
@@ -816,7 +791,7 @@ The hosting sites will retain the embedded arbitrary data within the PNG image.
 PNG image size limits are platform dependant:  
 
 Flickr (200MB), Imgbb (32MB), PostImage (24MB), Imgur (20MB / with --imgur option),
-Reddit (20MB), ImgPile (8MB), Twitter & Imgur (5MB).
+ImgPile (8MB), Twitter & Imgur (5MB).
 
 Using the --imgur option with pdvzip, increases the Imgur PNG upload size limit from 5MB to 20MB.
 
