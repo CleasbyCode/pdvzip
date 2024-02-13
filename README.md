@@ -142,7 +142,7 @@ in which the platform will preserve as long as you keep within the image dimensi
 
 *Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
-This program uses the ***iCCP*** (contains extraction script) and ***IDAT*** (contains ZIP file) chunk names for storing arbitrary data.
+pdvzip uses the ***iCCP*** (contains extraction script) and ***IDAT*** (contains ZIP file) chunk names for storing arbitrary data.
 
 ## ZIP File Size & Other Important Information
 
