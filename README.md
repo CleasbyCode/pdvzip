@@ -26,7 +26,7 @@ Compile and run the program under Windows or **Linux**.
 user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
 user1@linuxbox:~/Desktop$ ./pdvzip
 
-Usage: pdvzip <cover_image> <zip_file> [--imgur]
+Usage: pdvzip <cover_image> <zip_file>
        pdvzip --info
 
 user1@linuxbox:~/Desktop$ ./pdvzip plate_image.png like_spinning_plates.zip
@@ -49,14 +49,6 @@ You can now share your PNG-ZIP polyglot image on the relevant supported platform
 
 ```
 After embedding the ZIP within an image, it can then be posted on a variety of social media/image hosting sites. "*Execute*" the image whenever you want to access the embedded file(s).
-
-*Using the **--imgur** option with pdvzip, increases the Imgur PNG upload size limit from 5MB to **20MB**.*
-
-*Once the PNG image has been uploaded to your Imgur page, you can grab links of the image for sharing.* 
-
-*If the PNG-ZIP is over **5MB** (when using the **--imgur** option), **avoid** posting the image to  
-the **Imgur Community Page**, as the thumbnail preview fails and shows as a broken icon image.  
-(Clicking the "broken" preview image will still take you to the correctly displayed full image).*  
 
 ## Extracting Your Embedded File(s)  
 *For the embedded extraction script, please make sure **Windows** has the **tar** tool installed and **Linux** has the **unzip** tool installed. While these are common utils, they are not always included by default.*
@@ -114,7 +106,7 @@ To just get access to the file(s) within the ZIP archive, rename the '*.png*' fi
 
 
 PNG file size (image + embedded content) must not exceed the hosting site's size limits.  
-The site will either refuse to upload your image or it will convert your image to ***jpg***, such as Twitter & Imgur.
+The site will either refuse to upload your image or it will convert your image to ***jpg***, such as Twitter.
 
 **Dimensions:**
 
@@ -145,12 +137,12 @@ in which the platform will preserve as long as you keep within the image dimensi
 ***iCCP,*** (Only 10KB max. with Twitter).  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
 ***PLTE,*** (Use only with PNG-32/24 images).  
-***pHYs, sBIT, sPLT, sRGB,*** (Imgur does not keep the pHYs chunk).   
+***pHYs, sBIT, sPLT, sRGB,***   
 ***tRNS. (Not recommended, may distort image).***  
 
 *Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
-This program uses the ***iCCP*** (extraction script) and ***IDAT*** (zip file) chunk names for storing arbitrary data.
+This program uses the ***iCCP*** (contains extraction script) and ***IDAT*** (contains ZIP file) chunk names for storing arbitrary data.
 
 ## ZIP File Size & Other Important Information
 
