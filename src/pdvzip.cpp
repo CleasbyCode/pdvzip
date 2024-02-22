@@ -767,7 +767,7 @@ void Value_Updater(std::vector<Byte>& vec, size_t value_insert_index, const size
 void Display_Info() {
 
 	std::cout << R"(
-PNG Data Vehicle ZIP Edition (PDVZIP v1.7). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
+PNG Data Vehicle ZIP Edition (PDVZIP v1.8). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 		
 PDVZIP enables you to embed a ZIP file within a *tweetable and "executable" PNG image.  		
 		
