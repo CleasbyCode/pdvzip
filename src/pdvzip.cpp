@@ -1,4 +1,4 @@
-// 	PNG Data Vehicle, ZIP Edition (PDVZIP v1.7). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
+// 	PNG Data Vehicle, ZIP Edition (PDVZIP v1.8). Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
 //	To compile program (Linux):
 // 	$ g++ pdvzip.cpp -O2 -s -o pdvzip
@@ -8,55 +8,46 @@
 
 #include <algorithm>
 #include <fstream>
-#include <filesystem>	
 #include <iostream>
 #include <regex>
-#include <cstdint>
 #include <string>
 #include <vector>
 
+typedef unsigned char Byte;
+
 struct PDV_STRUCT {
 	const size_t MAX_FILE_SIZE = 209715200;
-	std::vector<unsigned char> Image_Vec, Zip_Vec, Script_Vec;
+	std::vector<Byte> Image_Vec, Zip_Vec, Script_Vec;
 	const std::string BAD_CHAR = "\x22\x27\x28\x29\x3B\x3E\x60";
 	std::string image_name, zip_name;
 	size_t image_size{}, zip_size{}, script_size{}, combined_file_size{};
 	bool big_endian = true;
 };
 
-uint_fast64_t
+size_t
 	// Code to compute CRC32 (for "IDAT" & "iCCP" chunks within this program) is taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-	Crc_Update(const uint_fast64_t&, unsigned char*, const uint_fast64_t&),
-	Crc(unsigned char*, const uint_fast64_t&);
+	Crc_Update(const size_t&, Byte*, const size_t&),
+	Crc(Byte*, const size_t&);
 
 void
-	// Open image & ZIP file, followed by some initial file size checks. Display relevant error message and exit program if any file fails to open or fails size checks.
+	// Attempt to open PNG & ZIP file, followed by some initial file size checks. Display relevant error message and exit program if any file fails to open or fails size checks.
 	Open_Files(PDV_STRUCT&),
-
 	// Various image file checks to make sure image is valid and meets program's requirements. Display relevant error message if checks fail, exit program.
 	Check_Image_File(PDV_STRUCT&, std::ifstream&, std::ifstream&),
-
 	// Various ZIP file checks to make sure archive is valid and meets program's requirements. Display relevant error message if checks fail, exit program.
 	Check_Zip_File(PDV_STRUCT&, std::ifstream&),
-
 	// Keep critical PNG chunks, remove the rest.
 	Erase_Image_Chunks(PDV_STRUCT&, std::ifstream&),
-
 	// Update barebones extraction script determined by embedded ZIP file content. 
 	Complete_Extraction_Script(PDV_STRUCT&),
-
 	// Insert contents of vectors storing user ZIP file and the completed extraction script into the vector containing PNG image. This is our PNG-ZIP polyglot.
 	Combine_Vectors(PDV_STRUCT&),
-
 	// Adjust embedded ZIP file offsets within the PNG image to their new index locations, so that it remains a valid, working ZIP archive. 
 	Fix_Zip_Offset(PDV_STRUCT&, const size_t&),
-
 	// Write out to file the complete ZIP embedded PNG image file, creating our PNG-ZIP polyglot.
 	Write_Out_Polyglot_File(PDV_STRUCT&),
-
 	// Update values, such as chunk lengths, CRC, file sizes and other values. Writes them into the relevant vector index locations.
-	Value_Updater(std::vector<unsigned char>&, size_t, const size_t&, uint_fast8_t, bool),
-
+	Value_Updater(std::vector<Byte>&, size_t, const size_t&, int, bool),
 	// Output to screen detailed program usage information.
 	Display_Info();
 
@@ -98,24 +89,32 @@ void Open_Files(PDV_STRUCT& pdv) {
 
 	// Attempt to open user's files.
 	std::ifstream
-		read_image_fs(pdv.image_name, std::ios::binary),
-		read_zip_fs(pdv.zip_name, std::ios::binary);
+		image_ifs(pdv.image_name, std::ios::binary),
+		zip_ifs(pdv.zip_name, std::ios::binary);
 
-	if (!read_image_fs || !read_zip_fs) {
+	if (!image_ifs || !zip_ifs) {
 		// Display relevant error message and exit program if any file fails to open.
-		std::cerr << "\nRead File Error: " << (!read_image_fs ? "Unable to open image file" : "Unable to open ZIP file") << ".\n\n";
+		std::cerr << "\nRead File Error: " << (!image_ifs ? "Unable to open image file" : "Unable to open ZIP file") << ".\n\n";
 		std::exit(EXIT_FAILURE);
 	}
 	else {
 		// Initial file size checks. We will need to check sizes again, later in the program.
-		constexpr uint_fast8_t
+		constexpr int
 			MIN_IMAGE_SIZE = 68,
 			MIN_ZIP_SIZE = 40;
-		
+
 		bool file_size_check = false;
 
-		pdv.image_size = std::filesystem::file_size(pdv.image_name);
-		pdv.zip_size = std::filesystem::file_size(pdv.zip_name);
+		// Get PNG file size.
+		image_ifs.seekg(0, image_ifs.end);
+		pdv.image_size = image_ifs.tellg();
+		image_ifs.seekg(0, image_ifs.beg);
+
+		// Get ZIP file size
+		zip_ifs.seekg(0, zip_ifs.end);
+		pdv.zip_size = zip_ifs.tellg();
+		zip_ifs.seekg(0, zip_ifs.beg);
+
 		pdv.combined_file_size = pdv.image_size + pdv.zip_size;
 
 		file_size_check = pdv.image_size > MIN_IMAGE_SIZE && pdv.zip_size > MIN_ZIP_SIZE && pdv.MAX_FILE_SIZE >= pdv.combined_file_size;
@@ -123,30 +122,30 @@ void Open_Files(PDV_STRUCT& pdv) {
 		if (!file_size_check) {
 			// Display relevant error message and exit program if any size check fails.
 			std::cerr << "\nFile Size Error: " << (MIN_IMAGE_SIZE > pdv.image_size ? "Invalid PNG image. File too small"
-					: (MIN_ZIP_SIZE > pdv.zip_size ? "Invalid ZIP file. File too small"
-						: "The combined file size of your PNG image and ZIP file exceeds maximum limit")) << ".\n\n";
+				: (MIN_ZIP_SIZE > pdv.zip_size ? "Invalid ZIP file. File too small"
+					: "The combined file size of your PNG image and ZIP file exceeds maximum limit")) << ".\n\n";
 			std::exit(EXIT_FAILURE);
 		}
-		Check_Image_File(pdv, read_image_fs, read_zip_fs);
+		Check_Image_File(pdv, image_ifs, zip_ifs);
 	}
 }
 
-void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstream& read_zip_fs) {
+void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& image_ifs, std::ifstream& zip_ifs) {
 
 	// Vector "Image_Vec" stores the user's PNG image. Later, it will also store the contents of vectors "Script_Vec" and "Zip_Vec".
-	pdv.Image_Vec.assign(std::istreambuf_iterator<char>(read_image_fs), std::istreambuf_iterator<char>());
+	pdv.Image_Vec.assign(std::istreambuf_iterator<char>(image_ifs), std::istreambuf_iterator<char>());
 
 	pdv.image_size = pdv.Image_Vec.size();
 
 	// Make sure we are dealing with a valid PNG image file.
 	const std::string
-		PNG_HEADER_SIG = "\x89\x50\x4E\x47", // PNG image header signature. 
+		PNG_TOP_SIG = "\x89\x50\x4E\x47", 		  // PNG image header signature. 
 		PNG_END_SIG = "\x49\x45\x4E\x44\xAE\x42\x60\x82", // PNG image end signature.
-		GET_PNG_HEADER_SIG{ pdv.Image_Vec.begin(), pdv.Image_Vec.begin() + PNG_HEADER_SIG.length() },	// Attempt to get both image signatures from file stored in vector. 
+		GET_PNG_TOP_SIG{ pdv.Image_Vec.begin(), pdv.Image_Vec.begin() + PNG_TOP_SIG.length() },	// Attempt to get both image signatures from file stored in vector. 
 		GET_PNG_END_SIG{ pdv.Image_Vec.end() - PNG_END_SIG.length(), pdv.Image_Vec.end() };
 
 	// Make sure image has valid PNG signatures.
-	if (GET_PNG_HEADER_SIG != PNG_HEADER_SIG || GET_PNG_END_SIG != PNG_END_SIG) {
+	if (GET_PNG_TOP_SIG != PNG_TOP_SIG || GET_PNG_END_SIG != PNG_END_SIG) {
 		// Invalid image file, display error message and exit program.
 		std::cerr << "\nImage File Error: File does not appear to be a valid PNG image.\n\n";
 		std::exit(EXIT_FAILURE);
@@ -156,7 +155,7 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstre
 	// A script breaking character can appear within the width & height fields or the 4 byte CRC field of the "IHDR" chunk.
 	// Manually modifying the dimensions (1% increase or decrease) of the image will usually resolve the issue. Repeat if necessary.
 
-	uint_fast8_t chunk_index = 18;
+	int chunk_index = 18;
 
 	// From index location, increment through 14 bytes of the IHDR chunk within vector "Image_Vec" and compare each byte to the 7 characters within "BAD_CHAR" string.
 	while (chunk_index++ != 32) { // We start checking from the 19th character position of the IHDR chunk within vector "Image_Vec".
@@ -171,20 +170,17 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstre
 	}
 
 	// Now check for supported image dimensions and color types.
-	const uint_fast16_t
-		IMAGE_WIDTH_DIMS = pdv.Image_Vec[18] << 8 | pdv.Image_Vec[19],	// Get width dimensions from vector.
-		IMAGE_HEIGHT_DIMS = pdv.Image_Vec[22] << 8 | pdv.Image_Vec[23];	// Get height dimensions from vector.
+	const int
+		IMAGE_WIDTH_DIMS = pdv.Image_Vec[18] << 8 | pdv.Image_Vec[19],		// Get width dimensions from vector.
+		IMAGE_HEIGHT_DIMS = pdv.Image_Vec[22] << 8 | pdv.Image_Vec[23],		// Get height dimensions from vector.
+		PNG_COLOR_TYPE = pdv.Image_Vec[25] == 6 ? 2 : pdv.Image_Vec[25];	// Get image color type value from vector. If value is 6 (Truecolor with alpha), set the value to 2 (Truecolor).
 
-	constexpr uint_fast16_t
+	constexpr int
 		MAX_TRUECOLOR_DIMS = 899,	// 899 x 899 maximum supported dimensions for PNG Truecolor (PNG-32/24, color types 2 & 6).
-		MAX_INDEXED_COLOR_DIMS = 4096;	// 4096 x 4096 maximum supported dimensions for PNG Indexed color (PNG-8, color type 3).
-
-	const uint_fast8_t PNG_COLOR_TYPE = pdv.Image_Vec[25] == 6 ? 2 : pdv.Image_Vec[25];	// Get image color type value from vector. 
-																						// If value is 6 (Truecolor with alpha), set the value to 2 (Truecolor).
-	constexpr uint_fast8_t
-		MIN_DIMS = 68,		// 68 x 68 minimum supported dimensions for both PNG Indexed color and Truecolor.
-		PNG_INDEXED_COLOR = 3,	// PNG-8, Indexed color value.
-		PNG_TRUECOLOR = 2;	// PNG-24, Truecolour value. (We also use this value for PNG-32 (Truecolour with alpha 6), as we consider them the same for this program.
+		MAX_INDEXED_COLOR_DIMS = 4096,	// 4096 x 4096 maximum supported dimensions for PNG Indexed color (PNG-8, color type 3).
+		MIN_DIMS = 68,			// 68 x 68 minimum supported dimensions for both PNG Indexed color and Truecolor.
+		PNG_INDEXED_COLOR = 3,		// PNG-8, Indexed color value.
+		PNG_TRUECOLOR = 2;		// PNG-24, Truecolour value. (We also use this value for PNG-32 (Truecolour with alpha 6), as we consider them the same for this program.
 
 	const bool
 		VALID_COLOR_TYPE = (PNG_COLOR_TYPE == PNG_INDEXED_COLOR) ? true		// Checking for valid color type of PNG image (PNG-32/24 Truecolor or PNG-8 Indexed color only).
@@ -209,14 +205,14 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& read_image_fs, std::ifstre
 	}
 
 	// We appear to have a compatible PNG to use as our cover image. Now erase all unnecessary chunks.
-	Erase_Image_Chunks(pdv, read_zip_fs);
+	Erase_Image_Chunks(pdv, zip_ifs);
 }
 
-void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
+void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& zip_ifs) {
 
 	// Keep the critical PNG chunks: IHDR, *PLTE, IDAT & IEND.
 
-	std::vector<unsigned char>Temp_Vec;
+	std::vector<Byte>Temp_Vec;
 
 	// Copy the first 33 bytes of Image_Vec into Temp_Vec (PNG header + IHDR).
 	Temp_Vec.insert(Temp_Vec.begin(), pdv.Image_Vec.begin(), pdv.Image_Vec.begin() + 33);
@@ -229,20 +225,21 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 	// Make sure this is a valid IDAT chunk. Check CRC value.
 
 	// Get first IDAT chunk length value
-	const size_t FIRST_IDAT_LENGTH = ((static_cast<size_t>(pdv.Image_Vec[idat_index]) << 24)
-		| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
-		| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
-		| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3])));
+	const size_t
+		FIRST_IDAT_LENGTH = ((static_cast<size_t>(pdv.Image_Vec[idat_index]) << 24)
+			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 1]) << 16)
+			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 2]) << 8)
+			| (static_cast<size_t>(pdv.Image_Vec[idat_index + 3]))),
 
-	// Get first IDAT chunk's CRC index
-	size_t first_idat_crc_index = idat_index + FIRST_IDAT_LENGTH + 8;
+		// Get first IDAT chunk's CRC index location.
+		FIRST_IDAT_CRC_INDEX = idat_index + FIRST_IDAT_LENGTH + 8,
 
-	const size_t FIRST_IDAT_CRC = ((static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index]) << 24)
-		| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 1]) << 16)
-		| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 2]) << 8)
-		| (static_cast<size_t>(pdv.Image_Vec[first_idat_crc_index + 3])));
+		FIRST_IDAT_CRC = ((static_cast<size_t>(pdv.Image_Vec[FIRST_IDAT_CRC_INDEX]) << 24)
+			| (static_cast<size_t>(pdv.Image_Vec[FIRST_IDAT_CRC_INDEX + 1]) << 16)
+			| (static_cast<size_t>(pdv.Image_Vec[FIRST_IDAT_CRC_INDEX + 2]) << 8)
+			| (static_cast<size_t>(pdv.Image_Vec[FIRST_IDAT_CRC_INDEX + 3]))),
 
-	const size_t CALC_FIRST_IDAT_CRC = Crc(&pdv.Image_Vec[idat_index + 4], FIRST_IDAT_LENGTH + 4);
+		CALC_FIRST_IDAT_CRC = Crc(&pdv.Image_Vec[idat_index + 4], FIRST_IDAT_LENGTH + 4);
 
 	// Make sure values match.
 	if (FIRST_IDAT_CRC != CALC_FIRST_IDAT_CRC) {
@@ -287,13 +284,13 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 
 	Temp_Vec.swap(pdv.Image_Vec);
 
-	// Update image size variable.
+	// Update image size.
 	pdv.image_size = pdv.Image_Vec.size();
 
-	Check_Zip_File(pdv, read_zip_fs);
+	Check_Zip_File(pdv, zip_ifs);
 }
 
-void Check_Zip_File(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
+void Check_Zip_File(PDV_STRUCT& pdv, std::ifstream& zip_ifs) {
 
 	// Vector "Zip_Vec" will store the user's ZIP file. The contents of "Zip_Vec" will later be inserted into the vector "Image_Vec" as the last "IDAT" chunk. 
 	// We will need to update the CRC value (last 4-bytes) and the chunk length field (first 4-bytes) within this vector. Both fields currently set to zero. 
@@ -301,12 +298,12 @@ void Check_Zip_File(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 	pdv.Zip_Vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };	// "IDAT" chunk name with 4-byte chunk length and crc fields.
 
 	// Insert user's ZIP file into vector "Zip_Vec" from index 8, just after "IDAT" chunk name.
-	pdv.Zip_Vec.insert(pdv.Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(read_zip_fs), std::istreambuf_iterator<char>());
+	pdv.Zip_Vec.insert(pdv.Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(zip_ifs), std::istreambuf_iterator<char>());
 
 	pdv.zip_size = pdv.Zip_Vec.size();
 
 	// Location of "IDAT" chunk length field for vector "Zip_Vec".
-	uint_fast8_t
+	int
 		chunk_length_index = 0,
 		bits = 32;
 
@@ -317,9 +314,9 @@ void Check_Zip_File(PDV_STRUCT& pdv, std::ifstream& read_zip_fs) {
 		ZIP_SIG = "\x50\x4B\x03\x04",	// Valid file signature of ZIP file.
 		GET_ZIP_SIG{ pdv.Zip_Vec.begin() + 8, pdv.Zip_Vec.begin() + 8 + ZIP_SIG.length() };	// Get ZIP file signature from vector "Zip_Vec".
 
-	constexpr uint_fast8_t MIN_INZIP_NAME_LENGTH = 4;		// Set minimum filename length of zipped file. (1st filename record within ZIP archive).
+	constexpr int MIN_INZIP_NAME_LENGTH = 4;		// Set minimum filename length of zipped file. (1st filename record within ZIP archive).
 
-	const uint_fast8_t INZIP_NAME_LENGTH = pdv.Zip_Vec[34];		// Get length of zipped file name (1st file in ZIP record) from vector "Zip_Vec".
+	const int INZIP_NAME_LENGTH = pdv.Zip_Vec[34];		// Get length of zipped file name (1st file in ZIP record) from vector "Zip_Vec".
 
 	if (GET_ZIP_SIG != ZIP_SIG || MIN_INZIP_NAME_LENGTH > INZIP_NAME_LENGTH) {
 		// Display relevant error message and exit program.
@@ -347,7 +344,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	The zipped file needs to be compatible with the operating system you are running it on.
 	The completed script within the "iCCP" chunk will later be inserted into the vector "Image_Vec" which contains the user's PNG image file */
 
-	constexpr unsigned char SCRIPT_DATA[274]{
+	pdv.Script_Vec = {
 			0x00, 0x00, 0x00, 0xFD, 0x69, 0x43, 0x43, 0x50, 0x73, 0x63, 0x72, 0x00, 0x00, 0x0D, 0x52,
 			0x45, 0x4D, 0x3B, 0x63, 0x6C, 0x65, 0x61, 0x72, 0x3B, 0x6D, 0x6B, 0x64, 0x69, 0x72, 0x20,
 			0x2E, 0x2F, 0x70, 0x64, 0x76, 0x7A, 0x69, 0x70, 0x5F, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63,
@@ -368,8 +365,6 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 			0x30, 0x22, 0x20, 0x2A, 0x2E, 0x70, 0x6E, 0x67, 0x26, 0x65, 0x78, 0x69, 0x74, 0x0D, 0x0A,
 			0x00, 0x00, 0x00, 0x00 };
 
-	pdv.Script_Vec.insert(pdv.Script_Vec.begin(), &SCRIPT_DATA[0], &SCRIPT_DATA[274]);
-
 	// "App_Vec" string vector. 
 	// Stores file extensions for some popular media types, along with several default application commands (+ args) that support those extensions.
 	// These vector string elements will be used in the completion of our extraction script.
@@ -378,10 +373,10 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 		".sh", "vlc --play-and-exit --no-video-title-show ", "evince ", "python3 ", "pwsh ", "./", "xdg-open ", "powershell;Invoke-Item ",
 		" &> /dev/null", "start /b \"\"", "pause&", "powershell", "chmod +x ", ";" };
 
-	constexpr uint_fast8_t
+	constexpr int
 		FIRST_ZIP_NAME_REC_LENGTH_INDEX = 34,	// "Zip_Vec" vector's index location for the length value of the zipped filename (First filename within the ZIP file record).
 		FIRST_ZIP_NAME_REC_INDEX = 38,		// "Zip_Vec" start index location for the zipped filename.
-	
+
 		// "App_Vec" vector element index values. 
 		// Some "App_Vec" vector string elements are added later (via emplace_back) so they don't currently appear in the above string vector.
 
@@ -396,7 +391,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 		WIN_POWERSHELL = 30,		// "powershell" commmand used by Windows for running PowerShell scripts.
 		PREPEND_FIRST_ZIP_NAME_REC = 36;	// first_zip_name with ".\" prepended characters. Required for Windows PowerShell, e.g. powershell ".\my_ps_script.ps1".
 
-	const uint_fast8_t FIRST_ZIP_NAME_REC_LENGTH = pdv.Zip_Vec[FIRST_ZIP_NAME_REC_LENGTH_INDEX];	// Get character length of the zipped media filename from vector "Zip_Vec".
+	const int FIRST_ZIP_NAME_REC_LENGTH = pdv.Zip_Vec[FIRST_ZIP_NAME_REC_LENGTH_INDEX];	// Get character length of the zipped media filename from vector "Zip_Vec".
 
 	std::string
 		// Get the zipped filename string from vector "Zip_Vec". (First filename within the ZIP record).
@@ -426,12 +421,12 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	// Sequence_Vec[5] = "App_Vec" index 33 ("app_index"), which is the "first_zip_name" string element (first filename within the ZIP record). 
 	// "App_Vec" string element 33 (first_zip_name) will be inserted into the script (vector "Script_Vec") at index 241.
 
-	uint_fast8_t
+	int
 		app_index = 0,		// Uses the "App_Vec" index values from the vector Sequence_Vec.
 		insert_index = 0,	// Uses the "Script_Vec" index values from vector Sequence_Vec.
 		sequence_limit = 0;	// Stores the length limit of each of the four sequences. 
 
-	std::vector<uint_fast16_t>Sequence_Vec{
+	std::vector<int>Sequence_Vec{
 			241, 239, 121, 120, 119,	// 1st sequence for case "VIDEO_AUDIO".
 			33, 28, 27, 33, 20,
 
@@ -495,37 +490,37 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	std::cout << "\nUpdating extraction script.\n";
 
 	switch (app_index) {
-	case VIDEO_AUDIO:	// Case uses 1st sequence: [241,239,121,120,119] , [33,28,27,33,20].
-		app_index = 5;
-		break;
-	case PDF:		// These two cases (with minor changes) use the 2nd sequence: [241,239,120,119] , [33,28,33,21].
-	case FOLDER_INVOKE_ITEM:
-		Sequence_Vec[15] = app_index == FOLDER_INVOKE_ITEM ? FOLDER_INVOKE_ITEM : START_B;
-		Sequence_Vec[17] = app_index == FOLDER_INVOKE_ITEM ? BASH_XDG_OPEN : PDF;
-		insert_index = 10;
-		app_index = 14;
-		break;
-	case PYTHON:		// These two cases (with some changes) use the 3rd sequence: [264,242,241,239,121,120,119] , [29,35,33,22,34,33,22].
-	case POWERSHELL:
-		if (app_index == POWERSHELL) {
-			first_zip_name.insert(0, ".\\");		//  ".\" prepend to "first_zip_name". Required for Windows PowerShell, e.g. powershell ".\my_ps_script.ps1".
-			App_Vec.emplace_back(first_zip_name);		// Add the filename with the prepended ".\" to the "AppVec" vector (36).
-			Sequence_Vec[31] = POWERSHELL;			// Swap index number to Linux PowerShell (pwsh 23)
-			Sequence_Vec[28] = WIN_POWERSHELL;		// Swap index number to Windows PowerShell (powershell 30)
-			Sequence_Vec[27] = PREPEND_FIRST_ZIP_NAME_REC;	// Swap index number to PREPEND_FIRST_ZIP_NAME_REC (36), used with the Windows powershell command.
-		}
-		insert_index = 18;
-		app_index = 25;
-		break;
-	case EXECUTABLE:	// These two cases (with minor changes) use the 4th sequence: [264,242,241,239,121,120,119,119,119,119] , [29,35,33,28,34,33,24,32,33,31].
-	case BASH_XDG_OPEN:
-		insert_index = app_index == EXECUTABLE ? 32 : 33;
-		app_index = insert_index == 32 ? 42 : 43;
-		break;
-	default:			// Unmatched file extensions. Rely on operating system to use the set default program for dealing with unknown file types.
-		insert_index = 10;	// Default uses 2nd sequence, we just need to alter one index number.
-		app_index = 14;
-		Sequence_Vec[17] = BASH_XDG_OPEN;	// Swap index number to BASH_XDG_OPEN (25)
+		case VIDEO_AUDIO:	// Case uses 1st sequence: [241,239,121,120,119] , [33,28,27,33,20].
+			app_index = 5;
+			break;
+		case PDF:		// These two cases (with minor changes) use the 2nd sequence: [241,239,120,119] , [33,28,33,21].
+		case FOLDER_INVOKE_ITEM:
+			Sequence_Vec[15] = app_index == FOLDER_INVOKE_ITEM ? FOLDER_INVOKE_ITEM : START_B;
+			Sequence_Vec[17] = app_index == FOLDER_INVOKE_ITEM ? BASH_XDG_OPEN : PDF;
+			insert_index = 10;
+			app_index = 14;
+			break;
+		case PYTHON:		// These two cases (with some changes) use the 3rd sequence: [264,242,241,239,121,120,119] , [29,35,33,22,34,33,22].
+		case POWERSHELL:
+			if (app_index == POWERSHELL) {
+				first_zip_name.insert(0, ".\\");		//  ".\" prepend to "first_zip_name". Required for Windows PowerShell, e.g. powershell ".\my_ps_script.ps1".
+				App_Vec.emplace_back(first_zip_name);		// Add the filename with the prepended ".\" to the "AppVec" vector (36).
+				Sequence_Vec[31] = POWERSHELL;			// Swap index number to Linux PowerShell (pwsh 23)
+				Sequence_Vec[28] = WIN_POWERSHELL;		// Swap index number to Windows PowerShell (powershell 30)
+				Sequence_Vec[27] = PREPEND_FIRST_ZIP_NAME_REC;	// Swap index number to PREPEND_FIRST_ZIP_NAME_REC (36), used with the Windows powershell command.
+			}
+			insert_index = 18;
+			app_index = 25;
+			break;
+		case EXECUTABLE:	// These two cases (with minor changes) use the 4th sequence: [264,242,241,239,121,120,119,119,119,119] , [29,35,33,28,34,33,24,32,33,31].
+		case BASH_XDG_OPEN:
+			insert_index = app_index == EXECUTABLE ? 32 : 33;
+			app_index = insert_index == 32 ? 42 : 43;
+			break;
+		default:			// Unmatched file extensions. Rely on operating system to use the set default program for dealing with unknown file types.
+			insert_index = 10;	// Default uses 2nd sequence, we just need to alter one index number.
+			app_index = 14;
+			Sequence_Vec[17] = BASH_XDG_OPEN;	// Swap index number to BASH_XDG_OPEN (25)
 	}
 
 	// Set the sequence_limit variable using the first app_index value from each switch case sequence.
@@ -544,7 +539,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 
 	pdv.script_size = pdv.Script_Vec.size();
 
-	uint_fast8_t
+	int
 		chunk_length_index = 2,	// "Script_Vec" vector's index location for the "iCCP" chunk length field.
 		bits = 16;
 
@@ -576,7 +571,9 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 
 	pdv.combined_file_size = pdv.Script_Vec.size() + pdv.Image_Vec.size() + pdv.Zip_Vec.size();
 
-	constexpr uint_fast16_t MAX_SCRIPT_SIZE = 750;
+	constexpr int
+		MAX_SCRIPT_SIZE = 750,
+		ICCP_CHUNK_INDEX = 4;
 
 	// Display relevant error message and exit program if extraction script exceeds size limit.
 	if (pdv.script_size > MAX_SCRIPT_SIZE || pdv.combined_file_size > pdv.MAX_FILE_SIZE) {
@@ -584,8 +581,6 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 			: "The combined file size of your PNG image, ZIP file and Extraction Script, exceeds file size limit") << ".\n\n";
 		std::exit(EXIT_FAILURE);
 	}
-
-	constexpr uint_fast8_t ICCP_CHUNK_INDEX = 4;
 
 	// Now the "iCCP" chunk is complete with the extraction script, we need to update the chunk's CRC value.
 	// Pass these two values (ICCP_CHUNK_INDEX & iCCP chunk size (script_size) - 8) to the CRC function to get correct "iCCP" chunk CRC value.
@@ -609,7 +604,7 @@ void Combine_Vectors(PDV_STRUCT& pdv) {
 	// This value will be used as the insert location within vector "Image_Vec" for contents of vector "Script_Vec". 
 	// Script_Vec's inserted contents will appear within the "iCCP" chunk, just after the "IHDR" chunk of "Image_Vec".
 
-	constexpr uint_fast8_t FIRST_IDAT_INDEX = 33;
+	constexpr int FIRST_IDAT_INDEX = 33;
 
 	std::cout << "\nEmbedding extraction script within the PNG image.\n";
 
@@ -623,40 +618,38 @@ void Combine_Vectors(PDV_STRUCT& pdv) {
 
 	pdv.Image_Vec.insert((pdv.Image_Vec.end() - 12), pdv.Zip_Vec.begin(), pdv.Zip_Vec.end());
 
-	const size_t LAST_IDAT_END_INDEX = pdv.image_size + pdv.script_size - 8;
+	const size_t IDAT_ZIP_INDEX = pdv.image_size + pdv.script_size - 8;
 
 	// Before updating the last "IDAT" chunk's CRC value, adjust ZIP file offsets within this chunk, to their new locations, so that the ZIP file continues to be valid & extractable.
-	Fix_Zip_Offset(pdv, LAST_IDAT_END_INDEX);
+	Fix_Zip_Offset(pdv, IDAT_ZIP_INDEX);
 
 	// Get CRC value for our (new) last "IDAT" chunk.
-	// The +4 value points LAST_IDAT_END_INDEX variable value to the chunk name field, which is where the CRC calculation needs to begin/include.
-
-	const size_t LAST_IDAT_CRC = Crc(&pdv.Image_Vec[LAST_IDAT_END_INDEX], pdv.zip_size - 8); // We don't include the length or CRC fields (8 bytes).
+	const size_t IDAT_ZIP_CRC = Crc(&pdv.Image_Vec[IDAT_ZIP_INDEX], pdv.zip_size - 8); // We don't include the length or CRC fields (-8 bytes).
 
 	pdv.image_size = pdv.Image_Vec.size();
 
 	size_t crc_insert_index = pdv.image_size - 16;	// Get index location for last "IDAT" chunk's 4-byte CRC field, from vector "Image_Vec".
 
-	uint_fast8_t bits = 32;
+	int bits = 32;
 
 	pdv.big_endian = true;
 
 	// Write new CRC value into the last "IDAT" chunk's CRC index field, within the vector "Image_Vec".
-	Value_Updater(pdv.Image_Vec, crc_insert_index, LAST_IDAT_CRC, bits, pdv.big_endian);
+	Value_Updater(pdv.Image_Vec, crc_insert_index, IDAT_ZIP_CRC, bits, pdv.big_endian);
 
 	Write_Out_Polyglot_File(pdv);
 }
 
-void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& new_offset_start_index) {
+void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& IDAT_ZIP_INDEX) {
 
 	const std::string
 		START_CENTRAL_DIR_SIG = "PK\x01\x02",
 		END_CENTRAL_DIR_SIG = "PK\x05\x06",
 		ZIP_SIG = "PK\x03\x04";
-
+	
 	// Search vector "Image_Vec" (start from last "IDAT" chunk index) to get locations for "Start Central Directory" & "End Central Directory".
 	const size_t
-		START_CENTRAL_DIR_INDEX = std::search(pdv.Image_Vec.begin(), pdv.Image_Vec.end(), START_CENTRAL_DIR_SIG.begin(), START_CENTRAL_DIR_SIG.end()) - pdv.Image_Vec.begin(),
+		START_CENTRAL_DIR_INDEX = std::search(pdv.Image_Vec.begin() + IDAT_ZIP_INDEX, pdv.Image_Vec.end(), START_CENTRAL_DIR_SIG.begin(), START_CENTRAL_DIR_SIG.end()) - pdv.Image_Vec.begin(),
 		END_CENTRAL_DIR_INDEX = std::search(pdv.Image_Vec.begin() + START_CENTRAL_DIR_INDEX, pdv.Image_Vec.end(), END_CENTRAL_DIR_SIG.begin(), END_CENTRAL_DIR_SIG.end()) - pdv.Image_Vec.begin();
 
 	size_t
@@ -664,12 +657,12 @@ void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& new_offset_start_index) {
 		comment_length_index = END_CENTRAL_DIR_INDEX + 21,	// Index location for ZIP comment length.
 		end_central_start_index = END_CENTRAL_DIR_INDEX + 19,	// Index location for End Central Start offset.
 		central_local_index = START_CENTRAL_DIR_INDEX - 1,	// Initialise variable to just before Start Central index location.
-		new_offset = new_offset_start_index;			// Initialise variable to start index of last IDAT chunk.
+		new_offset = IDAT_ZIP_INDEX;				// Initialise variable to start index of last IDAT chunk, which contains user's ZIP file.
 
-	uint_fast16_t zip_records = (pdv.Image_Vec[zip_records_index] << 8) | pdv.Image_Vec[zip_records_index - 1];	// Get ZIP file records value from index location of vector "Image_Vec".
-
-	uint_fast8_t bits = 32;
-
+	int 
+		bits = 32,
+		zip_records = (pdv.Image_Vec[zip_records_index] << 8) | pdv.Image_Vec[zip_records_index - 1];	// Get ZIP file records value from index location of vector "Image_Vec".
+	
 	pdv.big_endian = false;
 
 	// Starting from the last "IDAT" chunk, search for ZIP file record offsets and update them to their new offset location.
@@ -678,7 +671,7 @@ void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& new_offset_start_index) {
 		central_local_index = 45 + std::search(pdv.Image_Vec.begin() + central_local_index, pdv.Image_Vec.end(), START_CENTRAL_DIR_SIG.begin(), START_CENTRAL_DIR_SIG.end()) - pdv.Image_Vec.begin();
 		Value_Updater(pdv.Image_Vec, central_local_index, new_offset, bits, pdv.big_endian);
 	}
-
+	
 	// Write updated "Start Central Directory" offset into End Central Directory's "Start Central Directory" index location within vector "Image_Vec".
 	Value_Updater(pdv.Image_Vec, end_central_start_index, START_CENTRAL_DIR_INDEX, bits, pdv.big_endian);
 
@@ -686,7 +679,7 @@ void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& new_offset_start_index) {
 	// To run a JAR file, you will need to rename the '.png' extension to '.jar'.  
 	// or run the command: "java -jar image_file_name.png"
 
-	uint_fast16_t comment_length = 16 + (static_cast<size_t>(pdv.Image_Vec[comment_length_index] << 8) | (static_cast<size_t>(pdv.Image_Vec[comment_length_index - 1])));
+	int comment_length = 16 + (static_cast<size_t>(pdv.Image_Vec[comment_length_index] << 8) | (static_cast<size_t>(pdv.Image_Vec[comment_length_index - 1])));
 
 	bits = 16;
 
@@ -702,9 +695,9 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 		NAME_VALUE = std::to_string(rand()),
 		PDV_FILENAME = "pzip_" + NAME_VALUE.substr(0, 5) + ".png"; // Unique filename for the complete polyglot image.
 
-	std::ofstream write_file_fs(PDV_FILENAME, std::ios::binary);
+	std::ofstream file_ofs(PDV_FILENAME, std::ios::binary);
 
-	if (!write_file_fs) {
+	if (!file_ofs) {
 		std::cerr << "\nWrite File Error: Unable to write to file.\n\n";
 		std::exit(EXIT_FAILURE);
 	}
@@ -712,13 +705,13 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 	std::cout << "\nWriting ZIP embedded PNG image out to disk.\n";
 
 	// Write out to file vector "Image_Vec" now containing the completed polyglot image (Image + Script + ZIP).
-	write_file_fs.write((char*)&pdv.Image_Vec[0], pdv.image_size);
+	file_ofs.write((char*)&pdv.Image_Vec[0], pdv.image_size);
 
 	std::cout << "\nSaved PNG image: " + PDV_FILENAME + '\x20' + std::to_string(pdv.image_size) + " Bytes.\n\nComplete!\n\nYou can now share your PNG-ZIP polyglot image on the relevant supported platforms.\n\n";
 }
 
 // The following code (slightly modified) to compute CRC32 (for "IDAT" & "iCCP" chunks) was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-uint_fast64_t Crc_Update(const uint_fast64_t& Crc, unsigned char* buf, const uint_fast64_t& len) {
+size_t Crc_Update(const size_t& Crc, Byte* buf, const size_t& len) {
 	// Table of CRCs of all 8-bit messages.
 	constexpr size_t Crc_Table[256]{
 		0x00, 	    0x77073096, 0xEE0E612C, 0x990951BA, 0x76DC419,  0x706AF48F, 0xE963A535, 0x9E6495A3, 0xEDB8832,  0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x9B64C2B,  0x7EB17CBD,
@@ -743,22 +736,21 @@ uint_fast64_t Crc_Update(const uint_fast64_t& Crc, unsigned char* buf, const uin
 
 	// Update a running CRC with the bytes buf[0..len - 1] the CRC should be initialized to all 1's, 
 	// and the transmitted value is the 1's complement of the final running CRC (see the crc() routine below).
-	uint_fast64_t c = Crc;
-	uint_fast32_t n;
+	size_t c = Crc;
 
-	for (n = 0; n < len; n++) {
+	for (int n = 0; n < len; n++) {
 		c = Crc_Table[(c ^ buf[n]) & 0xff] ^ (c >> 8);
 	}
 	return c;
 }
 
 // Return the CRC of the bytes buf[0..len-1].
-uint_fast64_t Crc(unsigned char* buf, const uint_fast64_t& len)
+size_t Crc(Byte* buf, const size_t& len)
 {
 	return Crc_Update(0xffffffffL, buf, len) ^ 0xffffffffL;
 }
 
-void Value_Updater(std::vector<unsigned char>& vec, size_t value_insert_index, const size_t& NEW_VALUE, uint_fast8_t bits, bool big_endian) {
+void Value_Updater(std::vector<Byte>& vec, size_t value_insert_index, const size_t& NEW_VALUE, int bits, bool big_endian) {
 
 	if (big_endian) {
 		while (bits) {
