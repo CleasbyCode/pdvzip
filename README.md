@@ -49,9 +49,6 @@ You can now share your PNG-ZIP polyglot image on the relevant supported platform
 After embedding the ZIP within an image, it can then be posted on a variety of social media/image hosting sites. "*Execute*" the image whenever you want to access the embedded file(s).
 
 ## Extracting Your Embedded File(s)  
-*For the embedded extraction script to work, please make sure **Windows** has the **tar** tool installed  
-and **Linux** has the **unzip** tool installed. While these are common utils, they are not always included by default.*  
-
 **Important:** *When ***saving*** images from **Twitter**, ***click the image in the post to fully expand it***, before saving.*
 
 **Linux** ***(Make sure image file has executable permissions)***
