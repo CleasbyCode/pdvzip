@@ -16,8 +16,6 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 Demo Videos: [***Twitter***](https://youtu.be/HlAoVHWoOO0) / [***Flickr***](https://youtu.be/xAEoU3C8HRA)  
 
-*When ***downloading*** images from **Twitter**, ***click the image in the post to fully expand it***, before saving.*
-
 Compile and run the program under Windows or **Linux**.
 
 ## Usage
@@ -52,7 +50,9 @@ After embedding the ZIP within an image, it can then be posted on a variety of s
 
 ## Extracting Your Embedded File(s)  
 *For the embedded extraction script to work, please make sure **Windows** has the **tar** tool installed  
-and **Linux** has the **unzip** tool installed. While these are common utils, they are not always included by default.*
+and **Linux** has the **unzip** tool installed. While these are common utils, they are not always included by default.*  
+
+*When ***saving*** images from **Twitter**, ***click the image in the post to fully expand it***, before saving.*
 
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
