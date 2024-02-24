@@ -52,7 +52,7 @@ After embedding the ZIP within an image, it can then be posted on a variety of s
 
 ## Extracting Your Embedded File(s)  
 *For the embedded extraction script to work, please make sure **Windows** has the **tar** tool installed  
-and **Linux** has the **unzip** tool installed While these are common utils, they are not always included by default.*
+and **Linux** has the **unzip** tool installed. While these are common utils, they are not always included by default.*
 
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
