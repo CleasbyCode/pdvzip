@@ -16,7 +16,9 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 Demo Videos: [***Twitter***](https://youtu.be/HlAoVHWoOO0) / [***Flickr***](https://youtu.be/xAEoU3C8HRA)  
 
-Compile and run the program under Windows or **Linux**.
+Compile and run the program under Windows or **Linux**.  
+
+*(You can try **pdvzip** from this [**site**](https://cleasbycode.co.uk/pdvzip/index/) if you don't want to download & compile the source code.)*
 
 ## Usage
 
