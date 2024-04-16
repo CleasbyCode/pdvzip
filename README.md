@@ -152,7 +152,7 @@ pdvzip uses the ***iCCP*** (stores small extraction script) and ***IDAT*** (stor
 
 To work out the maximum ZIP file size, start with the site's size limit, minus your PNG image size, minus 2500 bytes (extraction script size).  
   
-X/Twitter example: (5MB limit) 5,242,880 - (307,200 [image size] + 2500 [extraction script size]) = 4,933,100 bytes available for your ZIP file.  
+X/Twitter example: (5MB limit) 5,242,880 - (307,200 [image size] + 2500 [extraction script size]) = 4,933,180 bytes available for your ZIP file.  
 
 * Make sure your ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
 * Do not include other .zip files within the main ZIP archive. (.rar files are ok).
