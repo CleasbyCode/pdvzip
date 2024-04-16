@@ -86,17 +86,21 @@ Clear this by clicking '***More info***' then select '***Run anyway***'.
 
 To avoid security warnings, run the image file from a Windows console, as shown in the above example.  
 
-For common video/audio files, Linux will use vlc or mpv media players. Windows uses the default media player.  
-PDF '*.pdf*', Linux will use evince or firefox. Windows uses the default PDF viewer.  
-Python '*.py*', Linux & Windows use python3 to run these programs.  
-PowerShell '*.ps1*', Linux uses pwsh (if installed), Windows uses either powershell.exe or pwsh.exe to run these scripts.
+For common video/audio files, Linux will use ***vlc*** or ***mpv*** media players. Windows uses the default media player.  
+PDF '*.pdf*', Linux will use ***evince or ***firefox***. Windows uses the default PDF viewer.  
+Python '*.py*', Linux & Windows use ***python3*** to run these programs.  
+PowerShell '*.ps1*', Linux uses ***pwsh*** (if installed), Windows uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
 
 For any other file types, Linux & Windows will rely on the operating system's set default application.  
 Obviously, the embedded file needs to be compatible with the operating system you run it on.
 
-If the embedded media type is Python, PowerShell, Shell script or a Windows/Linux executable, you can provide optional command-line arguments for your file.
+If the zipped embedded media type is PowerShell, Python, Shell script or a Windows/Linux executable,  
+pdvzip will give you the option to provide command-line arguments for your file, if required.  
 
-[**Here is a video example**](https://asciinema.org/a/542549) of using **pdvzip** with a simple Shell script (.sh) with arguments for the script file, that are also embedded within the PNG image along with the extraction script.
+Make sure to enclosed arguments containing spaces, such as file and directory names, within quotation marks, e.g. : -e ../a_file.jpg "../another file.pdf"  
+Also be aware when using arguments, you are always working within the subdirectory ./pdvzip_extracted.
+
+[**Here is a video example**](https://asciinema.org/a/542549) of using **pdvzip** with a simple Bash shell script (.sh) with arguments, that are also embedded within the PNG image along with the extraction script.
   
 To just get access to the file(s) within the ZIP archive, rename the '*.png*' file extension to '*.zip*'. Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.
 
@@ -126,13 +130,13 @@ black & white/grayscale, images with 256 colors or less, will be converted by **
 
 Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of ***4096 x 4096***.
         
-**Chunks:**  
+**PNG Chunks:**  
 
 With **Twitter**, for example, you can overfill the following PNG chunks with arbitrary data,  
 in which the platform will preserve as long as you keep within the image dimension & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,***  
-***iCCP,*** (Only 10KB max. with Twitter).  
+***iCCP,*** (Limited chunk. Only 10KB max. with Twitter).  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
 ***PLTE,*** (Use only with PNG-32/24 images).  
 ***pHYs, sBIT, sPLT, sRGB,***   
@@ -140,16 +144,13 @@ in which the platform will preserve as long as you keep within the image dimensi
 
 *Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
-pdvzip uses the ***iCCP*** (contains extraction script) and ***IDAT*** (contains ZIP file) chunk names for storing arbitrary data.
+pdvzip uses the ***iCCP*** (stores small extraction script) and ***IDAT*** (stores the ZIP file) chunks for your arbitrary data.
 
 ## ZIP File Size & Other Important Information
 
-To work out the maximum ZIP file size, start with the hosting site's size limit,  
-minus your PNG image size, minus 750 bytes (internal shell extraction script size).  
+To work out the maximum ZIP file size, start with the site's size limit, minus your PNG image size, minus 2500 bytes (extraction script size).  
   
-Twitter example: (5MB) 5,242,880 - (307,200 + 750) = 4,934,930 bytes available for your ZIP file.  
-
-The less detailed your image, the more space available for the ZIP.
+Twitter example: (5MB limit) 5,242,880 - (307,200 [PNG image size] + 2500 [extraction script size]) = 4,933,100 bytes available for your ZIP file.  
 
 * Make sure your ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
 * Do not include other .zip files within the main ZIP archive. (.rar files are ok).
