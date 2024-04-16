@@ -6,7 +6,7 @@ You can share your image on X (Twitter) and a few other hosting sites, which wil
 
 **Image size limits vary across platforms:**
 
-* *Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB), Twitter (5MB).*
+* *X/Twitter (5MB), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB)*
   
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pdvimg_30657.png)  
 ***{Image credit: [MΞV.ai / @aest_artificial](https://twitter.com/aest_artificial)}*** 
