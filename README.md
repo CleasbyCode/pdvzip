@@ -74,7 +74,7 @@ G:\demo> .\pzip_55183.cmd
 
 ```
 Alternative execution (Windows).  Using ***iwr*** to download & run the image directly from the hosting site.  
-**Twitter** *iwr* example: **Image with embedded mp3 music file.**
+**X / Twitter** *iwr* example: **Image with embedded mp3 music file.**
 ```console
 
 G:\demo> iwr -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
