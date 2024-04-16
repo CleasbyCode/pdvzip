@@ -2,7 +2,7 @@
 A simple command-line tool used to embed a ZIP file within a PNG image,  
 creating a *tweetable* and "[***executable***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" PNG-ZIP polyglot image file.  
 
-You can share your image on X (Twitter) and a few other hosting sites, which will preserve the embedded **ZIP** file.
+You can share your image on **X/Twitter** and a few other hosting sites, which will preserve the embedded **ZIP** file.
 
 **Image size limits vary across platforms:**
 
