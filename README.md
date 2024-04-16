@@ -86,12 +86,12 @@ Clear this by clicking '***More info***' then select '***Run anyway***'.
 
 To avoid security warnings, run the image file from a Windows console, as shown in the above example.  
 
-For common video/audio files, Linux requires '***vlc (VideoLAN)***', Windows uses the set default media player.  
-PDF '*.pdf*', Linux requires the '***evince***' application, Windows uses the set default PDF viewer.  
-Python '*.py*', Linux & Windows use the '***python3***' command to run these programs.  
-PowerShell '*.ps1*', Linux uses the '***pwsh***' command, Windows uses '***powershell***' to run these scripts.
+For common video/audio files, Linux will use vlc or mpv media players. Windows uses the default media player.  
+PDF '*.pdf*', Linux will use evince or firefox. Windows uses the default PDF viewer.  
+Python '*.py*', Linux & Windows use python3 to run these programs.  
+PowerShell '*.ps1*', Linux uses pwsh (if installed), Windows uses either powershell.exe or pwsh.exe to run these scripts.
 
-For any other file type, Linux & Windows will rely on the operating system's set default application.  
+For any other file types, Linux & Windows will rely on the operating system's set default application.  
 Obviously, the embedded file needs to be compatible with the operating system you run it on.
 
 If the embedded media type is Python, PowerShell, Shell script or a Windows/Linux executable, you can provide optional command-line arguments for your file.
