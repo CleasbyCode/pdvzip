@@ -97,7 +97,9 @@ Obviously, the embedded file needs to be compatible with the operating system yo
 If the zipped embedded media type is PowerShell, Python, Shell script or a Windows/Linux executable,  
 pdvzip will give you the option to provide command-line arguments for your file, if required.  
 
-Make sure to enclosed arguments containing spaces, such as file and directory names, within quotation marks, e.g. : -e ../a_file.jpg "../another file.pdf"  
+Make sure to enclosed arguments containing spaces, such as file and directory names, within quotation marks,  
+e.g. : -e ../a_file.jpg "../another file.pdf"  
+
 Also be aware when using arguments, you are always working within the subdirectory ./pdvzip_extracted.
 
 [**Here is a video example**](https://asciinema.org/a/542549) of using **pdvzip** with a simple Bash shell script (.sh) with arguments, that are also embedded within the PNG image along with the extraction script.
