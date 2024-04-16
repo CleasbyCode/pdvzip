@@ -46,7 +46,7 @@ Complete!
 You can now share your PNG-ZIP polyglot image on the relevant supported platforms.
 
 ```
-After embedding the ZIP within an image, it can then be posted on a variety of social media/image hosting sites. "*Execute*" the image whenever you want to access the embedded file(s).
+After embedding the ZIP within an image, it can then be posted on a supported hosting site. "*Execute*" the image whenever you want to access the embedded file(s).
 
 ## Extracting Your Embedded File(s)  
 **Important:** *When ***saving*** images from **Twitter**, ***click the image in the post to fully expand it***, before saving.*
