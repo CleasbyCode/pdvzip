@@ -1,6 +1,6 @@
 # pdvzip
 A simple command-line tool used to embed a ZIP file within a PNG image,  
-creating a *tweetable* and "[*executable*](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" PNG-ZIP polyglot image file.  
+creating a *tweetable* and "[***executable***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" PNG-ZIP polyglot image file.  
 
 You can share your image on several *social media sites, which will preserve the embedded **ZIP** file.
 
