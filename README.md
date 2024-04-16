@@ -14,7 +14,7 @@ You can share your image on X (Twitter) and a few other hosting sites, which wil
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
 **pdvzip** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***accessing***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a PNG image.  
 
-Demo Videos: [***Twitter***](https://youtu.be/HlAoVHWoOO0) / [***Flickr***](https://youtu.be/xAEoU3C8HRA)
+Demo Videos: [***X/Twitter***](https://youtu.be/HlAoVHWoOO0) | [***Flickr***](https://youtu.be/xAEoU3C8HRA)
 
 Compile and run the program under Windows or **Linux**.  
 
@@ -49,7 +49,7 @@ You can now share your PNG-ZIP polyglot image on the relevant supported platform
 After embedding the ZIP within an image, it can then be posted on a supported hosting site. "*Execute*" the image whenever you want to access the embedded file(s).
 
 ## Extracting Your Embedded File(s)  
-**Important:** *When ***saving*** images from **X / Twitter**, ***click the image in the post to fully expand it***, before saving.*
+**Important:** *When ***saving*** images from **X/Twitter**, ***click the image in the post to fully expand it***, before saving.*
 
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
@@ -74,7 +74,7 @@ G:\demo> .\pzip_55183.cmd
 
 ```
 Alternative execution (Windows).  Using ***iwr*** to download & run the image directly from the hosting site.  
-**X / Twitter** *iwr* example: **Image with embedded mp3 music file.**
+**X/Twitter** *iwr* example: **Image with embedded mp3 music file.**
 ```console
 
 G:\demo> iwr -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
@@ -100,7 +100,7 @@ pdvzip will give you the option to provide command-line arguments for your file,
 Make sure to enclosed arguments containing spaces, such as file and directory names, within quotation marks,  
 e.g. : -e ../a_file.jpg "../another file.pdf"  
 
-Also be aware when using arguments, you are always working within the subdirectory ./pdvzip_extracted.
+Also, be aware when using arguments, you are always working within the subdirectory ./pdvzip_extracted.
 
 [**Here is a video example**](https://asciinema.org/a/542549) of using **pdvzip** with a simple Bash shell script (.sh) with arguments, that are also embedded within the PNG image along with the extraction script.
   
@@ -123,10 +123,10 @@ These dimension size limits are for compatibility reasons, allowing it to work w
 Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of ***899 x 899***.
 
 *Note: Images that are created & saved within your image editor as **PNG-32/24** that are either
-black & white/grayscale, images with 256 colors or less, will be converted by **Twitter** to
+black & white/grayscale, images with 256 colors or less, will be converted by **X/Twitter** to
 **PNG-8** and you will lose the embedded content. If you want to use a simple "single" color
 **PNG-32/24** image, then fill an area with a gradient color instead of a single solid color. 
-**Twitter** should then keep the image as **PNG-32/24**. [**(Example).**](https://twitter.com/CleasbyCode/status/1694992647121965554)*
+**X/Twitter** should then keep the image as **PNG-32/24**. [**(Example).**](https://twitter.com/CleasbyCode/status/1694992647121965554)*
     
 **PNG-8 (Indexed-color [3])**
 
@@ -134,11 +134,11 @@ Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of 
         
 **PNG Chunks:**  
 
-With **Twitter**, for example, you can overfill the following PNG chunks with arbitrary data,  
+With **X/Twitter**, for example, you can overfill the following PNG chunks with arbitrary data,  
 in which the platform will preserve as long as you keep within the image dimension & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,***  
-***iCCP,*** (Limited chunk. Only 10KB max. with Twitter).  
+***iCCP,*** (Limited chunk. Only 10KB max. with X/Twitter).  
 ***IDAT,*** (Use as last IDAT chunk, after the final image IDAT chunk).  
 ***PLTE,*** (Use only with PNG-32/24 images).  
 ***pHYs, sBIT, sPLT, sRGB,***   
@@ -152,7 +152,7 @@ pdvzip uses the ***iCCP*** (stores small extraction script) and ***IDAT*** (stor
 
 To work out the maximum ZIP file size, start with the site's size limit, minus your PNG image size, minus 2500 bytes (extraction script size).  
   
-Twitter example: (5MB limit) 5,242,880 - (307,200 [PNG image size] + 2500 [extraction script size]) = 4,933,100 bytes available for your ZIP file.  
+X/Twitter example: (5MB limit) 5,242,880 - (307,200 [image size] + 2500 [extraction script size]) = 4,933,100 bytes available for your ZIP file.  
 
 * Make sure your ZIP file is a standard ZIP archive, compatible with Linux unzip & Windows Explorer.
 * Do not include other .zip files within the main ZIP archive. (.rar files are ok).
