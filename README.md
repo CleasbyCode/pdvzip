@@ -59,10 +59,10 @@ user1@linuxbox:~/Desktop$ ./pzip_55183.png
 
 ```  
 Alternative execution (Linux).  Using ***wget*** to download & run the image directly from the hosting site.  
-**ImgBB** *wget* example: **Image with embedded python script**.
+**X/Twitter** *wget* example: **Image with embedded python script**.
 ```console
 
-$ wget "https://i.ibb.co/r6R7zdG/Fibonacci.png";chmod +x Fibonacci.png;./Fibonacci.png
+$ wget -O Fibonacci.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_?format=png";chmod +x Fibonacci.png;./Fibonacci.png
 
 ```   
 
