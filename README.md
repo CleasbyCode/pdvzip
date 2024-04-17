@@ -62,7 +62,7 @@ Alternative execution (Linux).  Using ***wget*** to download & run the image dir
 **X/Twitter** *wget* example: **Image with embedded python script**.
 ```console
 
-$ wget -O Fibonacci.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_?format=png";chmod +x Fibonacci.png;./Fibonacci.png
+wget -O Fibonacci.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_?format=png";chmod +x Fibonacci.png;./Fibonacci.png
 
 ```   
 
@@ -77,7 +77,7 @@ Alternative execution (Windows).  Using ***iwr*** to download & run the image di
 **Flickr** *iwr* example: **Image with embedded mp4 video file.**
 ```console
 
-G:\demo> iwr -o swing.cmd "https://live.staticflickr.com/65535/53660445495_16a6880388_o_d.png";.\swing.cmd
+iwr -o swing.cmd "https://live.staticflickr.com/65535/53660445495_16a6880388_o_d.png";.\swing.cmd
 
 ```
 
