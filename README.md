@@ -74,10 +74,10 @@ G:\demo> .\pzip_55183.cmd
 
 ```
 Alternative execution (Windows).  Using ***iwr*** to download & run the image directly from the hosting site.  
-**X/Twitter** *iwr* example: **Image with embedded mp3 music file.**
+**Flickr** *iwr* example: **Image with embedded mp4 video file.**
 ```console
 
-G:\demo> iwr -o img2.cmd "https://pbs.twimg.com/media/FsPOkPnWYAA0935?format=png";.\img2.cmd
+G:\demo> iwr -o swing.cmd "https://live.staticflickr.com/65535/53660445495_16a6880388_o_d.png";.\swing.cmd
 
 ```
 
