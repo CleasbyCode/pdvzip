@@ -27,7 +27,7 @@ struct PDV_STRUCT {
 };
 
 size_t
-// Code to compute CRC32 (for "IDAT" & "iCCP" chunks within this program) is taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
+// Code to compute CRC32 for PNG chunks, is taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
 Crc_Update(const size_t&, Byte*, const size_t&),
 Crc(Byte*, const size_t&);
 
@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
 			GET_ZIP_EXT = pdv.zip_name.length() > 2 ? pdv.zip_name.substr(pdv.zip_name.length() - 3) : pdv.zip_name;
 
 		if (GET_PNG_EXT != "png" || GET_ZIP_EXT != "zip" || !regex_match(pdv.image_name, REG_EXP) || !regex_match(pdv.zip_name, REG_EXP)) {
-			std::cerr << (GET_PNG_EXT != "png" || GET_ZIP_EXT != "zip" ? "\nFile Type Error: Invalid file extension found. Only expecting 'png' followed by 'zip'"
+			std::cerr << (GET_PNG_EXT != "png" || GET_ZIP_EXT != "zip" ? "\nFile Type Error: Invalid file extension found. Expecting only '.png' followed by '.zip'"
 				: "\nInvalid Input Error: Characters not supported by this program found within file name arguments") << ".\n\n";
 			std::exit(EXIT_FAILURE);
 		}
@@ -120,7 +120,7 @@ void Open_Files(PDV_STRUCT& pdv) {
 
 void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& image_ifs, std::ifstream& zip_ifs) {
 
-	// Vector "Image_Vec" stores the user's PNG image. Later, it will also store the contents of vectors "Script_Vec" and "Zip_Vec".
+	// Vector "Image_Vec" stores the user's PNG image. 
 	pdv.Image_Vec.assign(std::istreambuf_iterator<char>(image_ifs), std::istreambuf_iterator<char>());
 
 	pdv.image_size = pdv.Image_Vec.size();
@@ -163,13 +163,13 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& image_ifs, std::ifstream& 
 
 	constexpr int
 		MAX_TRUECOLOR_DIMS = 899,	// 899 x 899 maximum supported dimensions for PNG Truecolor (PNG-32/24, color types 2 & 6).
-		MAX_INDEXED_COLOR_DIMS = 4096,	// 4096 x 4096 maximum supported dimensions for PNG Indexed color (PNG-8, color type 3).
-		MIN_DIMS = 68,			// 68 x 68 minimum supported dimensions for both PNG Indexed color and Truecolor.
-		PNG_INDEXED_COLOR = 3,		// PNG-8, Indexed color value.
+		MAX_INDEXED_COLOR_DIMS = 4096,	// 4096 x 4096 maximum supported dimensions for PNG Indexed-color (PNG-8, color type 3).
+		MIN_DIMS = 68,			// 68 x 68 minimum supported dimensions for both PNG Indexed-color and Truecolor.
+		PNG_INDEXED_COLOR = 3,		// PNG-8, Indexed-color value.
 		PNG_TRUECOLOR = 2;		// PNG-24, Truecolour value. (We also use this value for PNG-32 (Truecolour with alpha 6), as we consider them the same for this program.
 
 	const bool
-		VALID_COLOR_TYPE = (PNG_COLOR_TYPE == PNG_INDEXED_COLOR) ? true		// Checking for valid color type of PNG image (PNG-32/24 Truecolor or PNG-8 Indexed color only).
+		VALID_COLOR_TYPE = (PNG_COLOR_TYPE == PNG_INDEXED_COLOR) ? true		// Checking for valid color type of PNG image (PNG-32/24 Truecolor or PNG-8 Indexed-color only).
 		: ((PNG_COLOR_TYPE == PNG_TRUECOLOR) ? true : false),
 
 		VALID_IMAGE_DIMS = (PNG_COLOR_TYPE == PNG_TRUECOLOR			// Checking for valid dimension size for PNG Truecolor (PNG-32/24) images.
@@ -177,15 +177,15 @@ void Check_Image_File(PDV_STRUCT& pdv, std::ifstream& image_ifs, std::ifstream& 
 			&& MAX_TRUECOLOR_DIMS >= IMAGE_HEIGHT_DIMS
 			&& IMAGE_WIDTH_DIMS >= MIN_DIMS
 			&& IMAGE_HEIGHT_DIMS >= MIN_DIMS) ? true
-		: ((PNG_COLOR_TYPE == PNG_INDEXED_COLOR					// Checking for valid dimension size for PNG Indexed color (PNG-8) images.
+		: ((PNG_COLOR_TYPE == PNG_INDEXED_COLOR					// Checking for valid dimension size for PNG Indexed-color (PNG-8) images.
 			&& MAX_INDEXED_COLOR_DIMS >= IMAGE_WIDTH_DIMS
 			&& MAX_INDEXED_COLOR_DIMS >= IMAGE_HEIGHT_DIMS
 			&& IMAGE_WIDTH_DIMS >= MIN_DIMS
 			&& IMAGE_HEIGHT_DIMS >= MIN_DIMS) ? true : false);
 
 	if (!VALID_COLOR_TYPE || !VALID_IMAGE_DIMS) {
-		std::cerr << "\nImage File Error: " << (!VALID_COLOR_TYPE ? "Color type of PNG image is not supported.\n\nPNG-32/24 (Truecolor) or PNG-8 (Indexed Color) only"
-			: "Dimensions of PNG image are not within the supported range.\n\nPNG-32/24 Truecolor: [68 x 68]<->[899 x 899].\nPNG-8 Indexed Color: [68 x 68]<->[4096 x 4096]") << ".\n\n";
+		std::cerr << "\nImage File Error: " << (!VALID_COLOR_TYPE ? "Color type of PNG image is not supported.\n\nPNG-32/24 (Truecolor) or PNG-8 (Indexed-Color) only"
+			: "Dimensions of PNG image are not within the supported range.\n\nPNG-32/24 Truecolor: [68 x 68]<->[899 x 899].\nPNG-8 Indexed-Color: [68 x 68]<->[4096 x 4096]") << ".\n\n";
 		std::exit(EXIT_FAILURE);
 	}
 
@@ -228,7 +228,7 @@ void Erase_Image_Chunks(PDV_STRUCT& pdv, std::ifstream& zip_ifs) {
 		std::exit(EXIT_FAILURE);
 	}
 
-	// *For PNG-8 Indexed color (3) we need to keep the PLTE chunk.
+	// *For PNG-8 Indexed-color (3) we need to keep the PLTE chunk.
 	if (Temp_Vec[25] == 3) {
 
 		const std::string PLTE_SIG = "PLTE";
@@ -313,7 +313,7 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	depending on file type, will attempt to open/display/play/run the first filename (or folder) within the ZIP file record by using an application command based on the matched file extension, 
 	or if no match found, defaulting to the operating system making the choice.
 
-	The completed script within the "iCCP" chunk will later be inserted into the vector "Image_Vec" which contains the user's PNG cover image file */
+	The completed script within the "iCCP" chunk will later be inserted into the vector "Image_Vec" which contains the user's PNG cover image. */
 
 	// "Extension_Vec" string vector stores file extensions for some common media types.
 	std::vector<std::string> Extension_Vec{ "3gp", "aac", "aif", "ala", "chd", "avi", "dsd", "f4v", "lac", "flv", "m4a", "mkv", "mov", "mp3", "mp4", "mpg", "peg", "ogg", "pcm", "swf", "wav", "ebm", "wma", "wmv", "pdf", ".py", "ps1", "exe", ".sh" };
@@ -742,11 +742,11 @@ void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& LAST_IDAT_CHUNK_INDEX_FIELD) 
 		END_CENTRAL_DIR_INDEX = std::search(pdv.Image_Vec.begin() + START_CENTRAL_DIR_INDEX, pdv.Image_Vec.end(), END_CENTRAL_DIR_SIG.begin(), END_CENTRAL_DIR_SIG.end()) - pdv.Image_Vec.begin();
 
 	size_t
-		zip_records_index = END_CENTRAL_DIR_INDEX + 11,		// Index location for ZIP file records value.
-		comment_length_index = END_CENTRAL_DIR_INDEX + 21,	// Index location for ZIP comment length.
-		end_central_start_index = END_CENTRAL_DIR_INDEX + 19,	// Index location for End Central Start offset.
-		central_local_index = START_CENTRAL_DIR_INDEX - 1,	// Initialise variable to just before Start Central index location.
-		new_offset = LAST_IDAT_CHUNK_INDEX_FIELD;		// Initialise variable to start index of last IDAT chunk, which contains user's ZIP file.
+		zip_records_index = END_CENTRAL_DIR_INDEX + 11,		
+		zip_comment_length_index = END_CENTRAL_DIR_INDEX + 21,	
+		end_central_start_index = END_CENTRAL_DIR_INDEX + 19,	
+		central_local_index = START_CENTRAL_DIR_INDEX - 1,	
+		new_offset = LAST_IDAT_CHUNK_INDEX_FIELD;	
 
 	int
 		value_length_bits = 32,
@@ -768,12 +768,12 @@ void Fix_Zip_Offset(PDV_STRUCT& pdv, const size_t& LAST_IDAT_CHUNK_INDEX_FIELD) 
 	// To run a JAR file, you will need to rename the '.png' extension to '.jar'.  
 	// or run the command: "java -jar image_file_name.png"
 
-	int comment_length = 16 + (static_cast<size_t>(pdv.Image_Vec[comment_length_index] << 8) | (static_cast<size_t>(pdv.Image_Vec[comment_length_index - 1])));
+	int zip_comment_length = 16 + (static_cast<size_t>(pdv.Image_Vec[zip_comment_length_index] << 8) | (static_cast<size_t>(pdv.Image_Vec[zip_comment_length_index - 1])));
 
 	value_length_bits = 16;
 
 	// Write the ZIP comment length value into the comment length index location within vector "Image_Vec".
-	Value_Updater(pdv.Image_Vec, comment_length_index, comment_length, value_length_bits, pdv.big_endian);
+	Value_Updater(pdv.Image_Vec, zip_comment_length_index, zip_comment_length, value_length_bits, pdv.big_endian);
 }
 
 void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
@@ -799,7 +799,7 @@ void Write_Out_Polyglot_File(PDV_STRUCT& pdv) {
 	std::cout << "\nSaved PNG image: " + PDV_FILENAME + '\x20' + std::to_string(pdv.image_size) + " Bytes.\n\nComplete!\n\nYou can now share your PNG-ZIP polyglot image on the relevant supported platforms.\n\n";
 }
 
-// The following code (slightly modified) to compute CRC32 (for "IDAT" & "iCCP" chunks) was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
+// The following code (slightly modified) to compute CRC32 for PNG chunks, was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
 size_t Crc_Update(const size_t& Crc, Byte* buf, const size_t& len) {
 	// Table of CRCs of all 8-bit messages.
 	constexpr size_t Crc_Table[256]{
