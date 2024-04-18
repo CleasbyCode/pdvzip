@@ -117,7 +117,7 @@ The site will either refuse to upload your image or it will convert your image t
 The following dimension size limits are specific to **pdvzip** and not necessarily the extact hosting site's size limits.
 These dimension size limits are for compatibility reasons, allowing it to work with all the above listed platforms.
 
-**PNG-32** (Truecolor with alpha [6]) / **PNG-24** (Truecolor [2]) 
+**PNG-32/24 (Truecolor)**
 
 Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of ***899 x 899***.
 
