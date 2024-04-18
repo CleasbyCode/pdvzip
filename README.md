@@ -127,7 +127,7 @@ black & white/grayscale, images with 256 colors or less, will be converted by **
 **PNG-32/24** image, then fill an area with a gradient color instead of a single solid color. 
 **X/Twitter** should then keep the image as **PNG-32/24**. [**(Example).**](https://twitter.com/CleasbyCode/status/1694992647121965554)*
     
-**PNG-8 (Indexed-color [3])**
+**PNG-8 (Indexed-color)**
 
 Image dimensions can be set between a minimum of ***68 x 68*** and a maximum of ***4096 x 4096***.
         
