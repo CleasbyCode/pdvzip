@@ -41,7 +41,7 @@ Saved PNG image: pzip_55183.png 4038367 Bytes.
 
 Complete!
 
-You can now share your PNG-ZIP polyglot image on the relevant supported platforms.
+You can now post your PNG-ZIP polyglot image on the relevant supported platforms.
 
 ``` 
 
