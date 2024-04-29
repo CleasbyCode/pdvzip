@@ -94,7 +94,7 @@ Obviously, the compressed/embedded file needs to be compatible with the operatin
 If the compressed/embedded file type is PowerShell, Python, Shell script or a Windows/Linux executable,  
 pdvzip will give you the option to provide command-line arguments for your file, if required.  
 
-Make sure to enclosed arguments containing spaces, such as file & directory names, within "quotation" marks. 
+Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. 
 ```console
 user1@linuxbox:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
