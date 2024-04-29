@@ -14,7 +14,7 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 Demo Videos: [***X/Twitter***](https://youtu.be/HlAoVHWoOO0) | [***Flickr***](https://youtu.be/xAEoU3C8HRA)
 
-Compile and run the program under Windows or **Linux**.  
+Compile and run the program under **Linux** or Windows.  
 
 ## Usage
 
