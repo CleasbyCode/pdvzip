@@ -87,7 +87,7 @@ For common video/audio files, Linux will use the ***vlc*** or ***mpv*** media pl
 PDF, Linux will use ***evince*** or ***firefox***. Windows uses the default PDF viewer.  
 Python, Linux & Windows use ***python3*** to run these programs.  
 PowerShell, Linux uses ***pwsh*** (if installed), Windows uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
-Folder, Linux uses xdg-open, Windows uses powershell.exe with II (Invoke-Item) command, to open zipped folders.
+Folder, Linux uses **xdg-open**, Windows uses **powershell.exe** with II (**Invoke-Item**) command, to open zipped folders.
 
 For any other file type, Linux & Windows will rely on the operating system's set default method/application.  
 Obviously, the compressed/embedded file needs to be compatible with the operating system you run it on.
