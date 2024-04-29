@@ -98,7 +98,7 @@ pdvzip will give you the option to provide command-line arguments for your file,
 
 Make sure to enclosed arguments containing spaces, such as file & directory names, within "quotation" marks. 
 ```console
-user1@linuxbox:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_executable.zip
+user1@linuxbox:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
 Reading files. Please wait...
 
@@ -106,12 +106,11 @@ For this file type you can provide command-line arguments here, if required.
 
 Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 
-Windows: -e ..\my_cover_image.jpg "..\my document file.pdf"
-
 ```
-Also, be aware when using arguments, you are always working within the subdirectory "*pdvzip_extracted*".
+Also, be aware when using arguments, you are always working from within the subdirectory "*pdvzip_extracted*".
   
-To just get access to the file(s) within the ZIP archive, rename the '*.png*' file extension to '*.zip*'. Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.
+To just get access to the file(s) within the ZIP archive, rename the '*.png*' file extension to '*.zip*'.  
+Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
