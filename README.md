@@ -30,7 +30,7 @@ Created PNG-ZIP polyglot image file: pzip_55183.png 4038367 Bytes.
 
 Complete!
 
-You can now post your PNG-ZIP polyglot image on the relevant supported platforms.
+You can now post this image on the relevant supported platforms.
 
 ``` 
 
