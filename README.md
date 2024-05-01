@@ -24,19 +24,9 @@ user1@linuxbox:~/Desktop$ ./pdvzip
 Usage: pdvzip <cover_image> <zip_file>
        pdvzip --info
 
-user1@linuxbox:~/Desktop$ ./pdvzip plate_image.png like_spinning_plates.zip
+user1@linuxbox:~/Desktop$ ./pdvzip boat_lake.png coding_pdf_doc.zip
 
-Reading files. Please wait...
-
-Updating extraction script.
-
-Embedding extraction script within the PNG image.
-
-Embedding ZIP file within the PNG image.
-
-Writing ZIP embedded PNG image out to disk.
-
-Saved PNG image: pzip_55183.png 4038367 Bytes.
+Created PNG-ZIP polyglot image file: pzip_55183.png 4038367 Bytes.
 
 Complete!
 
