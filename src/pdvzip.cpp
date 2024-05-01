@@ -768,7 +768,7 @@ void Write_Polyglot_File(PDV_STRUCT& pdv) {
 
 	file_ofs.write((char*)&pdv.Image_Vec[0], pdv.image_size);
 
-	std::cout << "\nCreated PNG-ZIP polyglot image file: " + PDV_FILENAME + '\x20' + std::to_string(pdv.image_size) + " Bytes.\n\nComplete!\n\nYou can now post your image on the relevant supported platforms.\n\n";
+	std::cout << "\nCreated PNG-ZIP polyglot image file: " + PDV_FILENAME + '\x20' + std::to_string(pdv.image_size) + " Bytes.\n\nComplete!\n\nYou can now post this image on the relevant supported platforms.\n\n";
 }
 
 // The following code (slightly modified) to compute CRC32 for PNG chunks, was taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
