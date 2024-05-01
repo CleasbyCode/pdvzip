@@ -689,6 +689,10 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 	// This now becomes the last "IDAT" chunk of the PNG image within vector "Image_Vec".
 	pdv.Image_Vec.insert((pdv.Image_Vec.end() - 12), pdv.Idat_Zip_Vec.begin(), pdv.Idat_Zip_Vec.end());
 
+	// We have finished with these vectors. 
+	Iccp_Script_Vec.clear(); pdv.Idat_Zip_Vec.clear();
+	Iccp_Script_Vec.shrink_to_fit(); pdv.Idat_Zip_Vec.shrink_to_fit();
+
 	const size_t LAST_IDAT_CHUNK_NAME_INDEX = pdv.image_size + iccp_chunk_script_size + 4;  // Set the index position to the start of the last "IDAT" chunk name field.
 
 	// Before updating the last "IDAT" chunk's CRC value, adjust ZIP file offsets within this chunk, to their new locations, so that the ZIP file continues to be valid & extractable.
