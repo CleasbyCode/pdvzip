@@ -5,7 +5,7 @@ You can post your image on **X/Twitter** and a few other hosting sites, which re
 
 **Image size limits:** *X/Twitter (5MB), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB).*
   
-![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_4436.png)  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_9845.png)  
 ***{Image credit: [MΞV.ai / @aest_artificial](https://twitter.com/aest_artificial)}*** 
  
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
