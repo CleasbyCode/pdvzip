@@ -114,7 +114,19 @@ Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 Also, be aware when using arguments, you are always working from within the subdirectory "*pdvzip_extracted*".
   
 To just get access to the file(s) within the ZIP archive, rename the '*.png*' file extension to '*.zip*'.  
-Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.
+Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.  
+
+## Executing Embedded JAR Files  
+
+Linux Option 1:
+```console
+user1@linuxbox:~/Desktop$ java -jar pzip_19662.png
+```
+Linux Option 2:
+```console
+user1@linuxbox:~/Desktop$ chmod +x pzip_19662.png
+user1@linuxbox:~/Desktop$ ./pzip_19662.png
+```
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
