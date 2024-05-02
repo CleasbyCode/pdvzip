@@ -106,8 +106,6 @@ Make sure to enclose arguments containing spaces, such as file & directory names
 ```console
 user1@linuxbox:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
-Reading files. Please wait...
-
 For this file type you can provide command-line arguments here, if required.
 
 Linux: -e ../my_cover_image.jpg "../my document file.pdf"
