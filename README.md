@@ -127,7 +127,15 @@ Linux Option 2:
 user1@linuxbox:~/Desktop$ chmod +x pzip_19662.png
 user1@linuxbox:~/Desktop$ ./pzip_19662.png
 ```
-
+Windows Option 1:
+```console
+PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pzip_19662.png
+```
+Windows Option 2:
+```console
+PS C:\Users\Nick\Desktop\jar_demo> ren .\pzip_19662.png .\pzip_19662.cmd
+PS C:\Users\Nick\Desktop\jar_demo> .\pzip_19662.cmd
+```
 ## PNG Image Requirements for Arbitrary Data Preservation
 
 
