@@ -53,7 +53,7 @@ You can now post this image on the relevant supported platforms.
 ## Extracting Your Embedded File(s)  
 **Important:** When saving images from **X/Twitter**, click the image in the post to **fully expand it**, before saving.  
 
-The following section deals with the execution/extraction of embedded ZIP files, JAR files are discussed later.  
+***The following section deals with the execution/extraction of embedded ZIP files. JAR files are discussed later.***
 
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
