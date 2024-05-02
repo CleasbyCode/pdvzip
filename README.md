@@ -35,7 +35,6 @@ You can now post this image on the relevant supported platforms.
 ## Usage (JAR)
 
 ```console
-user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
 user1@linuxbox:~/Desktop$ ./pdvzip
 
 Usage: pdvzip <png> <zip/jar>
