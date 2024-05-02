@@ -14,7 +14,7 @@ Demo Videos: [***X/Twitter***](https://youtu.be/HlAoVHWoOO0) | [***Flickr***](ht
 
 Compile and run the program under **Linux** or Windows.  
 
-## Usage
+## Usage (ZIP)
 
 ```console
 user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
@@ -32,6 +32,24 @@ Complete!
 You can now post this image on the relevant supported platforms.
 
 ``` 
+## Usage (JAR)
+
+```console
+user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
+user1@linuxbox:~/Desktop$ ./pdvzip
+
+Usage: pdvzip <png> <zip/jar>
+       pdvzip --info
+
+user1@linuxbox:~/Desktop$ ./pdvzip blue_bottle.png hello_world.jar
+
+Created PNG-JAR polyglot image file: pzip_19662.png 1016336 Bytes.
+
+Complete!
+
+You can now post this image on the relevant supported platforms.
+
+```
 
 ## Extracting Your Embedded File(s)  
 **Important:** When saving images from **X/Twitter**, click the image in the post to **fully expand it**, before saving.
