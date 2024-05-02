@@ -22,6 +22,7 @@ user1@linuxbox:~/Desktop$ ./pdvzip
 
 Usage: pdvzip <png> <zip/jar>
        pdvzip --info
+
 user1@linuxbox:~/Desktop$ ./pdvzip boat_lake.png coding_pdf_doc.zip
 
 Created PNG-ZIP polyglot image file: pzip_55183.png 4038367 Bytes.
