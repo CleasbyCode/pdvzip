@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 			GET_ZIP_EXT = pdv.zip_name.length() > 2 ? pdv.zip_name.substr(pdv.zip_name.length() - 3) : pdv.zip_name;
 
 		if (GET_PNG_EXT != "png" || GET_ZIP_EXT != "zip" && GET_ZIP_EXT != "jar" || !regex_match(pdv.image_name, REG_EXP) || !regex_match(pdv.zip_name, REG_EXP)) {
-			std::cerr << (GET_PNG_EXT != "png" || GET_ZIP_EXT != "zip" ? "\nFile Type Error: Invalid file extension found. Expecting only '.png' followed by '.zip'"
+			std::cerr << (GET_PNG_EXT != "png" || GET_ZIP_EXT != "zip" ? "\nFile Type Error: Invalid file extension found. Expecting only '.png' followed by '.zip/.jar'"
 				: "\nInvalid Input Error: Characters not supported by this program found within file name arguments") << ".\n\n";
 			std::exit(EXIT_FAILURE);
 		}
