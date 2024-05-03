@@ -1,7 +1,7 @@
 # pdvzip
 Embed a ZIP/JAR file within a PNG image, to create a *tweetable* and "[*executable*](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" PNG-ZIP/JAR polyglot file.  
 
-You can post your image on **X/Twitter** and a few other hosting sites, which retain the embedded file.
+Post the image on **X/Twitter** and a few other hosting sites, which will retain the embedded archive.
 
 **Image size limits:** *X/Twitter (5MB), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB).*
   
@@ -48,7 +48,7 @@ You can now post this image on the relevant supported platforms.
 ## Extracting Your Embedded File(s)  
 **Important:** When saving images from **X/Twitter**, click the image in the post to **fully expand it**, before saving.  
 
-***The following section deals with the execution/extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***
+***The following section covers the execution/extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***
 
 **Linux** ***(Make sure image file has executable permissions)***
 ```console
