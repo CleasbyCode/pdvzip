@@ -10,7 +10,7 @@ Post the image on **X/Twitter** and a few other hosting sites, which will retain
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
 **pdvzip** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***accessing***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a PNG image.  
 
-Demo Videos: [***Python***](https://youtu.be/8pDWNaBXsIw) | [***Folder***](https://youtu.be/K6E0dYsTVYs) | [***MP4***](https://youtu.be/UUqsQVo2k40) | [***Executable***](https://youtu.be/V6iwfq4qfCQ) | [***PowerShell (Windows)***](https://youtu.be/uEWyCfNj7g8) | [***PDF***](https://youtu.be/ru83yVcDi8k) [***Shell Script***](https://youtu.be/39xEmJXqEz0) | [***Jar File*** (Linux/Windows)](https://youtu.be/3FZ8COgG0vU)
+Demo Videos: [***Python***](https://youtu.be/8pDWNaBXsIw) | [***Folder***](https://youtu.be/K6E0dYsTVYs) | [***MP4***](https://youtu.be/UUqsQVo2k40) | [***Executable***](https://youtu.be/V6iwfq4qfCQ) | [***PowerShell (Windows)***](https://youtu.be/uEWyCfNj7g8) | [***PDF***](https://youtu.be/ru83yVcDi8k) | [***Shell Script***](https://youtu.be/39xEmJXqEz0) | [***Jar File*** (Linux/Windows)](https://youtu.be/3FZ8COgG0vU)
 
 Compile and run the program under **Linux** or Windows.  
 
