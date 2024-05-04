@@ -677,7 +677,8 @@ void Complete_Extraction_Script(PDV_STRUCT& pdv) {
 			iccp_chunk_script_size = Iccp_Script_Vec.size() - 12;
 
 			pdv.value_length_bits = 16;
-
+			iccp_chunk_length_index = 2;
+			
 			Value_Updater(pdv, Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size); // Update size again.
 
 			break;
