@@ -9,20 +9,14 @@
 
 #include "extraction_scripts.cpp"
 #include "crc32.cpp"
+#include "value_updater.cpp"
+#include "adjust_zip.cpp"
 #include <unordered_map>
-#include <string>
 #include <regex>
 #include <iostream>
 #include <fstream>
-#include <algorithm>
 
 using uchar = unsigned char;
-
-static void valueUpdater(std::vector<uchar>& vec, size_t value_insert_index, const size_t NEW_VALUE, int value_bit_length, bool isBigEndian) {
-	while (value_bit_length) {
-		static_cast<size_t>(vec[isBigEndian ? value_insert_index++ : value_insert_index--] = (NEW_VALUE >> (value_bit_length -= 8)) & 0xff);
-	}
-}
 
 static size_t getFourByteValue(const std::vector<uchar>& vec, size_t index) {
 	return	(static_cast<size_t>(vec[index]) << 24) |
@@ -32,6 +26,8 @@ static size_t getFourByteValue(const std::vector<uchar>& vec, size_t index) {
 }
 
 void
+	valueUpdater(std::vector<uchar>&, size_t, const size_t, int, bool),
+	adjustZipOffsets(std::vector<uchar>&, const size_t, bool),
 	startPdv(const std::string&, const std::string&, bool),
 	displayInfo();
 
@@ -390,41 +386,11 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 
 	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INSERT_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
 	Image_Vec.insert((Image_Vec.end() - 12), Idat_Zip_Vec.begin(), Idat_Zip_Vec.end());
+	
+	const size_t LAST_IDAT_CHUNK_NAME_INDEX = image_size + iccp_chunk_script_size + 4;
 
-	const std::string
-		START_CENTRAL_DIR_SIG = "PK\x01\x02",
-		END_CENTRAL_DIR_SIG = "PK\x05\x06";
-
-	const size_t
-		LAST_IDAT_CHUNK_NAME_INDEX = image_size + iccp_chunk_script_size + 4,
-		START_CENTRAL_DIR_INDEX = std::search(Image_Vec.begin() + LAST_IDAT_CHUNK_NAME_INDEX, Image_Vec.end(), START_CENTRAL_DIR_SIG.begin(), START_CENTRAL_DIR_SIG.end()) - Image_Vec.begin(),
-		END_CENTRAL_DIR_INDEX = std::search(Image_Vec.begin() + START_CENTRAL_DIR_INDEX, Image_Vec.end(), END_CENTRAL_DIR_SIG.begin(), END_CENTRAL_DIR_SIG.end()) - Image_Vec.begin();
-
-	size_t
-		zip_records_index = END_CENTRAL_DIR_INDEX + 11,
-		zip_comment_length_index = END_CENTRAL_DIR_INDEX + 21,
-		end_central_start_index = END_CENTRAL_DIR_INDEX + 19,
-		central_local_index = START_CENTRAL_DIR_INDEX - 1,
-		new_offset = LAST_IDAT_CHUNK_NAME_INDEX;
-
-	int zip_records = (Image_Vec[zip_records_index] << 8) | Image_Vec[zip_records_index - 1];
-
-	isBigEndian = false;
-
-	while (zip_records--) {
-		new_offset = std::search(Image_Vec.begin() + new_offset + 1, Image_Vec.end(), ZIP_SIG.begin(), ZIP_SIG.end()) - Image_Vec.begin(),
-		central_local_index = 45 + std::search(Image_Vec.begin() + central_local_index, Image_Vec.end(), START_CENTRAL_DIR_SIG.begin(), START_CENTRAL_DIR_SIG.end()) - Image_Vec.begin();
-		valueUpdater(Image_Vec, central_local_index, new_offset, value_bit_length, isBigEndian);
-	}
-
-	valueUpdater(Image_Vec, end_central_start_index, START_CENTRAL_DIR_INDEX, value_bit_length, isBigEndian);
-
-	int zip_comment_length = 16 + (static_cast<size_t>(Image_Vec[zip_comment_length_index] << 8) | (static_cast<size_t>(Image_Vec[zip_comment_length_index - 1])));
-
-	value_bit_length = 16;
-
-	valueUpdater(Image_Vec, zip_comment_length_index, zip_comment_length, value_bit_length, isBigEndian);
-
+	adjustZipOffsets(Image_Vec, LAST_IDAT_CHUNK_NAME_INDEX, isBigEndian);
+	
 	const size_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], zip_size - 8, -1);
 
 	image_size = Image_Vec.size();
