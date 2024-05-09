@@ -17,8 +17,6 @@
 #include "erase_chunks.cpp"
 #include "information.cpp"
 
-using uchar = unsigned char;
-
 size_t
 	getFourByteValue(const std::vector<uchar>&, size_t),
 	eraseChunks(std::vector<uchar>&, size_t);
