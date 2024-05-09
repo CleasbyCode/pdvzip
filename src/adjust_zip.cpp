@@ -1,15 +1,16 @@
+// ZIP file has been moved to another location. We need to find and adjust the ZIP file record offsets to their new location.
 
 void adjustZipOffsets(std::vector<unsigned char>& Image_Vec, const size_t LAST_IDAT_CHUNK_NAME_INDEX, bool isBigEndian) {
-	
+ 
 	const std::string
 		ZIP_SIG = "\x50\x4B\x03\x04",
 		START_CENTRAL_DIR_SIG = "PK\x01\x02",
 		END_CENTRAL_DIR_SIG = "PK\x05\x06";
 
 	const size_t
-		START_CENTRAL_DIR_INDEX = std::search(Image_Vec.begin() + LAST_IDAT_CHUNK_NAME_INDEX, Image_Vec.end(),
+		START_CENTRAL_DIR_INDEX = std::search(Image_Vec.begin() + LAST_IDAT_CHUNK_NAME_INDEX, Image_Vec.end(), 		
 		START_CENTRAL_DIR_SIG.begin(), START_CENTRAL_DIR_SIG.end()) - Image_Vec.begin(),
-		END_CENTRAL_DIR_INDEX = std::search(Image_Vec.begin() + START_CENTRAL_DIR_INDEX, Image_Vec.end(), END_CENTRAL_DIR_SIG.begin(),	END_CENTRAL_DIR_SIG.end()) - Image_Vec.begin();
+		END_CENTRAL_DIR_INDEX = std::search(Image_Vec.begin() + START_CENTRAL_DIR_INDEX, Image_Vec.end(), END_CENTRAL_DIR_SIG.begin(), END_CENTRAL_DIR_SIG.end()) - Image_Vec.begin();
 
 	size_t
 		zip_records_index = END_CENTRAL_DIR_INDEX + 11,
@@ -20,9 +21,8 @@ void adjustZipOffsets(std::vector<unsigned char>& Image_Vec, const size_t LAST_I
 
 	uint16_t zip_records = (Image_Vec[zip_records_index] << 8) | Image_Vec[zip_records_index - 1];
 
-	uint8_t value_bit_length = 32;
-
 	isBigEndian = false;
+	uint8_t value_bit_length = 32;
 
 	while (zip_records--) {
 		new_offset = std::search(Image_Vec.begin() + new_offset + 1, Image_Vec.end(), ZIP_SIG.begin(), ZIP_SIG.end()) - Image_Vec.begin(),
