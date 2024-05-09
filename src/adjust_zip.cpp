@@ -1,6 +1,6 @@
 // ZIP file has been moved to another location. We need to find and adjust the ZIP file record offsets to their new location.
 
-void adjustZipOffsets(std::vector<unsigned char>& Image_Vec, const size_t LAST_IDAT_CHUNK_NAME_INDEX, bool isBigEndian) {
+void adjustZipOffsets(std::vector<uchar>& Image_Vec, const size_t LAST_IDAT_CHUNK_NAME_INDEX, bool isBigEndian) {
  
 	const std::string
 		ZIP_SIG = "\x50\x4B\x03\x04",
