@@ -14,7 +14,7 @@ Demo Videos: [***Python***](https://youtu.be/8pDWNaBXsIw) | [***Folder***](https
 
 Compile and run the program under **Linux** or Windows.  
 
-## Usage
+## Usage (Linux)
 
 ```console
 user1@linuxbox:~/Downloads/pdvzip-main/src$ g++ pdvzip.cpp -O2 -s -o pdvzip
