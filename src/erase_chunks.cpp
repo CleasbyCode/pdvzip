@@ -1,4 +1,4 @@
-
+// Erase chunks from cover image. Just keep the critical PNG chunks.
 size_t eraseChunks(std::vector<unsigned char>& Image_Vec, size_t image_size) {
 	
 	std::vector<unsigned char>Temp_Vec;
@@ -40,8 +40,7 @@ size_t eraseChunks(std::vector<unsigned char>& Image_Vec, size_t image_size) {
 				| (static_cast<size_t>(Image_Vec[PLTE_CHUNK_INDEX + 3])));
 
 			Temp_Vec.insert(Temp_Vec.end(), Image_Vec.begin() + PLTE_CHUNK_INDEX, Image_Vec.begin() + PLTE_CHUNK_INDEX + (PLTE_CHUNK_LENGTH + 12));
-		}
-		else {
+		} else {
 			std::cerr << "\nImage File Error: Required PLTE chunk not found for PNG-8 Indexed-color image.\n\n";
 			std::exit(EXIT_FAILURE);
 		}
