@@ -1,7 +1,8 @@
 // Erase chunks from cover image. Just keep the critical PNG chunks.
-size_t eraseChunks(std::vector<unsigned char>& Image_Vec, size_t image_size) {
+
+size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
 	
-	std::vector<unsigned char>Temp_Vec;
+	std::vector<uchar>Temp_Vec;
 
 	constexpr uint8_t PNG_HEADER_IHDR_CHUNK = 33;
 
