@@ -14,16 +14,18 @@ Demo Videos: [***Python***](https://youtu.be/8pDWNaBXsIw) | [***Folder***](https
 
 Compile and run the program under **Linux** or Windows.  
 
-## Usage (ZIP)
+## Usage
 
 ```console
-user1@linuxbox:~/Desktop$ g++ pdvzip.cpp -O2 -s -o pdvzip
-user1@linuxbox:~/Desktop$ ./pdvzip
+user1@linuxbox:~/Downloads/pdvzip-main/src$ g++ pdvzip.cpp -O2 -s -o pdvzip
+user1@linuxbox:~/Downloads/pdvzip-main/src$ sudo cp pdvzip /usr/bin
+
+user1@linuxbox:~/Desktop$ pdvzip
 
 Usage: pdvzip <png> <zip/jar>
        pdvzip --info
 
-user1@linuxbox:~/Desktop$ ./pdvzip boat_lake.png coding_pdf_doc.zip
+user1@linuxbox:~/Desktop$ pdvzip boat_lake.png coding_pdf_doc.zip
 
 Created PNG-ZIP polyglot image file: pzip_55183.png 4038367 Bytes.
 
@@ -31,11 +33,7 @@ Complete!
 
 You can now post this image on the relevant supported platforms.
 
-``` 
-## Usage (JAR)
-
-```console
-user1@linuxbox:~/Desktop$ ./pdvzip blue_bottle.png hello_world.jar
+user1@linuxbox:~/Desktop$ pdvzip blue_bottle.png hello_world.jar
 
 Created PNG-JAR polyglot image file: pzip_19662.png 1016336 Bytes.
 
@@ -43,8 +41,7 @@ Complete!
 
 You can now post this image on the relevant supported platforms.
 
-```
-
+``` 
 ## Extracting Your Embedded File(s)  
 **Important:** When saving images from **X/Twitter**, click the image in the post to **fully expand it**, before saving.  
 
