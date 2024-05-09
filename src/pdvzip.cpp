@@ -267,11 +267,13 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		if (extension_list_index == WINDOWS_EXECUTABLE || extension_list_index == LINUX_EXECUTABLE) {
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args.begin(), args.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILE_NAME.begin(), ZIP_RECORD_FIRST_FILE_NAME.end());
+			
 		} else if (extension_list_index > PDF && extension_list_index < WINDOWS_EXECUTABLE) {
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args_windows.begin(), args_windows.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILE_NAME.begin(), ZIP_RECORD_FIRST_FILE_NAME.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[3], args_linux.begin(), args_linux.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[4], ZIP_RECORD_FIRST_FILE_NAME.begin(), ZIP_RECORD_FIRST_FILE_NAME.end());
+			
 		} else { Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], ZIP_RECORD_FIRST_FILE_NAME.begin(), ZIP_RECORD_FIRST_FILE_NAME.end());
 			 Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILE_NAME.begin(), ZIP_RECORD_FIRST_FILE_NAME.end());
 		}
