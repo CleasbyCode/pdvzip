@@ -114,8 +114,8 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 	}
 	
 	const uint16_t
-		IMAGE_WIDTH = Image_Vec[18] << 8 | Image_Vec[19],
-		IMAGE_HEIGHT = Image_Vec[22] << 8 | Image_Vec[23];
+		IMAGE_WIDTH = (static_cast<uint16_t>(Image_Vec[18]) << 8) | Image_Vec[19],
+    		IMAGE_HEIGHT = (static_cast<uint16_t>(Image_Vec[22]) << 8) | Image_Vec[23];
 
 	const uint8_t IMAGE_COLOR_TYPE = Image_Vec[25] == 6 ? 2 : Image_Vec[25];
 
