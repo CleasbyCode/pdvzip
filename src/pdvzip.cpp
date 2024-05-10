@@ -282,6 +282,7 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 	size_t
 		iccp_chunk_script_size = Iccp_Script_Vec.size() - 12,
 		iccp_chunk_length_index{},
+		buf_index = 0,
 		initialize_crc_value = 0xffffffffL;
 
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, isBigEndian);
@@ -312,11 +313,9 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::exit(EXIT_FAILURE);
 	}
 
-	int n = -1;
-
 	const size_t
 		ICCP_CHUNK_LENGTH = iccp_chunk_script_size + 4,
-		ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH, n, initialize_crc_value);
+		ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH, buf_index, initialize_crc_value);
 
 	size_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
 
@@ -329,7 +328,7 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 
 	adjustZipOffsets(Image_Vec, LAST_IDAT_CHUNK_NAME_INDEX, isBigEndian);
 
-	const size_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], zip_size - 8, n, initialize_crc_value);
+	const size_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], zip_size - 8, buf_index, initialize_crc_value);
 
 	image_size = Image_Vec.size();
 
