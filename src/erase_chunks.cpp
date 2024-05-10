@@ -36,10 +36,7 @@ size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
 		const size_t PLTE_CHUNK_INDEX = std::search(Image_Vec.begin(), Image_Vec.end(), PLTE_SIG.begin(), PLTE_SIG.end()) - Image_Vec.begin() - 4;
 
 		if (idat_chunk_index > PLTE_CHUNK_INDEX) {
-			const size_t PLTE_CHUNK_LENGTH = ((static_cast<size_t>(Image_Vec[PLTE_CHUNK_INDEX + 1]) << 16)
-				| (static_cast<size_t>(Image_Vec[PLTE_CHUNK_INDEX + 2]) << 8)
-				| (static_cast<size_t>(Image_Vec[PLTE_CHUNK_INDEX + 3])));
-
+			const size_t PLTE_CHUNK_LENGTH = getFourByteValue(Image_Vec, PLTE_CHUNK_INDEX);
 			Temp_Vec.insert(Temp_Vec.end(), Image_Vec.begin() + PLTE_CHUNK_INDEX, Image_Vec.begin() + PLTE_CHUNK_INDEX + (PLTE_CHUNK_LENGTH + 12));
 		} else {
 			std::cerr << "\nImage File Error: Required PLTE chunk not found for PNG-8 Indexed-color image.\n\n";
