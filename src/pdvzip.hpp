@@ -18,6 +18,7 @@
 #include "information.cpp"
 
 size_t
+	crcUpdate(uchar*, size_t, size_t, size_t),
 	getFourByteValue(const std::vector<uchar>&, size_t),
 	eraseChunks(std::vector<uchar>&, size_t);
 
