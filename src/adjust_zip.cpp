@@ -19,8 +19,8 @@ void adjustZipOffsets(std::vector<uchar>& Image_Vec, const size_t LAST_IDAT_CHUN
 		central_local_index = START_CENTRAL_DIR_INDEX - 1,
 		new_offset = LAST_IDAT_CHUNK_NAME_INDEX;
 
-	uint16_t zip_records = (Image_Vec[zip_records_index] << 8) | Image_Vec[zip_records_index - 1];
-
+	uint16_t zip_records = (static_cast<uint16_t>(Image_Vec[zip_records_index]) << 8) | static_cast<uint16_t>(Image_Vec[zip_records_index - 1]);
+	
 	isBigEndian = false;
 	uint8_t value_bit_length = 32;
 
@@ -32,7 +32,7 @@ void adjustZipOffsets(std::vector<uchar>& Image_Vec, const size_t LAST_IDAT_CHUN
 
 	valueUpdater(Image_Vec, end_central_start_index, START_CENTRAL_DIR_INDEX, value_bit_length, isBigEndian);
 
-	uint16_t zip_comment_length = 16 + (static_cast<size_t>(Image_Vec[zip_comment_length_index] << 8) | (static_cast<size_t>(Image_Vec[zip_comment_length_index - 1])));
+	uint16_t zip_comment_length = 16 + ((static_cast<uint16_t>(Image_Vec[zip_comment_length_index]) << 8) | static_cast<uint16_t>(Image_Vec[zip_comment_length_index - 1]));
 
 	value_bit_length = 16;
 
