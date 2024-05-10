@@ -11,15 +11,15 @@ size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
 	const std::string IDAT_SIG = "IDAT";
 
 	size_t 
-		n = 0,
 		idat_chunk_index = std::search(Image_Vec.begin(), Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - Image_Vec.begin() - 4,
+		buf_index = 0,
 		initialize_crc_value = 0xffffffffL;
 
 	const size_t
 		FIRST_IDAT_CHUNK_LENGTH = getFourByteValue(Image_Vec, idat_chunk_index),
 		FIRST_IDAT_CHUNK_CRC_INDEX = idat_chunk_index + FIRST_IDAT_CHUNK_LENGTH + 8,
 		FIRST_IDAT_CHUNK_CRC = getFourByteValue(Image_Vec, FIRST_IDAT_CHUNK_CRC_INDEX),
-		CALC_FIRST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[idat_chunk_index + 4], FIRST_IDAT_CHUNK_LENGTH + 4, n, initialize_crc_value);
+		CALC_FIRST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[idat_chunk_index + 4], FIRST_IDAT_CHUNK_LENGTH + 4, buf_index, initialize_crc_value);
 
 	const uint8_t IMAGE_COLOR_TYPE = Image_Vec[25];
 	constexpr uint8_t INDEXED_COLOR_TYPE = 3;
