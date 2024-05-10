@@ -10,8 +10,8 @@ size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
 
 	const std::string IDAT_SIG = "IDAT";
 
-	int n = -1;
 	size_t 
+		n = 0,
 		idat_chunk_index = std::search(Image_Vec.begin(), Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - Image_Vec.begin() - 4,
 		initialize_crc_value = 0xffffffffL;
 
@@ -32,7 +32,6 @@ size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
 	if (IMAGE_COLOR_TYPE == INDEXED_COLOR_TYPE) {
 
 		const std::string PLTE_SIG = "PLTE";
-
 		const size_t PLTE_CHUNK_INDEX = std::search(Image_Vec.begin(), Image_Vec.end(), PLTE_SIG.begin(), PLTE_SIG.end()) - Image_Vec.begin() - 4;
 
 		if (idat_chunk_index > PLTE_CHUNK_INDEX) {
