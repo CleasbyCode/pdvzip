@@ -1,6 +1,6 @@
 // Erase chunks from cover image. Just keep the critical PNG chunks.
 
-size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
+uint32_t eraseChunks(std::vector<uchar>& Image_Vec, uint32_t image_size) {
 	
 	std::vector<uchar>Temp_Vec;
 
@@ -10,12 +10,12 @@ size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
 
 	const std::string IDAT_SIG = "IDAT";
 
-	size_t 
-		idat_chunk_index = std::search(Image_Vec.begin(), Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - Image_Vec.begin() - 4,
+	uint32_t
+		idat_chunk_index = static_cast<uint32_t>(std::search(Image_Vec.begin(), Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - Image_Vec.begin() - 4),
 		buf_index = 0,
 		initialize_crc_value = 0xffffffffL;
 
-	const size_t
+	const uint32_t
 		FIRST_IDAT_CHUNK_LENGTH = getFourByteValue(Image_Vec, idat_chunk_index),
 		FIRST_IDAT_CHUNK_CRC_INDEX = idat_chunk_index + FIRST_IDAT_CHUNK_LENGTH + 8,
 		FIRST_IDAT_CHUNK_CRC = getFourByteValue(Image_Vec, FIRST_IDAT_CHUNK_CRC_INDEX),
@@ -32,10 +32,10 @@ size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
 	if (IMAGE_COLOR_TYPE == INDEXED_COLOR_TYPE) {
 
 		const std::string PLTE_SIG = "PLTE";
-		const size_t PLTE_CHUNK_INDEX = std::search(Image_Vec.begin(), Image_Vec.end(), PLTE_SIG.begin(), PLTE_SIG.end()) - Image_Vec.begin() - 4;
+		const uint32_t PLTE_CHUNK_INDEX = static_cast<uint32_t>(std::search(Image_Vec.begin(), Image_Vec.end(), PLTE_SIG.begin(), PLTE_SIG.end()) - Image_Vec.begin() - 4);
 
 		if (idat_chunk_index > PLTE_CHUNK_INDEX) {
-			const size_t PLTE_CHUNK_LENGTH = getFourByteValue(Image_Vec, PLTE_CHUNK_INDEX);
+			const uint32_t PLTE_CHUNK_LENGTH = getFourByteValue(Image_Vec, PLTE_CHUNK_INDEX);
 			Temp_Vec.insert(Temp_Vec.end(), Image_Vec.begin() + PLTE_CHUNK_INDEX, Image_Vec.begin() + PLTE_CHUNK_INDEX + (PLTE_CHUNK_LENGTH + 12));
 		} else {
 			std::cerr << "\nImage File Error: Required PLTE chunk not found for PNG-8 Indexed-color image.\n\n";
@@ -44,15 +44,14 @@ size_t eraseChunks(std::vector<uchar>& Image_Vec, size_t image_size) {
 	}
 
 	while (image_size != idat_chunk_index + 4) {
-		const size_t IDAT_CHUNK_LENGTH = getFourByteValue(Image_Vec, idat_chunk_index);
+		const uint32_t IDAT_CHUNK_LENGTH = getFourByteValue(Image_Vec, idat_chunk_index);
 		Temp_Vec.insert(Temp_Vec.end(), Image_Vec.begin() + idat_chunk_index, Image_Vec.begin() + idat_chunk_index + (IDAT_CHUNK_LENGTH + 12));
-		idat_chunk_index = std::search(Image_Vec.begin() + idat_chunk_index + 6, Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - Image_Vec.begin() - 4;
+		idat_chunk_index = static_cast<uint32_t>(std::search(Image_Vec.begin() + idat_chunk_index + 6, Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - Image_Vec.begin() - 4);
 	}
 
 	constexpr uint8_t PNG_IEND_LENGTH = 12;
 
 	Temp_Vec.insert(Temp_Vec.end(), Image_Vec.end() - PNG_IEND_LENGTH, Image_Vec.end());
-
 	Temp_Vec.swap(Image_Vec);
 
 	return Image_Vec.size();
