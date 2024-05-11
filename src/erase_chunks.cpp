@@ -12,7 +12,7 @@ uint32_t eraseChunks(std::vector<uchar>& Image_Vec, uint32_t image_size) {
 
 	uint32_t
 		idat_chunk_index = static_cast<uint32_t>(std::search(Image_Vec.begin(), Image_Vec.end(), IDAT_SIG.begin(), IDAT_SIG.end()) - Image_Vec.begin() - 4),
-		buf_index = 0,
+		buf_index{},
 		initialize_crc_value = 0xffffffffL;
 
 	const uint32_t
