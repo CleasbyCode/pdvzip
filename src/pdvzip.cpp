@@ -54,38 +54,37 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::exit(EXIT_FAILURE);
 	}
 
-	constexpr size_t
-		MAX_FILE_SIZE = 209715200,
-		MIN_FILE_SIZE = 30;
+	constexpr uint32_t MAX_FILE_SIZE = 209715200;
+	constexpr uint8_t MIN_FILE_SIZE = 30;
 
 	size_t
-		image_size{},
-		zip_size{},
-		combined_file_size{};
+		tmp_image_size{},
+		tmp_zip_size{},
+		tmp_combined_file_size{};
 
 	image_ifs.seekg(0, image_ifs.end);
-	image_size = image_ifs.tellg();
+	tmp_image_size = image_ifs.tellg();
 	image_ifs.seekg(0, image_ifs.beg);
 
 	zip_ifs.seekg(0, zip_ifs.end);
-	zip_size = zip_ifs.tellg();
+	tmp_zip_size = zip_ifs.tellg();
 	zip_ifs.seekg(0, zip_ifs.beg);
 
-	combined_file_size = image_size + zip_size;
+	tmp_combined_file_size = tmp_image_size + tmp_zip_size;
 
-	bool file_size_check = image_size && zip_size > MIN_FILE_SIZE && MAX_FILE_SIZE >= combined_file_size;
+	bool file_size_check = tmp_image_size && tmp_zip_size > MIN_FILE_SIZE && MAX_FILE_SIZE >= tmp_combined_file_size;
 
 	if (!file_size_check) {
-		std::cerr << "\nFile Size Error: " << (MIN_FILE_SIZE > image_size ? 
+		std::cerr << "\nFile Size Error: " << (MIN_FILE_SIZE > tmp_image_size ? 
 			"Invalid PNG image. File too small"
-			: (MIN_FILE_SIZE > zip_size ? "Invalid ZIP file. File too small"
+			: (MIN_FILE_SIZE > tmp_zip_size ? "Invalid ZIP file. File too small"
 			: "The combined file size of your PNG image and ZIP file exceeds maximum limit")) << ".\n\n";
 		std::exit(EXIT_FAILURE);
 	}
 
 	std::vector<uchar> Image_Vec((std::istreambuf_iterator<char>(image_ifs)), std::istreambuf_iterator<char>());
 
-	image_size = Image_Vec.size();
+	uint32_t image_size = static_cast<uint32_t>(Image_Vec.size());
 
 	const std::string
 		PNG_SIG = "\x89\x50\x4E\x47",
@@ -97,12 +96,11 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::cerr << "\nImage File Error: File does not appear to be a valid PNG image.\n\n";
 		std::exit(EXIT_FAILURE);
 	}
-
-	uint8_t ihdr_chunk_index = 18;
 	
 	constexpr uint8_t MAX_INDEX = 32;
-
 	constexpr char LINUX_PROBLEM_CHARACTERS[7]{ 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 };
+
+	uint8_t ihdr_chunk_index = 18;
 
 	while (ihdr_chunk_index++ != MAX_INDEX) {
 		if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS),
@@ -156,14 +154,13 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 
 	Idat_Zip_Vec.insert(Idat_Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(zip_ifs), std::istreambuf_iterator<char>());
 
-	zip_size = Idat_Zip_Vec.size();
+	uint32_t zip_size = static_cast<uint32_t>(Idat_Zip_Vec.size());
 
-	size_t idat_chunk_length_index{};
+	uint8_t 
+		idat_chunk_length_index{},
+		value_bit_length = 32;
 
-	bool isBigEndian = true;
-	uint8_t value_bit_length = 32;
-
-	valueUpdater(Idat_Zip_Vec, idat_chunk_length_index, zip_size - 12, value_bit_length, isBigEndian);
+	valueUpdater(Idat_Zip_Vec, idat_chunk_length_index, zip_size - 12, value_bit_length, true);
 
 	const std::string
 		ZIP_SIG = "\x50\x4B\x03\x04",
@@ -227,6 +224,7 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 	if (extension_list_index > PDF && extension_list_index < DEFAULT || extension_list_index == LINUX_EXECUTABLE) {
 
 		std::cout << "\nFor this file type, if required, you can provide command-line arguments here.\n";
+		
 		if (extension_list_index != WINDOWS_EXECUTABLE) {
 			std::cout << "\nLinux: ";
 			std::getline(std::cin, args_linux);
@@ -279,13 +277,14 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		}
 	}
 
-	size_t
-		iccp_chunk_script_size = Iccp_Script_Vec.size() - 12,
-		iccp_chunk_length_index{},
-		buf_index = 0,
+	uint8_t iccp_chunk_length_index{};
+	
+	uint32_t
+		iccp_chunk_script_size = static_cast<uint32_t>(Iccp_Script_Vec.size() - 12),
+		buf_index{},
 		initialize_crc_value = 0xffffffffL;
 
-	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, isBigEndian);
+	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
 
 	const uint8_t iccp_chunk_length_first_byte_value = Iccp_Script_Vec[3];
 
@@ -294,12 +293,12 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "..........";
 
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + iccp_chunk_script_size + 8, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
-			iccp_chunk_script_size = Iccp_Script_Vec.size() - 12;
+			iccp_chunk_script_size = static_cast<uint32_t>(Iccp_Script_Vec.size() - 12);
 
-			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, isBigEndian);
+			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
 	}
 	
-	combined_file_size = Iccp_Script_Vec.size() + Image_Vec.size() + Idat_Zip_Vec.size();
+	uint32_t combined_file_size = static_cast<uint32_t>(Iccp_Script_Vec.size() + Image_Vec.size() + Idat_Zip_Vec.size());
 
 	constexpr uint16_t MAX_SCRIPT_SIZE = 1500;
 	constexpr uint8_t
@@ -313,31 +312,30 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::exit(EXIT_FAILURE);
 	}
 
-	const size_t
+	const uint32_t
 		ICCP_CHUNK_LENGTH = iccp_chunk_script_size + 4,
 		ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH, buf_index, initialize_crc_value);
 
-	size_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
+	uint32_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
 
-	valueUpdater(Iccp_Script_Vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length, isBigEndian);
+	valueUpdater(Iccp_Script_Vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length, true);
 
 	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INSERT_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
 	Image_Vec.insert((Image_Vec.end() - 12), Idat_Zip_Vec.begin(), Idat_Zip_Vec.end());
 
-	const size_t LAST_IDAT_CHUNK_NAME_INDEX = image_size + iccp_chunk_script_size + 4;
+	const uint32_t LAST_IDAT_CHUNK_NAME_INDEX = image_size + iccp_chunk_script_size + 4;
 
-	adjustZipOffsets(Image_Vec, LAST_IDAT_CHUNK_NAME_INDEX, isBigEndian);
+	adjustZipOffsets(Image_Vec, LAST_IDAT_CHUNK_NAME_INDEX);
 
-	const size_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], zip_size - 8, buf_index, initialize_crc_value);
+	const uint32_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], zip_size - 8, buf_index, initialize_crc_value);
 
-	image_size = Image_Vec.size();
+	image_size = static_cast<uint32>(Image_Vec.size());
 
-	size_t last_idat_chunk_crc_index = image_size - 16;
-
-	isBigEndian = true;
+	uint32_t last_idat_chunk_crc_index = image_size - 16;
+	
 	value_bit_length = 32;
 
-	valueUpdater(Image_Vec, last_idat_chunk_crc_index, LAST_IDAT_CHUNK_CRC, value_bit_length, isBigEndian);
+	valueUpdater(Image_Vec, last_idat_chunk_crc_index, LAST_IDAT_CHUNK_CRC, value_bit_length, true);
 
 	srand((unsigned)time(NULL));
 
