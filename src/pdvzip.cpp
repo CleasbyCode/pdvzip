@@ -329,7 +329,7 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 
 	const uint32_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], zip_size - 8, buf_index, initialize_crc_value);
 
-	image_size = static_cast<uint32>(Image_Vec.size());
+	image_size = static_cast<uint32_t>(Image_Vec.size());
 
 	uint32_t last_idat_chunk_crc_index = image_size - 16;
 	
