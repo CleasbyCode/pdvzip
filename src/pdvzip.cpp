@@ -36,8 +36,8 @@ int main(int argc, char** argv) {
 			std::exit(EXIT_FAILURE);
 		}
 
-		if (GET_ZIP_EXT == "jar") { isZipFile = false; }
-
+		isZipFile = GET_ZIP_EXT == "jar" ? false : isZipFile;
+		
 		startPdv(IMAGE_NAME, ZIP_NAME, isZipFile);
 	}
 	return 0;
@@ -113,7 +113,7 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 	
 	const uint16_t
 		IMAGE_WIDTH = (static_cast<uint16_t>(Image_Vec[18]) << 8) | Image_Vec[19],
-    		IMAGE_HEIGHT = (static_cast<uint16_t>(Image_Vec[22]) << 8) | Image_Vec[23];
+		IMAGE_HEIGHT = (static_cast<uint16_t>(Image_Vec[22]) << 8) | Image_Vec[23];
 
 	const uint8_t IMAGE_COLOR_TYPE = Image_Vec[25] == 6 ? 2 : Image_Vec[25];
 
@@ -279,8 +279,9 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 
 	uint8_t iccp_chunk_length_index{};
 	
+	uint16_t iccp_chunk_script_size = static_cast<uint16_t>(Iccp_Script_Vec.size() - 12);
+
 	uint32_t
-		iccp_chunk_script_size = static_cast<uint32_t>(Iccp_Script_Vec.size() - 12),
 		buf_index{},
 		initialize_crc_value = 0xffffffffL;
 
@@ -293,7 +294,7 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "..........";
 
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + iccp_chunk_script_size + 8, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
-			iccp_chunk_script_size = static_cast<uint32_t>(Iccp_Script_Vec.size() - 12);
+			iccp_chunk_script_size = static_cast<uint16_t>(Iccp_Script_Vec.size() - 12);
 
 			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
 	}
@@ -312,11 +313,10 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::exit(EXIT_FAILURE);
 	}
 
-	const uint32_t
-		ICCP_CHUNK_LENGTH = iccp_chunk_script_size + 4,
-		ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH, buf_index, initialize_crc_value);
+	const uint16_t ICCP_CHUNK_LENGTH = iccp_chunk_script_size + 4;
+	const uint32_t ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH, buf_index, initialize_crc_value);
 
-	uint32_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
+	uint16_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
 
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length, true);
 
