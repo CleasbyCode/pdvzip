@@ -54,5 +54,5 @@ uint32_t eraseChunks(std::vector<uchar>& Image_Vec, uint32_t image_size) {
 	Temp_Vec.insert(Temp_Vec.end(), Image_Vec.end() - PNG_IEND_LENGTH, Image_Vec.end());
 	Temp_Vec.swap(Image_Vec);
 
-	return Image_Vec.size();
+	return static_cast<uint32_t>(Image_Vec.size());
 }
