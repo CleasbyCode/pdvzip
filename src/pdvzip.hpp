@@ -17,13 +17,13 @@
 #include "erase_chunks.cpp"
 #include "information.cpp"
 
-size_t
-	crcUpdate(uchar*, size_t, size_t, size_t),
-	getFourByteValue(const std::vector<uchar>&, size_t),
-	eraseChunks(std::vector<uchar>&, size_t);
+uint32_t
+	crcUpdate(uchar*, uint32_t, uint32_t, uint32_t),
+	getFourByteValue(const std::vector<uchar>&, uint32_t),
+	eraseChunks(std::vector<uchar>&, uint32_t);
 
 void 
 	startPdv(const std::string&, const std::string&, bool),
-	valueUpdater(std::vector<uchar>&, size_t, const size_t, uint8_t, bool),
-	adjustZipOffsets(std::vector<uchar>&, const size_t, bool),
+	valueUpdater(std::vector<uchar>&, uint32_t, const uint32_t, uint8_t, bool),
+	adjustZipOffsets(std::vector<uchar>&, const uint32_t),
 	displayInfo();
