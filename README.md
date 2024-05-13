@@ -17,7 +17,7 @@ Compile and run the program under **Linux** or Windows.
 ## Usage (Linux)
 
 ```console
-user1@linuxbox:~/Downloads/pdvzip-main/src$ g++ pdvzip.cpp -O2 -s -o pdvzip
+user1@linuxbox:~/Downloads/pdvzip-main/src$ g++ main.cpp -O2 -s -o pdvzip
 user1@linuxbox:~/Downloads/pdvzip-main/src$ sudo cp pdvzip /usr/bin
 
 user1@linuxbox:~/Desktop$ pdvzip
