@@ -2,7 +2,7 @@
 //	Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
 //	To compile program (Linux):
-// 	$ g++ pdvzip.cpp -O2 -s -o pdvzip
+// 	$ g++ main.cpp -O2 -s -o pdvzip
 
 // 	Run it:
 // 	$ ./pdvzip
@@ -42,5 +42,3 @@ int main(int argc, char** argv) {
 	}
 	return 0;
 }
-
-
