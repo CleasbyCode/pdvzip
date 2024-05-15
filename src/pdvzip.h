@@ -18,13 +18,13 @@
 #include "pdvzip.cpp"
 #include "information.cpp"
 
-uint32_t
-	crcUpdate(uchar*, uint32_t, uint32_t, uint32_t),
-	getFourByteValue(const std::vector<uchar>&, uint32_t),
-	eraseChunks(std::vector<uchar>&, uint32_t);
+uint_fast32_t
+	crcUpdate(uint_fast8_t*, uint_fast32_t, uint_fast32_t, uint_fast32_t),
+	getFourByteValue(const std::vector<uint_fast8_t>&, uint_fast32_t),
+	eraseChunks(std::vector<uint_fast8_t>&, uint_fast32_t);
 
 void 
 	startPdv(const std::string&, const std::string&, bool),
-	valueUpdater(std::vector<uchar>&, uint32_t, const uint32_t, uint8_t, bool),
-	adjustZipOffsets(std::vector<uchar>&, const uint32_t),
+	valueUpdater(std::vector<uint_fast8_t>&, uint_fast32_t, const uint_fast32_t, uint_fast8_t, bool),
+	adjustZipOffsets(std::vector<uint_fast8_t>&, const uint_fast32_t),
 	displayInfo();
