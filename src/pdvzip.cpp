@@ -10,8 +10,8 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::exit(EXIT_FAILURE);
 	}
 
-	constexpr uint32_t MAX_FILE_SIZE = 209715200;
-	constexpr uint8_t MIN_FILE_SIZE = 30;
+	constexpr uint_fast32_t MAX_FILE_SIZE = 209715200;
+	constexpr uint_fast8_t MIN_FILE_SIZE = 30;
 
 	size_t
 		tmp_image_size{},
@@ -38,9 +38,9 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::exit(EXIT_FAILURE);
 	}
 
-	std::vector<uchar> Image_Vec((std::istreambuf_iterator<char>(image_ifs)), std::istreambuf_iterator<char>());
+	std::vector<uint_fast8_t>Image_Vec((std::istreambuf_iterator<char>(image_ifs)), std::istreambuf_iterator<char>());
 
-	uint32_t image_size = static_cast<uint32_t>(Image_Vec.size());
+	uint_fast32_t image_size = static_cast<uint_fast32_t>(Image_Vec.size());
 
 	const std::string
 		PNG_SIG = "\x89\x50\x4E\x47",
@@ -53,10 +53,10 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::exit(EXIT_FAILURE);
 	}
 	
-	constexpr uint8_t MAX_INDEX = 32;
+	constexpr uint_fast8_t MAX_INDEX = 32;
 	constexpr char LINUX_PROBLEM_CHARACTERS[7]{ 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 };
 
-	uint8_t ihdr_chunk_index = 18;
+	uint_fast8_t ihdr_chunk_index = 18;
 
 	while (ihdr_chunk_index++ != MAX_INDEX) {
 		if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS),
@@ -67,17 +67,17 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		}
 	}
 	
-	const uint16_t
-		IMAGE_WIDTH = (static_cast<uint16_t>(Image_Vec[18]) << 8) | Image_Vec[19],
-		IMAGE_HEIGHT = (static_cast<uint16_t>(Image_Vec[22]) << 8) | Image_Vec[23];
+	const uint_fast16_t
+		IMAGE_WIDTH = (static_cast<uint_fast16_t>(Image_Vec[18]) << 8) | Image_Vec[19],
+		IMAGE_HEIGHT = (static_cast<uint_fast16_t>(Image_Vec[22]) << 8) | Image_Vec[23];
 
-	const uint8_t IMAGE_COLOR_TYPE = Image_Vec[25] == 6 ? 2 : Image_Vec[25];
+	const uint_fast8_t IMAGE_COLOR_TYPE = Image_Vec[25] == 6 ? 2 : Image_Vec[25];
 
-	constexpr uint16_t
+	constexpr uint_fast16_t
 		MAX_TRUECOLOR_DIMS = 899,
 		MAX_INDEXED_COLOR_DIMS = 4096;
 
-	constexpr uint8_t
+	constexpr uint_fast8_t
 		MIN_DIMS = 68,
 		INDEXED_COLOR_TYPE = 3,
 		TRUECOLOR_TYPE = 2;
@@ -106,13 +106,13 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 
 	image_size = eraseChunks(Image_Vec, image_size);
 
-	std::vector<uchar>Idat_Zip_Vec = {	0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
+	std::vector<uint_fast8_t>Idat_Zip_Vec = {	0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
 
 	Idat_Zip_Vec.insert(Idat_Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(zip_ifs), std::istreambuf_iterator<char>());
 
-	uint32_t zip_size = static_cast<uint32_t>(Idat_Zip_Vec.size());
+	uint_fast32_t zip_size = static_cast<uint_fast32_t>(Idat_Zip_Vec.size());
 
-	uint8_t 
+	uint_fast8_t 
 		idat_chunk_length_index{},
 		value_bit_length = 32;
 
@@ -122,9 +122,9 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		ZIP_SIG = "\x50\x4B\x03\x04",
 		GET_ZIP_SIG{ Idat_Zip_Vec.begin() + 8, Idat_Zip_Vec.begin() + 8 + ZIP_SIG.length() };
 
-	constexpr uint8_t MIN_INZIP_NAME_LENGTH = 4;
+	constexpr uint_fast8_t MIN_INZIP_NAME_LENGTH = 4;
 
-	const uint8_t INZIP_NAME_LENGTH = Idat_Zip_Vec[34];
+	const uint_fast8_t INZIP_NAME_LENGTH = Idat_Zip_Vec[34];
 
 	if (GET_ZIP_SIG != ZIP_SIG || MIN_INZIP_NAME_LENGTH > INZIP_NAME_LENGTH) {
 		std::cerr << "\nZIP File Error: " << (GET_ZIP_SIG != ZIP_SIG ? 
@@ -136,7 +136,7 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 	std::vector<std::string> Extension_List_Vec {	"3gp", "aac", "aif", "ala", "chd", "avi", "dsd", "f4v", "lac", "flv", "m4a", "mkv", "mov", "mp3", "mp4",
 							"mpg", "peg", "ogg", "pcm", "swf", "wav", "ebm", "wma", "wmv", "pdf", ".py", "ps1", ".sh", "exe" };
 
-	constexpr uint8_t
+	constexpr uint_fast8_t
 		ZIP_RECORD_FIRST_FILE_NAME_LENGTH_INDEX = 34, 
 		ZIP_RECORD_FIRST_FILE_NAME_INDEX = 38,
 
@@ -151,13 +151,13 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		LINUX_EXECUTABLE = 31, 
 		JAR = 32;
 
-	const uint8_t ZIP_RECORD_FIRST_FILE_NAME_LENGTH = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILE_NAME_LENGTH_INDEX];
+	const uint_fast8_t ZIP_RECORD_FIRST_FILE_NAME_LENGTH = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILE_NAME_LENGTH_INDEX];
 
 	const std::string
 		ZIP_RECORD_FIRST_FILE_NAME{ Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILE_NAME_INDEX, Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILE_NAME_INDEX + ZIP_RECORD_FIRST_FILE_NAME_LENGTH },
 		ZIP_RECORD_FIRST_FILE_NAME_EXTENSION = ZIP_RECORD_FIRST_FILE_NAME.substr(ZIP_RECORD_FIRST_FILE_NAME_LENGTH - 3, 3);
 
-	uint8_t extension_list_index = (isZipFile) ? 0 : JAR;
+	uint_fast8_t extension_list_index = (isZipFile) ? 0 : JAR;
 
 	const auto CHECK_FOR_FILE_EXTENSION = ZIP_RECORD_FIRST_FILE_NAME.find_last_of('.');
 
@@ -193,10 +193,10 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		}
 	}
 
-	std::vector<uchar> Iccp_Script_Vec = {	0x00, 0x00, 0x00, 0x00, 0x69, 0x43, 0x43, 0x50, 0x44, 0x56, 0x5A, 0x49, 0x50, 0x5F, 
-						0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
+	std::vector<uint_fast8_t> Iccp_Script_Vec = {	0x00, 0x00, 0x00, 0x00, 0x69, 0x43, 0x43, 0x50, 0x44, 0x56, 0x5A, 0x49, 0x50, 0x5F, 
+							0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
 
-	std::unordered_map<int8_t, std::vector<uint16_t>> case_map = {
+	std::unordered_map<int_fast8_t, std::vector<uint_fast16_t>> case_map = {
 		{VIDEO_AUDIO,		{	0, 484, 28}},
 		{PDF,			{	1, 406, 28}},
 		{PYTHON,		{	2, 267, 257, 188, 28}},
@@ -209,11 +209,11 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		{-1,			{	9, 295, 28}} // Default case
 	};
 
-	std::vector<uint16_t> Case_Values_Vec = case_map.count(extension_list_index) ? case_map[extension_list_index] : case_map[-1];
+	std::vector<uint_fast16_t> Case_Values_Vec = case_map.count(extension_list_index) ? case_map[extension_list_index] : case_map[-1];
 
-	const uint16_t SCRIPT = Case_Values_Vec[0];
+	const uint_fast16_t SCRIPT = Case_Values_Vec[0];
 
-	constexpr uint8_t SCRIPT_INSERT_INDEX = 22;
+	constexpr uint_fast8_t SCRIPT_INSERT_INDEX = 22;
 
 	Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + SCRIPT_INSERT_INDEX, Extraction_Scripts_Vec[SCRIPT].begin(), Extraction_Scripts_Vec[SCRIPT].end());
 
@@ -233,32 +233,32 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		}
 	}
 
-	uint8_t iccp_chunk_length_index{};
+	uint_fast8_t iccp_chunk_length_index{};
 	
-	uint16_t iccp_chunk_script_size = static_cast<uint16_t>(Iccp_Script_Vec.size() - 12);
+	uint_fast16_t iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size() - 12);
 
-	uint32_t
+	uint_fast32_t
 		buf_index{},
 		initialize_crc_value = 0xffffffffL;
 
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
 
-	const uint8_t iccp_chunk_length_first_byte_value = Iccp_Script_Vec[3];
+	const uint_fast8_t iccp_chunk_length_first_byte_value = Iccp_Script_Vec[3];
 
 	if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS), iccp_chunk_length_first_byte_value) != std::end(LINUX_PROBLEM_CHARACTERS)) {
 
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "..........";
 
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + iccp_chunk_script_size + 8, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
-			iccp_chunk_script_size = static_cast<uint16_t>(Iccp_Script_Vec.size() - 12);
+			iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size() - 12);
 
 			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
 	}
 	
-	uint32_t combined_file_size = static_cast<uint32_t>(Iccp_Script_Vec.size() + Image_Vec.size() + Idat_Zip_Vec.size());
+	uint_fast32_t combined_file_size = static_cast<uint_fast32_t>(Iccp_Script_Vec.size() + Image_Vec.size() + Idat_Zip_Vec.size());
 
-	constexpr uint16_t MAX_SCRIPT_SIZE = 1500;
-	constexpr uint8_t
+	constexpr uint_fast16_t MAX_SCRIPT_SIZE = 1500;
+	constexpr uint_fast8_t
 		ICCP_CHUNK_NAME_INDEX = 4,
 		ICCP_CHUNK_INSERT_INDEX = 33;
 
@@ -269,25 +269,25 @@ void startPdv(const std::string& IMAGE_NAME, const std::string& ZIP_NAME, bool i
 		std::exit(EXIT_FAILURE);
 	}
 
-	const uint16_t ICCP_CHUNK_LENGTH = iccp_chunk_script_size + 4;
-	const uint32_t ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH, buf_index, initialize_crc_value);
+	const uint_fast16_t ICCP_CHUNK_LENGTH = iccp_chunk_script_size + 4;
+	const uint_fast32_t ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH, buf_index, initialize_crc_value);
 
-	uint16_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
+	uint_fast16_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
 
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length, true);
 
 	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INSERT_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
 	Image_Vec.insert((Image_Vec.end() - 12), Idat_Zip_Vec.begin(), Idat_Zip_Vec.end());
 
-	const uint32_t LAST_IDAT_CHUNK_NAME_INDEX = image_size + iccp_chunk_script_size + 4;
+	const uint_fast32_t LAST_IDAT_CHUNK_NAME_INDEX = image_size + iccp_chunk_script_size + 4;
 
 	adjustZipOffsets(Image_Vec, LAST_IDAT_CHUNK_NAME_INDEX);
 
-	const uint32_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], zip_size - 8, buf_index, initialize_crc_value);
+	const uint_fast32_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], zip_size - 8, buf_index, initialize_crc_value);
 
-	image_size = static_cast<uint32_t>(Image_Vec.size());
+	image_size = static_cast<uint_fast32_t>(Image_Vec.size());
 
-	uint32_t last_idat_chunk_crc_index = image_size - 16;
+	uint_fast32_t last_idat_chunk_crc_index = image_size - 16;
 	
 	value_bit_length = 32;
 
