@@ -9,7 +9,7 @@ uint_fast32_t eraseChunks(std::vector<uint_fast8_t>& Image_Vec, uint_fast32_t im
 		PNG_IEND_LENGTH = 12,
 		INDEXED_COLOR_TYPE = 3,
 		PLTE_SIG[4]  { 0x50, 0x4C, 0x54, 0x45 },
-		IDAT_SIG [4] { 0x49, 0x44, 0x41, 0x54 };
+		IDAT_SIG[4]  { 0x49, 0x44, 0x41, 0x54 };
 
 	Temp_Vec.insert(Temp_Vec.begin(), Image_Vec.begin(), Image_Vec.begin() + PNG_HEADER_IHDR_CHUNK);
 
