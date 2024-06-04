@@ -3,6 +3,7 @@
 uint_fast32_t eraseChunks(std::vector<uint_fast8_t>& Image_Vec) {
 	
 	std::vector<uint_fast8_t>Temp_Vec;
+	Temp_Vec.reserve(Image_Vec.size());
 
 	constexpr uint_fast8_t 
 		PNG_HEADER_IHDR_CHUNK_LENGTH = 33,
