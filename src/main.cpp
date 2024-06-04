@@ -32,15 +32,15 @@ int main(int argc, char** argv) {
 
 		if (IMAGE_FILE_EXTENSION != "png" || (ZIP_FILE_EXTENSION != "zip" && ZIP_FILE_EXTENSION != "jar")) {
 			std::cerr << (IMAGE_FILE_EXTENSION != "png"
-				? "\nImage File Error: Invalid file extension. Expecting only \"png\""
-				: "\nZIP File Error: Invalid file extension. Expecting only \"zip/jar\"")
+					? "\nImage File Error: Invalid file extension. Expecting only \"png\""
+					: "\nZIP File Error: Invalid file extension. Expecting only \"zip/jar\"")
 				<< ".\n\n";
 		} else if (!regex_match(IMAGE_FILENAME, REG_EXP) || !regex_match(ZIP_FILENAME, REG_EXP)) {
 			std::cerr << "\nInvalid Input Error: Characters not supported by this program found within filename arguments.\n\n";
 		} else if (!std::filesystem::exists(IMAGE_FILENAME) || !std::filesystem::exists(ZIP_FILENAME)) {
 			std::cerr << (!std::filesystem::exists(IMAGE_FILENAME)
-				? "\nImage"
-				: "\nZIP")
+					? "\nImage"
+					: "\nZIP")
 				<< " File Error: File not found. Check the filename and try again.\n\n";
 		} else {
 			isFileCheckSuccess = true;
