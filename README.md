@@ -22,7 +22,7 @@ user1@linuxbox:~/Downloads/pdvzip-main/src$ sudo cp pdvzip /usr/bin
 
 user1@linuxbox:~/Desktop$ pdvzip
 
-Usage: pdvzip <png> <zip/jar>
+Usage: pdvzip <cover_image> <zip/jar>
        pdvzip --info
 
 user1@linuxbox:~/Desktop$ pdvzip boat_lake.png coding_pdf_doc.zip
