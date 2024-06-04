@@ -49,5 +49,4 @@ int main(int argc, char** argv) {
 	} else {
 		std::cout << "\nUsage: pdvzip <cover_image> <zip/jar>\n\t\bpdvzip --info\n\n";
 	}
-	return 0;
 }
