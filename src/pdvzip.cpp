@@ -110,6 +110,8 @@ void startPdv(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME
 
 	const uint_fast32_t IDAT_CHUNK_ZIP_FILE_SIZE = static_cast<uint_fast32_t>(Idat_Zip_Vec.size());
 
+	Image_Vec.reserve(IMAGE_VEC_SIZE + IDAT_CHUNK_ZIP_FILE_SIZE);
+
 	uint_fast8_t 
 		idat_chunk_length_index{},
 		value_bit_length = 32;
