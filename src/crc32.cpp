@@ -1,5 +1,4 @@
 // The following function (slightly modified) to compute CRC32 for PNG chunks is taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
-
 uint_fast32_t crcUpdate(uint_fast8_t* buf, uint_fast32_t buf_length) {
 	constexpr uint_fast32_t CRC_TABLE[] {
 		0x00,	    0x77073096, 0xEE0E612C, 0x990951BA, 0x76DC419,  0x706AF48F, 0xE963A535, 0x9E6495A3, 0xEDB8832,  0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x9B64C2B,  0x7EB17CBD,
@@ -26,6 +25,8 @@ uint_fast32_t crcUpdate(uint_fast8_t* buf, uint_fast32_t buf_length) {
 		buf_index{},
 		crc_value = 0xffffffffL;
 
-	while (buf_length--) { crc_value = CRC_TABLE[(crc_value ^ buf[buf_index++]) & 0xff] ^ (crc_value >> 8); }
+	while (buf_length--) { 
+		crc_value = CRC_TABLE[(crc_value ^ buf[buf_index++]) & 0xff] ^ (crc_value >> 8); 
+	}
 	return (crc_value) ^ 0xffffffffL;
 }
