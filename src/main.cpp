@@ -10,14 +10,13 @@
 #include "pdvzip.h"
 
 int main(int argc, char** argv) {
-	
 	if (argc == 2 && std::string(argv[1]) == "--info") {
 		displayInfo();
 	} else if (argc == 3) {
 		bool
 			isFileCheckSuccess = false,
 			isZipFile = true;
-
+		
 		std::string
 			IMAGE_FILENAME = argv[1],
 			ZIP_FILENAME = argv[2];
