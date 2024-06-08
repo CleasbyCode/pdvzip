@@ -240,7 +240,10 @@ void startPdv(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME
 			 Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
 		}
 	}
-
+	
+	Extraction_Scripts_Vec.clear();
+	Extraction_Scripts_Vec.shrink_to_fit();
+			   
 	uint_fast8_t iccp_chunk_length_index{};
 	
 	uint_fast32_t iccp_chunk_script_size = static_cast<uint_fast32_t>(Iccp_Script_Vec.size() - 12);
