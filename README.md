@@ -31,15 +31,11 @@ Created PNG-ZIP polyglot image file: pzip_55183.png 4038367 Bytes.
 
 Complete!
 
-You can now post this image on the relevant supported platforms.
-
 user1@linuxbox:~/Desktop$ pdvzip blue_bottle.png hello_world.jar
 
 Created PNG-JAR polyglot image file: pzip_19662.png 1016336 Bytes.
 
 Complete!
-
-You can now post this image on the relevant supported platforms.
 
 ``` 
 ## Extracting Your Embedded File(s)  
