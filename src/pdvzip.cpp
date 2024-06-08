@@ -321,5 +321,5 @@ void startPdv(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME
 		<< (isZipFile 
 			? "PNG-ZIP" 
 			: "PNG-JAR") 
-		<< " polyglot image file: " + POLYGLOT_FILENAME + '\x20' + std::to_string(COMPLETE_POLYGLOT_IMAGE_SIZE) + " Bytes.\n\nComplete!\n\nYou can now post your image on the relevant supported platforms.\n\n";
+		<< " polyglot image file: " + POLYGLOT_FILENAME + '\x20' + std::to_string(COMPLETE_POLYGLOT_IMAGE_SIZE) + " Bytes.\n\nComplete!\n\n";
 }
