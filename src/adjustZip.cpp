@@ -1,5 +1,4 @@
 // ZIP file has been moved to another location. We need to find and adjust the ZIP file record offsets to their new location.
-
 void adjustZipOffsets(std::vector<uint_fast8_t>& Image_Vec, const uint_fast32_t LAST_IDAT_CHUNK_NAME_INDEX) {
  
 	constexpr uint_fast8_t 
