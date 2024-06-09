@@ -1,4 +1,4 @@
-// 	PNG Data Vehicle, ZIP Edition (PDVZIP v2.3.6). 
+// 	PNG Data Vehicle, ZIP Edition (PDVZIP v2.3.7)
 //	Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
 //	To compile program (Linux):
