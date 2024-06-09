@@ -1,5 +1,4 @@
 // Vector array of 10 extraction scripts.
-
 std::vector<std::vector<uint_fast8_t>> Extraction_Scripts_Vec {
 	
 		// VIDEO & AUDIO
