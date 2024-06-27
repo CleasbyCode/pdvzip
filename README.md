@@ -3,7 +3,7 @@ Embed a ZIP or JAR file within a PNG image, to create a *tweetable* and "[*execu
 
 Post the image on **X/Twitter** and a few other hosting sites, which will retain the embedded archive.
 
-**Image size limits:** *X/Twitter (5MB), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB).*
+**Image size limits:** *X/Twitter (5MB + Dimension limits), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB).*
   
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_19690.png)  
  
