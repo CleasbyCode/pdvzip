@@ -43,18 +43,18 @@ Complete!
 
 ***The following section covers the execution/extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***
 
-**Linux, using Bash (or sh) shell environment** ***(Make sure image file has executable permissions)***
+**Linux, using bash (or sh) shell environment** ***(Make sure image file has executable permissions)***
 ```console
 
 user1@linuxbox:~/Desktop$ chmod +x pzip_55183.png
 user1@linuxbox:~/Desktop$ ./pzip_55183.png
 
 ```
-**Linux, for any other shell environment, you will need to invoke bash (or sh)** ***(Make sure image file has executable permissions)***
+**Linux, for any other shell environment, you will need to invoke bash (or sh) to execute the image**
 ```console
 
-user1@linuxbox:~/Desktop$ chmod +x pzip_55183.png
-user1@linuxbox:~/Desktop$ bash ./pzip_55183.png 
+linuxbox% chmod +x pzip_55183.png
+linuxbox% bash ./pzip_55183.png 
 
 ``` 
 Alternative execution (Linux).  Using ***wget*** to download & run the image directly from the hosting site.  
