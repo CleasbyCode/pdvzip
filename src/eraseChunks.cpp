@@ -14,9 +14,7 @@ uint_fast32_t eraseChunks(std::vector<uint_fast8_t>& Image_Vec) {
 
 	Temp_Vec.insert(Temp_Vec.begin(), Image_Vec.begin(), Image_Vec.begin() + PNG_HEADER_IHDR_CHUNK_LENGTH);
 
-	uint_fast32_t
-		idat_chunk_index = searchFunc(Image_Vec, 0, 0, IDAT_SIG) - 4,
-		idat_chunk_length{};
+	uint_fast32_t idat_chunk_index = searchFunc(Image_Vec, 0, 0, IDAT_SIG) - 4;
 
 	const uint_fast32_t
 		IMAGE_FILE_SIZE = getVecSize(Image_Vec),
