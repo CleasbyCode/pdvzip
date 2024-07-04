@@ -61,7 +61,7 @@ Alternative execution (Linux).  Using ***wget*** to download & run the image dir
 **X/Twitter** *wget* example: **Image with embedded python script**.
 ```console
 
-wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png";chmod +x Fibo.png;./Fibo.png
+wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png";chmod +x Fibo.png;bash ./Fibo.png
 
 ```   
 
