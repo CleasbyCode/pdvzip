@@ -113,20 +113,25 @@ Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP 
 
 ## Executing Embedded JAR Files  
 
-Linux Option 1:
+**Linux Option 1:**
 ```console
 user1@linuxbox:~/Desktop$ java -jar pzip_19662.png
 ```
-Linux Option 2:
+**Linux Option 2a, using bash (or sh) shell environment:**
 ```console
 user1@linuxbox:~/Desktop$ chmod +x pzip_19662.png
 user1@linuxbox:~/Desktop$ ./pzip_19662.png
 ```
-Windows Option 1:
+**Linux Option 2b, using any other shell environment, you will need to invoke bash (or sh) to execute the image:**
+```console
+linuxbox% chmod +x pzip_19662.png
+linuxbox% bash ./pzip_19662.png
+```
+**Windows Option 1:**
 ```console
 PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pzip_19662.png
 ```
-Windows Option 2:
+**Windows Option 2:**
 ```console
 PS C:\Users\Nick\Desktop\jar_demo> ren .\pzip_19662.png .\pzip_19662.cmd
 PS C:\Users\Nick\Desktop\jar_demo> .\pzip_19662.cmd
