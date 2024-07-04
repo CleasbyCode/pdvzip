@@ -185,8 +185,7 @@ void startPdv(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME
 		args_windows{},
 		args{};
 
-	if (extension_list_index > PDF && extension_list_index < DEFAULT || extension_list_index == LINUX_EXECUTABLE) {
-
+	if ((extension_list_index > PDF && extension_list_index < DEFAULT) || extension_list_index == LINUX_EXECUTABLE) {
 		std::cout << "\nFor this file type, if required, you can provide command-line arguments here.\n";
 		
 		if (extension_list_index != WINDOWS_EXECUTABLE) {
