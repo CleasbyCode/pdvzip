@@ -5,7 +5,7 @@ void startPdv(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME
 		TMP_ZIP_FILE_SIZE = std::filesystem::file_size(ZIP_FILENAME),
 		COMBINED_FILE_SIZE = TMP_ZIP_FILE_SIZE + TMP_IMAGE_FILE_SIZE;
 
-	constexpr uint_fast32_t MAX_FILE_SIZE = 209715200;
+	constexpr uint_fast32_t MAX_FILE_SIZE = 1094713344;
 	constexpr uint_fast8_t MIN_FILE_SIZE = 30;
 
 	if (COMBINED_FILE_SIZE > MAX_FILE_SIZE 
@@ -14,7 +14,7 @@ void startPdv(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME
 
 	   std::cerr << "\nFile Size Error: " 
 		<< (COMBINED_FILE_SIZE > MAX_FILE_SIZE 
-			? "Combined size of image and ZIP file exceeds the maximum limit of 200MB"
+			? "Combined size of image and ZIP file exceeds the maximum limit of 1GB"
         		: (MIN_FILE_SIZE > TMP_IMAGE_FILE_SIZE 
 	        		? "Image is too small to be a valid PNG image" 
 				: "ZIP file is too small to be a valid ZIP archive")) 	
