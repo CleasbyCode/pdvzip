@@ -44,14 +44,14 @@ Complete!
 
 ***The following section covers the execution/extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***
 
-**Linux, using bash (or sh) shell environment** ***(Make sure image file has executable permissions)***
+**Linux - using bash (or sh) shell environment** ***(Make sure image file has executable permissions)***
 ```console
 
 user1@linuxbox:~/Desktop$ chmod +x pzip_55183.png
 user1@linuxbox:~/Desktop$ ./pzip_55183.png
 
 ```
-**Linux, for any other shell environment, you will need to invoke bash (or sh) to execute the image**
+**For any other Linux shell environment, you will need to invoke bash (or sh) to execute the image**
 ```console
 
 linuxbox% chmod +x pzip_55183.png
@@ -87,10 +87,10 @@ Clear this by clicking '***More info***' then select '***Run anyway***'.
 To avoid security warnings, run the image file from a Windows console, as shown in the above example.  
 
 For common video/audio files, Linux will use the ***vlc*** or ***mpv*** media player. Windows uses the default media player.  
-PDF, Linux will use ***evince*** or ***firefox***. Windows uses the default PDF viewer.  
-Python, Linux & Windows use ***python3*** to run these programs.  
-PowerShell, Linux uses ***pwsh*** (if installed), Windows uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
-Folder, Linux uses **xdg-open**, Windows uses **powershell.exe** with II (**Invoke-Item**) command, to open zipped folders.
+PDF - Linux will use ***evince*** or ***firefox***. Windows uses the default PDF viewer.  
+Python - Linux & Windows use ***python3*** to run these programs.  
+PowerShell - Linux uses ***pwsh*** (if installed), Windows uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
+Folder - Linux uses **xdg-open**, Windows uses **powershell.exe** with II (**Invoke-Item**) command, to open zipped folders.
 
 For any other file type, Linux & Windows will rely on the operating system's set default method/application.  
 Obviously, the compressed/embedded file needs to be compatible with the operating system you run it on.
