@@ -81,7 +81,7 @@ iwr -o swing.cmd "https://live.staticflickr.com/65535/53660445495_16a6880388_o_d
 
 ```
 
-Opening the cmd file from the desktop, on its first run, Windows may display a security warning.  
+Opening the ***.cmd*** file from the desktop, on its first run, Windows may display a security warning.  
 Clear this by clicking '***More info***' then select '***Run anyway***'.  
 
 To avoid security warnings, run the image file from a Windows console, as shown in the above example.  
