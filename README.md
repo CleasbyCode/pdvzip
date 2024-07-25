@@ -42,7 +42,7 @@ Complete!
 ## Extracting Your Embedded File(s)  
 **Important:** When saving images from **X/Twitter**, click the image in the post to **fully expand it**, before saving.  
 
-***The following section covers the execution/extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***
+***The following section covers the extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***
 
 **Linux - using bash (or sh) shell environment.** ***Make sure image file has executable permissions.***
 ```console
