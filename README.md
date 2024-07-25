@@ -44,7 +44,7 @@ Complete!
 
 ***The following section covers the execution/extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***
 
-**Linux - using bash (or sh) shell environment** ***.Make sure image file has executable permissions.***
+**Linux - using bash (or sh) shell environment.** ***Make sure image file has executable permissions.***
 ```console
 
 user1@linuxbox:~/Desktop$ chmod +x pzip_55183.png
