@@ -51,7 +51,7 @@ user1@linuxbox:~/Desktop$ chmod +x pzip_55183.png
 user1@linuxbox:~/Desktop$ ./pzip_55183.png
 
 ```
-**For any other Linux shell environment, you will probably need to invoke bash (or sh) to execute the image.**
+**For any other Linux shell environment, you will probably need to invoke bash (or sh) to run the image file.**
 ```console
 
 linuxbox% chmod +x pzip_55183.png
