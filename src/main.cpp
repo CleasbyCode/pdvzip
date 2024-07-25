@@ -1,11 +1,12 @@
 // 	PNG Data Vehicle, ZIP Edition (PDVZIP v2.3.7)
 //	Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
-//	To compile program (Linux):
+//	To compile program (Linux), from the extracted repo / user@yourlinux:~/Downloads/pdvzip-main/src$
 // 	$ g++ main.cpp -O2 -s -o pdvzip
-
+//	$ sudo cp pdvzip /usr/bin
+//
 // 	Run it:
-// 	$ ./pdvzip
+// 	$ pdvzip
 
 #include "pdvzip.h"
 
