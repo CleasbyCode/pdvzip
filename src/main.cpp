@@ -17,14 +17,12 @@ int main(int argc, char** argv) {
 		bool
 			isFileCheckSuccess = false,
 			isZipFile = true;
-
-		std::string
-			IMAGE_FILENAME = argv[1],
-			ZIP_FILENAME = argv[2];
-
+		
 		const std::regex REG_EXP("(\\.[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+)?[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+?(\\.[a-zA-Z0-9]+)?");
 
 		const std::string
+			IMAGE_FILENAME = argv[1],
+			ZIP_FILENAME = argv[2],
 			IMAGE_FILE_EXTENSION = IMAGE_FILENAME.length() > 2 ? IMAGE_FILENAME.substr(IMAGE_FILENAME.length() - 3) : IMAGE_FILENAME,
 			ZIP_FILE_EXTENSION = ZIP_FILENAME.length() > 2 ? ZIP_FILENAME.substr(ZIP_FILENAME.length() - 3) : ZIP_FILENAME;
 
