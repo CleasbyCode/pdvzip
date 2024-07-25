@@ -95,7 +95,7 @@ Folder - Linux uses **xdg-open**, Windows uses **powershell.exe** with II (**Inv
 For any other file type, Linux & Windows will rely on the operating system's set default method/application.  
 Obviously, the compressed/embedded file needs to be compatible with the operating system you run it on.
 
-If the compressed/embedded file type is PowerShell, Python, Shell script or a Windows/Linux executable,  
+If the embedded archive file type is PowerShell, Python, Shell script or a Windows/Linux executable,  
 pdvzip will give you the option to provide command-line arguments for your file, if required.  
 
 Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. 
