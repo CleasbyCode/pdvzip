@@ -13,7 +13,7 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 Demo Videos: [***Python***](https://youtu.be/8pDWNaBXsIw) | [***Folder***](https://youtu.be/K6E0dYsTVYs) | [***MP4***](https://youtu.be/UUqsQVo2k40) | [***Executable***](https://youtu.be/V6iwfq4qfCQ) | [***PowerShell***](https://youtu.be/uEWyCfNj7g8) | [***PDF***](https://youtu.be/ru83yVcDi8k) | [***Shell Script***](https://youtu.be/39xEmJXqEz0) | [***JAR***](https://youtu.be/3FZ8COgG0vU)
 
-Compile and run the program under **Linux** or Windows.  
+Compile and run **pdvzip** under **Linux** or Windows.  
 
 ## Usage (Linux)
 
