@@ -37,7 +37,7 @@ void startPdv(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME
 		std::exit(EXIT_FAILURE);
 	}
 
-	std::vector<uint_fast8_t>Image_Vec((std::istreambuf_iterator<char>(image_file_ifs)), std::istreambuf_iterator<char>());
+	std::vector<uint8_t>Image_Vec((std::istreambuf_iterator<char>(image_file_ifs)), std::istreambuf_iterator<char>());
 
 	constexpr uint8_t
 		PNG_SIG[] 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
