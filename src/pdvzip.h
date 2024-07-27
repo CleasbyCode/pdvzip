@@ -22,19 +22,19 @@
 #include "pdvzip.cpp"
 #include "information.cpp"
 
-template <uint_fast8_t N>
-uint_fast32_t searchFunc(std::vector<uint_fast8_t>&, uint_fast32_t, uint_fast8_t, const uint_fast8_t (&)[N]);
+template <uint8_t N>
+uint32_t searchFunc(std::vector<uint8_t>&, uint32_t, uint8_t, const uint8_t (&)[N]);
 
-uint_fast16_t getTwoByteValue(const std::vector<uint_fast8_t>&, uint_fast32_t, bool);
+uint16_t getTwoByteValue(const std::vector<uint8_t>&, uint32_t, bool);
 
-uint_fast32_t
-	crcUpdate(uint_fast8_t*, uint_fast32_t),
-	getVecSize(const std::vector<uint_fast8_t>&),
-	eraseChunks(std::vector<uint_fast8_t>&),
-	getFourByteValue(const std::vector<uint_fast8_t>&, const uint_fast32_t);
+uint32_t
+	crcUpdate(uint8_t*, uint32_t),
+	getVecSize(const std::vector<uint8_t>&),
+	eraseChunks(std::vector<uint8_t>&),
+	getFourByteValue(const std::vector<uint8_t>&, const uint32_t);
 
 void 
 	startPdv(const std::string&, const std::string&, bool),
-	valueUpdater(std::vector<uint_fast8_t>&, uint_fast32_t, const uint_fast32_t, uint_fast8_t, bool),
-	adjustZipOffsets(std::vector<uint_fast8_t>&, const uint_fast32_t),
+	valueUpdater(std::vector<uint8_t>&, uint32_t, const uint32_t, uint8_t, bool),
+	adjustZipOffsets(std::vector<uint8_t>&, const uint32_t),
 	displayInfo();
