@@ -1,15 +1,15 @@
+// Check for valid image dimensions and color type.
 void checkImageSpecs(std::vector<uint8_t>& Vec) {
-
 	constexpr uint8_t
-			IMAGE_WIDTH_INDEX = 0x12,
-			IMAGE_HEIGHT_INDEX = 0x16,
-			IMAGE_COLOR_TYPE_INDEX = 0x19,
-			MIN_DIMS = 68,
-			INDEXED_COLOR_TYPE = 3,
-			TRUECOLOR_TYPE = 2,
-			BYTE_LENGTH = 2;
+		IMAGE_WIDTH_INDEX = 0x12,
+		IMAGE_HEIGHT_INDEX = 0x16,
+		IMAGE_COLOR_TYPE_INDEX = 0x19,
+		MIN_DIMS = 68,
+		INDEXED_COLOR_TYPE = 3,
+		TRUECOLOR_TYPE = 2,
+		BYTE_LENGTH = 2;
 
-	constexpr uint16_t
+	constexpr uint16_t 
 		MAX_TRUECOLOR_DIMS = 899,
 		MAX_INDEXED_COLOR_DIMS = 4096;
 
