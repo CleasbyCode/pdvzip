@@ -1,5 +1,4 @@
 bool writeFile(std::vector<uint8_t>& Vec, const uint32_t FILE_SIZE, bool isZipFile) {
-
 	srand((unsigned)time(NULL));
 
 	const std::string
