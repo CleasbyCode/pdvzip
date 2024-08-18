@@ -1,5 +1,4 @@
 int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, bool isZipFile) {
-
 	// Check cover image and ZIP file for valid file sizes.
 	const size_t 
 		IMAGE_FILE_SIZE = std::filesystem::file_size(IMAGE_FILENAME),
@@ -67,13 +66,13 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 
 	// Check cover image for valid image dimensions and color type values.
 	constexpr uint8_t
-			IMAGE_WIDTH_INDEX = 0x12,
-			IMAGE_HEIGHT_INDEX = 0x16,
-			IMAGE_COLOR_TYPE_INDEX = 0x19,
-			MIN_DIMS = 68,
-			INDEXED_COLOR_TYPE = 3,
-			TRUECOLOR_TYPE = 2,
-			BYTE_LENGTH = 2;
+		IMAGE_WIDTH_INDEX = 0x12,
+		IMAGE_HEIGHT_INDEX = 0x16,
+		IMAGE_COLOR_TYPE_INDEX = 0x19,
+		MIN_DIMS = 68,
+		INDEXED_COLOR_TYPE = 3,
+		TRUECOLOR_TYPE = 2,
+		BYTE_LENGTH = 2;
 
 	constexpr uint16_t
 		MAX_TRUECOLOR_DIMS = 899,
@@ -171,7 +170,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 	const uint16_t CHECK_FOR_FILE_EXTENSION = static_cast<uint16_t>(ZIP_RECORD_FIRST_FILENAME.find_last_of('.'));
 
 	if (CHECK_FOR_FILE_EXTENSION == 0 || CHECK_FOR_FILE_EXTENSION > ZIP_RECORD_FIRST_FILENAME_LENGTH ) {
-			extension_list_index = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/' ? FOLDER : LINUX_EXECUTABLE;
+		extension_list_index = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/' ? FOLDER : LINUX_EXECUTABLE;
 	}
 
 	if (extension_list_index != FOLDER && Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/') {
