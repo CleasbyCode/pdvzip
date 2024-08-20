@@ -5,7 +5,8 @@ bool eraseChunks(std::vector<uint8_t>& Vec) {
 	constexpr uint8_t 
 		PNG_HEADER_IHDR_CHUNK_LENGTH = 33,
 		PNG_IEND_CHUNK_LENGTH = 12,
-		INDEXED_COLOR_TYPE = 3,
+		PNG_COLOR_TYPE_INDEX = 0x19,
+		INDEXED_COLOR = 3,
 		BYTE_LENGTH = 4,
 
 		PLTE_SIG[] { 0x50, 0x4C, 0x54, 0x45 },
@@ -27,11 +28,9 @@ bool eraseChunks(std::vector<uint8_t>& Vec) {
 		return false;
 	}
 
-	const uint8_t 
-		IMAGE_COLOR_TYPE_INDEX = 0x19,
-		IMAGE_COLOR_TYPE = Vec[IMAGE_COLOR_TYPE_INDEX];
+	const uint8_t PNG_COLOR_TYPE = Vec[PNG_COLOR_TYPE_INDEX];
 
-	if (IMAGE_COLOR_TYPE == INDEXED_COLOR_TYPE) {
+	if (PNG_COLOR_TYPE == INDEXED_COLOR) {
 		const uint32_t PLTE_CHUNK_INDEX = searchFunc(Vec, 0, 0, PLTE_SIG) - 4;
 		if (idat_chunk_index > PLTE_CHUNK_INDEX) {
 			const uint32_t PLTE_CHUNK_LENGTH = getByteValue(Vec, PLTE_CHUNK_INDEX, BYTE_LENGTH, false);
