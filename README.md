@@ -6,7 +6,7 @@ Post and share the image on **X/Twitter** and a few other hosting sites, which w
 **Compatible hosting sites, listed below, have their own, much smaller, size limits (cover image + archive file):**
 * *X/Twitter (5MB + [***Dimension limits***](https://github.com/CleasbyCode/pdvzip?tab=readme-ov-file#png-image-requirements-for-arbitrary-data-preservation)), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB).*
   
-![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_26999.png)  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/zip.png)  
  
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
 **pdvzip** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a PNG image.  
