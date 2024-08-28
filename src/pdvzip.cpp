@@ -67,13 +67,13 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 
 	// Check cover image for valid image dimensions and color type values.
 	constexpr uint_fast8_t
-			IMAGE_WIDTH_INDEX = 0x12,
-			IMAGE_HEIGHT_INDEX = 0x16,
-			IMAGE_COLOR_TYPE_INDEX = 0x19,
-			MIN_DIMS = 68,
-			INDEXED_COLOR = 3,
-			TRUECOLOR = 2,
-			BYTE_LENGTH = 2;
+		IMAGE_WIDTH_INDEX = 0x12,
+		IMAGE_HEIGHT_INDEX = 0x16,
+		IMAGE_COLOR_TYPE_INDEX = 0x19,
+		MIN_DIMS = 68,
+		INDEXED_COLOR = 3,
+		TRUECOLOR = 2,
+		BYTE_LENGTH = 2;
 
 	constexpr uint_fast16_t
 		MAX_TRUECOLOR_DIMS = 899,
@@ -85,28 +85,25 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 
 	const uint_fast8_t IMAGE_COLOR_TYPE = Image_Vec[IMAGE_COLOR_TYPE_INDEX] == 6 ? 2 : Image_Vec[IMAGE_COLOR_TYPE_INDEX];
 
-	const bool
-		VALID_COLOR_TYPE = (IMAGE_COLOR_TYPE == INDEXED_COLOR) ? true
-		: ((IMAGE_COLOR_TYPE == TRUECOLOR) ? true : false),
+	const bool VALID_COLOR_TYPE = (IMAGE_COLOR_TYPE == INDEXED_COLOR || IMAGE_COLOR_TYPE == TRUECOLOR);
 
-		VALID_IMAGE_DIMS = (IMAGE_COLOR_TYPE == TRUECOLOR
-			&& MAX_TRUECOLOR_DIMS >= IMAGE_WIDTH
-			&& MAX_TRUECOLOR_DIMS >= IMAGE_HEIGHT
-			&& IMAGE_WIDTH >= MIN_DIMS
-			&& IMAGE_HEIGHT >= MIN_DIMS) ? true
-		: ((IMAGE_COLOR_TYPE == INDEXED_COLOR
-			&& MAX_INDEXED_COLOR_DIMS >= IMAGE_WIDTH
-			&& MAX_INDEXED_COLOR_DIMS >= IMAGE_HEIGHT
-			&& IMAGE_WIDTH >= MIN_DIMS
-			&& IMAGE_HEIGHT >= MIN_DIMS) ? true : false);
+	auto checkDimensions = [&](uint_fast8_t COLOR_TYPE, uint_fast16_t MAX_DIMS) {
+		return (IMAGE_COLOR_TYPE == COLOR_TYPE &&
+            		IMAGE_WIDTH <= MAX_DIMS && IMAGE_HEIGHT <= MAX_DIMS &&
+            		IMAGE_WIDTH >= MIN_DIMS && IMAGE_HEIGHT >= MIN_DIMS);
+	};
+
+	const bool VALID_IMAGE_DIMS = checkDimensions(TRUECOLOR, MAX_TRUECOLOR_DIMS) || checkDimensions(INDEXED_COLOR, MAX_INDEXED_COLOR_DIMS);
 
 	if (!VALID_COLOR_TYPE || !VALID_IMAGE_DIMS) {
-		std::cerr << "\nImage File Error: " 
-			<< (!VALID_COLOR_TYPE 
-				? "Color type of PNG image is not supported.\n\nPNG-32/24 (Truecolor) or PNG-8 (Indexed-Color) only"
-				: "Dimensions of PNG image are not within the supported range.\n\nPNG-32/24 Truecolor: [68 x 68]<->[899 x 899].\nPNG-8 Indexed-Color: [68 x 68]<->[4096 x 4096]") 
-			<< ".\n\n";
-		return 1;
+    		std::cerr << "\nImage File Error: ";
+    		if (!VALID_COLOR_TYPE) {
+        		std::cerr << "Color type of cover image is not supported.\n\nSupported formats: PNG-32/24 (Truecolor) or PNG-8 (Indexed-Color).";
+    		} else {
+        		std::cerr << "Dimensions of cover image are not within the supported range.\n\nSupported ranges:\n - PNG-32/24 Truecolor: [68 x 68] to [899 x 899]\n - PNG-8 Indexed-Color: [68 x 68] to [4096 x 4096]";
+    		}
+    		std::cerr << "\n\n";
+    		return 1;
 	}
 
 	// Strip superfluous PNG chunks from the cover image.
