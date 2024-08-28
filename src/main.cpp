@@ -17,23 +17,30 @@ int main(int argc, char** argv) {
 		bool
 			isFileCheckSuccess = false,
 			isZipFile = true;
+
+		constexpr const char* REG_EXP = ("(\\.[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+)?[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+?(\\.[a-zA-Z0-9]+)?");
 		
-		const std::regex REG_EXP("(\\.[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+)?[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+?(\\.[a-zA-Z0-9]+)?");
+		const std::regex regex_pattern(REG_EXP);
 
 		const std::string
 			IMAGE_FILENAME = argv[1],
-			ZIP_FILENAME = argv[2],
-			IMAGE_FILE_EXTENSION = IMAGE_FILENAME.length() > 2 ? IMAGE_FILENAME.substr(IMAGE_FILENAME.length() - 3) : IMAGE_FILENAME,
-			ZIP_FILE_EXTENSION = ZIP_FILENAME.length() > 2 ? ZIP_FILENAME.substr(ZIP_FILENAME.length() - 3) : ZIP_FILENAME;
+			ZIP_FILENAME = argv[2];
 
-		isZipFile = ZIP_FILE_EXTENSION == "jar" ? false : isZipFile;
+		std::filesystem::path imagePath(IMAGE_FILENAME);
+		std::filesystem::path zipPath(ZIP_FILENAME);
 
-		if (IMAGE_FILE_EXTENSION != "png" || (ZIP_FILE_EXTENSION != "zip" && ZIP_FILE_EXTENSION != "jar")) {
-			std::cerr << (IMAGE_FILE_EXTENSION != "png"
+		std::string
+			imageExtension = imagePath.extension().string(),
+			zipExtension = zipPath.extension().string();
+
+		isZipFile = zipExtension == ".jar" ? false : isZipFile;
+
+		if (imageExtension != ".png" || (zipExtension != ".zip" && zipExtension != ".jar")) {
+			std::cerr << (imageExtension != ".png"
 				? "\nImage File Error: Invalid file extension. Expecting only \"png\""
 				: "\nZIP File Error: Invalid file extension. Expecting only \"zip/jar\"")
 				<< ".\n\n";
-		} else if (!regex_match(IMAGE_FILENAME, REG_EXP) || !regex_match(ZIP_FILENAME, REG_EXP)) {
+		} else if (!regex_match(IMAGE_FILENAME, regex_pattern) || !regex_match(ZIP_FILENAME, regex_pattern)) {
 			std::cerr << "\nInvalid Input Error: Characters not supported by this program found within filename arguments.\n\n";
 		} else if (!std::filesystem::exists(IMAGE_FILENAME) || !std::filesystem::exists(ZIP_FILENAME)) {
 			std::cerr << (!std::filesystem::exists(IMAGE_FILENAME)
