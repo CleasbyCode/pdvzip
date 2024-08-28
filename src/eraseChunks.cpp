@@ -34,7 +34,7 @@ bool eraseChunks(std::vector<uint_fast8_t>& Vec) {
 				PLTE_CHUNK_LENGTH = getByteValue(Vec, PLTE_CHUNK_LENGTH_INDEX, BYTE_LENGTH, false) + LENGTH_NAME_CRC_FIELD_BYTES;
 			Temp_Vec.insert(Temp_Vec.end(), Vec.begin() + PLTE_CHUNK_LENGTH_INDEX, Vec.begin() + PLTE_CHUNK_LENGTH_INDEX + PLTE_CHUNK_LENGTH);
 		} else {
-		    std::cerr << "\nImage File Error: Required PLTE chunk not found for this PNG-8 Indexed-color image.\n\n";
+		    std::cerr << "\nImage File Error: Required PLTE chunk not found for this PNG-8 Indexed-Color image.\n\n";
 		    return false;
 		}
 	}
