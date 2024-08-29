@@ -123,12 +123,10 @@ user1@linuxbox:~/Desktop$ java -jar pzip_19662.png
 ```
 **Linux Option 2a, using bash (or sh) shell environment:**
 ```console
-user1@linuxbox:~/Desktop$ chmod +x pzip_19662.png
 user1@linuxbox:~/Desktop$ ./pzip_19662.png
 ```
 **Linux Option 2b, using any other shell environment, you will need to invoke bash (or sh) to execute the image:**
 ```console
-linuxbox% chmod +x pzip_19662.png
 linuxbox% bash ./pzip_19662.png
 ```
 **Windows Option 1:**
