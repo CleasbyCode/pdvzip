@@ -156,30 +156,36 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 		return 1;
 	}
 
-	std::vector<std::string> Extension_List_Vec {	"3gp", "aac", "aif", "ala", "chd", "avi", "dsd", "f4v", "lac", "flv", "m4a", "mkv", "mov", "mp3", "mp4",
-							"mpg", "peg", "ogg", "pcm", "swf", "wav", "ebm", "wma", "wmv", "pdf", ".py", "ps1", ".sh", "exe" };
-		
-	const std::string
-		ZIP_RECORD_FIRST_FILENAME{ Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX, Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH },
-		ZIP_RECORD_FIRST_FILENAME_EXTENSION = ZIP_RECORD_FIRST_FILENAME.substr(ZIP_RECORD_FIRST_FILENAME_LENGTH - 3, 3);
+	std::vector<std::string> Extension_List_Vec {	"3gp", "aac", "aiff", "aif", "alac", "ape", "avchd", "avi", "dsd", "divx", "f4v", "flac", "flv",
+							"m4a", "m4v", "mkv", "mov", "mp3", "mp4", "midi", "mpg", "mpeg", "ogg", "pcm", "swf", "wav", 
+							"webm", "wma", "wmv", "xvid", "pdf", "py", "ps1", "sh", "exe" };
+						    
+	const std::string ZIP_RECORD_FIRST_FILENAME{ Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX, Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH };
 
 	uint_fast8_t extension_list_index = (isZipFile) ? 0 : JAR;
 
-	const uint_fast16_t CHECK_FOR_FILE_EXTENSION = static_cast<uint_fast16_t>(ZIP_RECORD_FIRST_FILENAME.find_last_of('.'));
+	const uint_fast16_t EXTENSION_POS = static_cast<uint_fast16_t>(ZIP_RECORD_FIRST_FILENAME.rfind('.'));
+	
+	const std::string ZIP_RECORD_FIRST_FILENAME_EXTENSION = ZIP_RECORD_FIRST_FILENAME_LENGTH > EXTENSION_POS ? ZIP_RECORD_FIRST_FILENAME.substr(EXTENSION_POS + 1) : "?";
 
-	if (CHECK_FOR_FILE_EXTENSION == 0 || CHECK_FOR_FILE_EXTENSION > ZIP_RECORD_FIRST_FILENAME_LENGTH ) {
-			extension_list_index = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/' ? FOLDER : LINUX_EXECUTABLE;
+	// Deal with names that don't have extensions. Folders and Linux executables.
+	if (ZIP_RECORD_FIRST_FILENAME_EXTENSION  == "?") {
+		extension_list_index = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/' ? FOLDER : LINUX_EXECUTABLE;
 	}
-
+						    
+	// Even though we found a peroid character, indicating a file extension, it could still be a folder that just has a "." somewhere within its name, check for it here.
+	// Linux allows a zipped folder to have a "." for the last character of its name (e.g. "my_folder."), but this will cause issues with Windows, so also check for it here.
 	if (extension_list_index != FOLDER && Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/') {
 		if (Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 2] != '.') {
-			extension_list_index = FOLDER;
+			extension_list_index = FOLDER; 
 		} else {
-			std::cerr << "\nZIP File Error: Invalid folder name within ZIP archive.\n\n";
+			std::cerr << "\nZIP File Error: Invalid folder name within ZIP archive.\n\n"; 
 			return 1;
 		}
 	}
-
+	
+	// Try to match the file extension of the first file of the ZIP archive with the vector list of file extensions (Extension_List_Vec).
+	// This will determine what extraction script to embed within the image, so that it correctly deals with the file type.
 	for (; DEFAULT > extension_list_index; extension_list_index++) {
 		if (Extension_List_Vec[extension_list_index] == ZIP_RECORD_FIRST_FILENAME_EXTENSION) {
 			extension_list_index = extension_list_index <= VIDEO_AUDIO ? VIDEO_AUDIO : extension_list_index;
@@ -211,8 +217,8 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 							0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
 
 	std::unordered_map<int_fast8_t, std::vector<uint_fast16_t>> case_map = {
-		{VIDEO_AUDIO,		{	0, 0x1E4, 0x1C }},
-		{PDF,			{	1, 0x196, 0x1C }},
+		{VIDEO_AUDIO,		{	0, 0x1E4, 0x1C }}, // The single digit integer is the extraction script id (see Extraction_Scripts_Vec), the hex values are insert index locations
+		{PDF,			{	1, 0x196, 0x1C }}, // within the extraction script vector. We use these index locations to insert additional items into the script in order to complete it.
 		{PYTHON,		{	2, 0x10B, 0x101, 0xBC, 0x1C}},
 		{POWERSHELL,		{	3, 0x105, 0xFB, 0xB6, 0x33 }},
 		{BASH_SHELL,		{	4, 0x134, 0x132, 0x8E, 0x1C }},
@@ -220,7 +226,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 		{FOLDER,		{	6, 0x149, 0x1C }},
 		{LINUX_EXECUTABLE,	{	7, 0x8E,  0x1C }},
 		{JAR,			{	8 }},
-		{-1,			{	9, 0x127, 0x1C}} // Default case
+		{-1,			{	9, 0x127, 0x1C}} // Default case, unmatched file extension.
 	};
 
 	std::vector<uint_fast16_t> Case_Values_Vec = case_map.count(extension_list_index) ? case_map[extension_list_index] : case_map[-1];
