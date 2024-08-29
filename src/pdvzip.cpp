@@ -1,4 +1,4 @@
-int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, bool isZipFile) {
+uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, bool isZipFile) {
 
 	constexpr uint_fast32_t MAX_FILE_SIZE = 1094713344;
 	constexpr uint_fast8_t MIN_FILE_SIZE = 30;
