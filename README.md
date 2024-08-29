@@ -43,19 +43,20 @@ Complete!
 ## Extracting Your Embedded File(s)  
 **Important:** When saving images from **X/Twitter**, click the image in the post to **fully expand it**, before saving.  
 
-***The following section covers the extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***
+***The following section covers the extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***  
 
-**Linux - using bash (or sh) shell environment.** ***Make sure image file has executable permissions.***
+**pdvzip** (for **Linux**) will attempt to automatically set executable permissions on newly created polyglot image files.  
+You will need to manually set executable permissions using chmod on these polyglot images downloaded from hosting sites.
+
+**Linux - using bash (or sh) shell environment.**
 ```console
 
-user1@linuxbox:~/Desktop$ chmod +x pzip_55183.png
 user1@linuxbox:~/Desktop$ ./pzip_55183.png
 
 ```
 **For any other Linux shell environment, you will probably need to invoke bash (or sh) to run the image file.**
 ```console
 
-linuxbox% chmod +x pzip_55183.png
 linuxbox% bash ./pzip_55183.png 
 
 ``` 
