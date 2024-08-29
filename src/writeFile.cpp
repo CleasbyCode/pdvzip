@@ -20,5 +20,13 @@ bool writeFile(std::vector<uint_fast8_t>& Vec, const uint_fast32_t FILE_SIZE, bo
 			? "PNG-ZIP" 
 			: "PNG-JAR") 
 		<< " polyglot image file: " + POLYGLOT_FILENAME + '\x20' + std::to_string(FILE_SIZE) + " Bytes.\n\nComplete!\n\n";
+	
+	// Attempt to set executable permissions for the newly created polyglot image file.
+	#ifdef __unix__
+	    if (chmod(POLYGLOT_FILENAME.c_str(), S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) != 0) {
+        	std::cerr << "\nWarning: Could not set executable permissions for " << POLYGLOT_FILENAME << ".\nYou will need do this manually using chmod.\n" << std::endl;
+	    }
+	#endif
+	
 	return true;
 }
