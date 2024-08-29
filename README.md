@@ -61,7 +61,7 @@ user1@linuxbox:~/Desktop$ ./pzip_55183.png
 linuxbox% bash ./pzip_55183.png 
 
 ``` 
-Alternative extraction (Linux).  Using ***wget*** to download & run the image directly from the hosting site.  
+Alternative extraction (Linux).  Using ***wget*** to download and run the image directly from the hosting site.  
 **X/Twitter** *wget* example: **Image with embedded python script**.
 ```console
 
@@ -76,7 +76,7 @@ G:\demo> ren pzip_55183.png pzip_55183.cmd
 G:\demo> .\pzip_55183.cmd
 
 ```
-Alternative extraction (Windows).  Using ***iwr*** to download & run the image directly from the hosting site.  
+Alternative extraction (Windows).  Using ***iwr*** to download and run the image directly from the hosting site.  
 **Flickr** *iwr* example: **Image with embedded mp4 video file.**
 ```console
 
