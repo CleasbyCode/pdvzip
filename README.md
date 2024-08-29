@@ -47,7 +47,7 @@ Complete!
 
 **pdvzip** (for **Linux**) will attempt to automatically set executable permissions on newly created polyglot image files.  
 
-You will need to manually set executable permissions using chmod on these polyglot images downloaded from hosting sites.
+You will need to manually set executable permissions using **chmod** on these polyglot images downloaded from hosting sites.
 
 **Linux - using bash (or sh) shell environment.**
 ```console
