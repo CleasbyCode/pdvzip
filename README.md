@@ -90,6 +90,7 @@ Clear this by clicking '***More info***' then select '***Run anyway***'.
 To avoid security warnings, run the file from a Windows console, as shown in the above example.  
 
 For common video/audio files, Linux will use the ***vlc*** or ***mpv*** media player. Windows uses the default media player.  
+
 PDF - Linux will use ***evince*** or ***firefox***. Windows uses the default PDF viewer.  
 Python - Linux & Windows use ***python3*** to run these programs.  
 PowerShell - Linux uses ***pwsh*** (if installed), Windows uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
