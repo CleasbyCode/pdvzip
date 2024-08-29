@@ -46,6 +46,7 @@ Complete!
 ***The following section covers the extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***  
 
 **pdvzip** (for **Linux**) will attempt to automatically set executable permissions on newly created polyglot image files.  
+
 You will need to manually set executable permissions using chmod on these polyglot images downloaded from hosting sites.
 
 **Linux - using bash (or sh) shell environment.**
