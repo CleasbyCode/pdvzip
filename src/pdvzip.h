@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef __unix__
+    #include <sys/stat.h> // Required for chmod
+#endif
+
 #include <vector>
 #include <filesystem>
 #include <cstdint>
