@@ -19,7 +19,6 @@ int main(int argc, char** argv) {
 			isZipFile = true;
 
 		constexpr const char* REG_EXP = ("(\\.[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+)?[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+?(\\.[a-zA-Z0-9]+)?");
-		
 		const std::regex regex_pattern(REG_EXP);
 
 		const std::string
