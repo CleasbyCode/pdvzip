@@ -39,7 +39,7 @@ bool eraseChunks(std::vector<uint_fast8_t>& Vec) {
 		}
 	}
 
-	const uint_fast32_t IMAGE_FILE_SIZE = getVecSize(Vec);
+	const uint_fast32_t IMAGE_FILE_SIZE = static_cast<uint_fast32_t>(Vec.size());
 
 	// Search for and copy all IDAT chunks from cover image into Temp_Vec.
 	while (IMAGE_FILE_SIZE != idat_chunk_name_index) {
