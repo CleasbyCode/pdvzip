@@ -111,7 +111,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		return 1;
 	}
 	
-	const uint_fast32_t IMAGE_VEC_SIZE = getVecSize(Image_Vec);
+	const uint_fast32_t IMAGE_VEC_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());
 
 	std::vector<uint_fast8_t>Idat_Zip_Vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
 
@@ -125,7 +125,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		return 1;
 	}
 
-	const uint_fast32_t IDAT_CHUNK_ZIP_FILE_SIZE = getVecSize(Idat_Zip_Vec);
+	const uint_fast32_t IDAT_CHUNK_ZIP_FILE_SIZE = static_cast<uint_fast32_t>(Idat_Zip_Vec.size());
 
 	uint_fast8_t 
 		idat_chunk_length_index{},
@@ -257,7 +257,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		iccp_chunk_length_index{},
 		iccp_chunk_length_first_byte_index = 3;
 	
-	uint_fast32_t iccp_chunk_script_size = getVecSize(Iccp_Script_Vec) - 12;
+	uint_fast16_t iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size()) - 12;
 
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
 
@@ -271,7 +271,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "........";
 	
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + iccp_chunk_script_size + 8, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
-			iccp_chunk_script_size = getVecSize(Iccp_Script_Vec) - 12;
+			iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size()) - 12;
 
 			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
 	}
@@ -304,7 +304,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 
 	const uint_fast32_t 
 		LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], IDAT_CHUNK_ZIP_FILE_SIZE - 8),
-		COMPLETE_POLYGLOT_IMAGE_SIZE = getVecSize(Image_Vec);
+		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());
 	
 	uint_fast32_t last_idat_chunk_crc_index = COMPLETE_POLYGLOT_IMAGE_SIZE - 16;
 	
