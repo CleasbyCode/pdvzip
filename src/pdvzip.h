@@ -14,7 +14,6 @@
 #include <regex>
 #include <fstream>
 
-#include "getVecSize.cpp"
 #include "getByteValue.cpp"
 #include "searchFunc.cpp"
 #include "crc32.cpp"
@@ -31,7 +30,6 @@ uint_fast32_t searchFunc(std::vector<uint_fast8_t>&, uint_fast32_t, const uint_f
 
 uint_fast32_t
 	crcUpdate(uint_fast8_t*, uint_fast32_t),
-	getVecSize(const std::vector<uint_fast8_t>&),
 	getByteValue(const std::vector<uint_fast8_t>&, const uint_fast32_t, const uint_fast8_t BYTE_LENGTH, bool isBigEndian);
 bool 
 	eraseChunks(std::vector<uint_fast8_t>&),
