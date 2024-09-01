@@ -4,7 +4,7 @@ Post and share the image on **X/Twitter** and a few other hosting sites, which w
 
 **With ***pdvzip***, you can embed a single ZIP file up to a maximum size of ~1GB.**  
 **Compatible hosting sites, listed below, have their own, much smaller, size limits (cover image + archive file):**
-* *X/Twitter (5MB + [***Dimension limits***](https://github.com/CleasbyCode/pdvzip?tab=readme-ov-file#png-image-requirements-for-arbitrary-data-preservation)), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB).*
+* *X/Twitter (5MB), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB).*
   
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_30892.png)  
 *Image credit:* [***@z3pio_***](https://x.com/z3pio_)
