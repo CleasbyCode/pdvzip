@@ -202,7 +202,6 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 
 	if ((extension_list_index > PDF && UNKNOWN_FILE_TYPE > extension_list_index) || extension_list_index == LINUX_EXECUTABLE) {
 		std::cout << "\nFor this file type, if required, you can provide command-line arguments here.\n";
-		
 		if (extension_list_index != WINDOWS_EXECUTABLE) {
 			std::cout << "\nLinux: ";
 			std::getline(std::cin, args_linux);
@@ -242,14 +241,12 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	if (isZipFile) {
 		if (extension_list_index == WINDOWS_EXECUTABLE || extension_list_index == LINUX_EXECUTABLE) {
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args.begin(), args.end());
-			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
-			
-		} else if (extension_list_index > PDF && extension_list_index < WINDOWS_EXECUTABLE) {
+			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());	
+		} else if (extension_list_index > PDF && extension_list_index < WINDOWS_EXECUTABLE) { 
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args_windows.begin(), args_windows.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[3], args_linux.begin(), args_linux.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[4], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
-			
 		} else { Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
 			 Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
 		}
@@ -269,12 +266,9 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	// insert a short string to the end of the iccp chunk to increase its length, avoiding the problem characters when chunk length is updated.
 	if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS), 
 		iccp_chunk_length_first_byte_value) != std::end(LINUX_PROBLEM_CHARACTERS)) {
-
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "........";
-	
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + iccp_chunk_script_size + 8, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
 			iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size()) - 12;
-
 			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
 	}
 	
@@ -318,6 +312,5 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	if (!writeFile(Image_Vec, COMPLETE_POLYGLOT_IMAGE_SIZE, isZipFile)) {
 		return 1;
 	}
-
 	return 0;
 }
