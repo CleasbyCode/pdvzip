@@ -137,18 +137,8 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	constexpr uint_fast8_t 
 		ZIP_RECORD_FIRST_FILENAME_MIN_LENGTH = 4,
 		ZIP_RECORD_FIRST_FILENAME_LENGTH_INDEX = 0x22, 
-		ZIP_RECORD_FIRST_FILENAME_INDEX = 0x26,
-		VIDEO_AUDIO = 29,
-		PDF = 30, 
-		PYTHON = 31, 
-		POWERSHELL = 32, 
-		BASH_SHELL = 33,
-		WINDOWS_EXECUTABLE = 34, 
-		DEFAULT = 35, 
-		FOLDER = 36, 
-		LINUX_EXECUTABLE = 37, 
-		JAR = 38;
-
+		ZIP_RECORD_FIRST_FILENAME_INDEX = 0x26;
+	
 	const uint_fast8_t ZIP_RECORD_FIRST_FILENAME_LENGTH = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_LENGTH_INDEX];
 
 	if (ZIP_RECORD_FIRST_FILENAME_MIN_LENGTH > ZIP_RECORD_FIRST_FILENAME_LENGTH) {
@@ -156,11 +146,22 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		return 1;
 	}
 
-	std::vector<std::string> Extension_List_Vec {	"3gp", "aac", "aiff", "aif", "alac", "ape", "avchd", "avi", "dsd", "divx", "f4v", "flac", "flv",
-							"m4a", "m4v", "mkv", "mov", "mp3", "mp4", "midi", "mpg", "mpeg", "ogg", "pcm", "swf", "wav", 
-							"webm", "wma", "wmv", "xvid", "pdf", "py", "ps1", "sh", "exe" };
+	constexpr const char* Extension_List_Vec[] = {	"mp4", "mp3", "wav", "mpg", "webm", "flac", "3gp", "aac", "aiff", "aif", "alac", "ape", "avchd", "avi", "dsd", "divx",
+    							"f4v", "flv", "m4a", "m4v", "mkv", "mov", "midi", "mpeg", "ogg", "pcm", "swf", "wma", "wmv", "xvid", "pdf", "py", "ps1", "sh", "exe"	};
 						    
 	const std::string ZIP_RECORD_FIRST_FILENAME{ Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX, Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH };
+
+	constexpr uint_fast8_t 
+		VIDEO_AUDIO = 29,
+		PDF = 30, 
+		PYTHON = 31, 
+		POWERSHELL = 32, 
+		BASH_SHELL = 33,
+		WINDOWS_EXECUTABLE = 34, 
+		UNKNOWN_FILE_TYPE = 35, // Default case, unmatched file extension.
+		FOLDER = 36, 
+		LINUX_EXECUTABLE = 37, 
+		JAR = 38;
 
 	uint_fast8_t extension_list_index = (isZipFile) ? 0 : JAR;
 
@@ -186,11 +187,12 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	
 	// Try to match the file extension of the first file of the ZIP archive with the vector list of file extensions (Extension_List_Vec).
 	// This will determine what extraction script to embed within the image, so that it correctly deals with the file type.
-	for (; DEFAULT > extension_list_index; extension_list_index++) {
+	while (UNKNOWN_FILE_TYPE > extension_list_index) {
 		if (Extension_List_Vec[extension_list_index] == ZIP_RECORD_FIRST_FILENAME_EXTENSION) {
-			extension_list_index = extension_list_index <= VIDEO_AUDIO ? VIDEO_AUDIO : extension_list_index;
+			extension_list_index = VIDEO_AUDIO >= extension_list_index ? VIDEO_AUDIO : extension_list_index;
 			break;
 		}
+		extension_list_index++;
 	}
 
 	std::string
@@ -198,7 +200,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		args_windows{},
 		args{};
 
-	if ((extension_list_index > PDF && extension_list_index < DEFAULT) || extension_list_index == LINUX_EXECUTABLE) {
+	if ((extension_list_index > PDF && UNKNOWN_FILE_TYPE > extension_list_index) || extension_list_index == LINUX_EXECUTABLE) {
 		std::cout << "\nFor this file type, if required, you can provide command-line arguments here.\n";
 		
 		if (extension_list_index != WINDOWS_EXECUTABLE) {
@@ -226,7 +228,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		{FOLDER,		{	6, 0x149, 0x1C }},
 		{LINUX_EXECUTABLE,	{	7, 0x8E,  0x1C }},
 		{JAR,			{	8 }},
-		{-1,			{	9, 0x127, 0x1C}} // Default case, unmatched file extension.
+		{-1,			{	9, 0x127, 0x1C}} // Unknown file type, unmatched file extension. Default case.
 	};
 
 	std::vector<uint_fast16_t> Case_Values_Vec = case_map.count(extension_list_index) ? case_map[extension_list_index] : case_map[-1];
