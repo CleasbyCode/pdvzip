@@ -35,7 +35,7 @@ Complete!
 
 user1@linuxbox:~/Desktop$ pdvzip blue_bottle.png hello_world.jar
 
-Created PNG-JAR polyglot image file: pzip_19662.png 1016336 Bytes.
+Created PNG-JAR polyglot image file: pjar_19662.png 1016336 Bytes.
 
 Complete!
 
@@ -120,24 +120,24 @@ Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP 
 
 **Linux Option 1:**
 ```console
-user1@linuxbox:~/Desktop$ java -jar pzip_19662.png
+user1@linuxbox:~/Desktop$ java -jar pjar_19662.png
 ```
 **Linux Option 2a, using bash (or sh) shell environment:**
 ```console
-user1@linuxbox:~/Desktop$ ./pzip_19662.png
+user1@linuxbox:~/Desktop$ ./pjar_19662.png
 ```
 **Linux Option 2b, using any other shell environment, you will need to invoke bash (or sh) to execute the image:**
 ```console
-linuxbox% bash ./pzip_19662.png
+linuxbox% bash ./pjar_19662.png
 ```
 **Windows Option 1:**
 ```console
-PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pzip_19662.png
+PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png
 ```
 **Windows Option 2:**
 ```console
-PS C:\Users\Nick\Desktop\jar_demo> ren .\pzip_19662.png .\pzip_19662.cmd
-PS C:\Users\Nick\Desktop\jar_demo> .\pzip_19662.cmd
+PS C:\Users\Nick\Desktop\jar_demo> ren .\pjar_19662.png .\pjar_19662.cmd
+PS C:\Users\Nick\Desktop\jar_demo> .\pjar_19662.cmd
 ```
 ## PNG Image Requirements for Arbitrary Data Preservation
 
