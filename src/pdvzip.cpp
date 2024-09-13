@@ -164,19 +164,23 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		JAR = 38;
 
 	uint_fast8_t extension_list_index = (isZipFile) ? 0 : JAR;
-
+						    
+	if (extension_list_index == JAR && (ZIP_RECORD_FIRST_FILENAME != "META-INF/MANIFEST.MF" && ZIP_RECORD_FIRST_FILENAME != "META-INF/")) {
+		std::cerr << "\nFile Type Error: Archive file does not appear to be a valid JAR file.\n\n";
+		return 1;
+	}
+						    
 	const uint_fast16_t EXTENSION_POS = static_cast<uint_fast16_t>(ZIP_RECORD_FIRST_FILENAME.rfind('.'));
-	
 	const std::string ZIP_RECORD_FIRST_FILENAME_EXTENSION = ZIP_RECORD_FIRST_FILENAME_LENGTH > EXTENSION_POS ? ZIP_RECORD_FIRST_FILENAME.substr(EXTENSION_POS + 1) : "?";
 
-	// Deal with names that don't have extensions. Folders and Linux executables.
-	if (ZIP_RECORD_FIRST_FILENAME_EXTENSION  == "?") {
+	// Deal with filenames that don't have extensions. Folders and Linux executables.
+	if (isZipFile && ZIP_RECORD_FIRST_FILENAME_EXTENSION  == "?") {
 		extension_list_index = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/' ? FOLDER : LINUX_EXECUTABLE;
 	}
 						    
 	// Even though we found a period character, indicating a file extension, it could still be a folder that just has a "." somewhere within its name, check for it here.
 	// Linux allows a zipped folder to have a "." for the last character of its name (e.g. "my_folder."), but this will cause issues with Windows, so also check for it here.
-	if (extension_list_index != FOLDER && Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/') {
+	if (isZipFile && extension_list_index != FOLDER && Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/') {
 		if (Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 2] != '.') {
 			extension_list_index = FOLDER; 
 		} else {
