@@ -4,8 +4,9 @@ bool writeFile(std::vector<uint_fast8_t>& Vec, const uint_fast32_t FILE_SIZE, bo
 
 	const std::string
 		RANDOM_NAME_VALUE = std::to_string(rand()),
-		POLYGLOT_FILENAME = "pzip_" + RANDOM_NAME_VALUE.substr(0, 5) + ".png";
-
+		PREFIX = isZipFile ? "pzip_" : "pjar_",
+		POLYGLOT_FILENAME = PREFIX + RANDOM_NAME_VALUE.substr(0, 5) + ".png";
+	
 	std::ofstream file_ofs(POLYGLOT_FILENAME, std::ios::binary);
 	
 	if (!file_ofs) {
