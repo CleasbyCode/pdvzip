@@ -36,9 +36,9 @@ int main(int argc, char** argv) {
 
 	if (imageExtension != ".png" || (!isZipFile && zipExtension != ".jar")) {
 		std::cerr << (imageExtension != ".png"
-			? "\nImage File Error: Invalid file extension. Expecting only \".png\" image extension."
-			: "\nZIP File Error: Invalid file extension. Expecting only \".zip/.jar\" archive extensions.")
-			<< ".\n\n";
+			? "\nImage File Error: Invalid file extension. Expecting only \"png\" image extension."
+			: "\nZIP File Error: Invalid file extension. Expecting only \"zip or jar\" archive extensions.")
+		<< ".\n\n";
 		return 1;
 	}
 
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 		std::cerr << (!std::filesystem::exists(IMAGE_FILENAME)
 			? "\nImage"
 			: "\nZIP")
-			<< " File Error: File not found. Check the filename and try again.\n\n";
+		<< " File Error: File not found. Check the filename and try again.\n\n";
 		return 1;
 	}
 	pdvZip(IMAGE_FILENAME, ZIP_FILENAME, isZipFile);
