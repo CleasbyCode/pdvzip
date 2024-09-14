@@ -36,8 +36,8 @@ int main(int argc, char** argv) {
 
 	if (imageExtension != ".png" || (!isZipFile && zipExtension != ".jar")) {
 		std::cerr << (imageExtension != ".png"
-			? "\nImage File Error: Invalid file extension. Expecting only \"png\""
-			: "\nZIP File Error: Invalid file extension. Expecting only \"zip/jar\"")
+			? "\nImage File Error: Invalid file extension. Expecting only \".png\" image extension."
+			: "\nZIP File Error: Invalid file extension. Expecting only \".zip/.jar\" archive extensions.")
 			<< ".\n\n";
 		return 1;
 	}
