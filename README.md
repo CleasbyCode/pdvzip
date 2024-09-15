@@ -1,22 +1,22 @@
 # pdvzip  
 
-Embed a ZIP or JAR file within a PNG image, to create a *tweetable* and "[*executable*](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" PNG polyglot file.  
-Post and share the image on **X/Twitter** and a few other hosting sites, which will retain the embedded archive.  
+Embed a ***ZIP*** or ***JAR** file within a ***PNG*** image, to create a *tweetable* and "[*executable*](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" ***PNG*** polyglot file.  
+Post and share the image on ***X/Twitter*** and a few other hosting sites, which will retain the embedded archive.  
 
-**With ***pdvzip***, you can embed a single ZIP file up to a maximum size of \*1GB.**  
+With ***pdvzip***, you can embed a ***ZIP** file up to a maximum size of \***1GB**.
 
-***Compatible hosting sites, listed below, have their own, much smaller size limits (cover image + archive file):**
-* *X/Twitter (5MB), Flickr (200MB), ImgBB (32MB), PostImage (24MB), ImgPile (8MB).*
+****Compatible hosting sites, listed below, have their own, much smaller size limits (cover image + archive file):***
+* ***X/Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**24MB**), ***ImgPile*** (**8MB**).
   
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_30892.png)  
-*Image credit:* [***@z3pio_***](https://x.com/z3pio_)
+***Image credit:**** [***@z3pio_***](https://x.com/z3pio_)
  
-Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original Python program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
-**pdvzip** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a PNG image.  
+Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original ***Python*** program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
+***pdvzip*** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a ***PNG*** image.  
 
 Demo Videos: [***Python***](https://youtu.be/Y_JObBTF80A) | [***Folder***](https://youtu.be/XHLwAYp1EPk) | [***MP4***](https://youtu.be/mK_n-Br-i8E) | [***Executable***](https://youtu.be/_g4Zdr3fiRs) | [***PowerShell***](https://youtu.be/ZB_EzbPjpcw) | [***PDF***](https://youtu.be/-wunA45_86Y) | [***Shell Script***](https://youtu.be/jDySe3HoqjQ) | [***JAR***](https://youtu.be/QvKDmXhTHTk)
 
-Compile and run **pdvzip** under **Linux** or Windows.  
+Compile and run ***pdvzip*** under ***Linux*** or Windows.  
 
 ## Usage (Linux)
 
@@ -43,15 +43,15 @@ Complete!
 
 ``` 
 ## Extracting Your Embedded File(s)  
-**Important:** When saving images from **X/Twitter**, click the image in the post to **fully expand it**, before saving.  
+**Important:** When saving images from ***X/Twitter***, click the image in the post to ***fully expand it***, before saving.  
 
-***The following section covers the extraction of embedded ZIP files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.***  
+The following section covers the extraction of embedded ***ZIP*** files.  [***JAR***](https://github.com/CleasbyCode/pdvzip/tree/main?tab=readme-ov-file#executing-embedded-jar-files) files are covered later.
 
-**pdvzip** (for **Linux**) will attempt to automatically set executable permissions on newly created polyglot image files.  
+***pdvzip*** (for ***Linux***) will attempt to automatically set executable permissions on newly created polyglot image files.  
 
-You will need to manually set executable permissions using **chmod** on these polyglot images downloaded from hosting sites.
+You will need to manually set executable permissions using ***chmod*** on these polyglot images downloaded from hosting sites.
 
-**Linux - using bash (or sh) shell environment.**
+***Linux - using bash (or sh) shell environment.***
 ```console
 
 user1@linuxbox:~/Desktop$ ./pzip_55183.png
@@ -63,8 +63,8 @@ user1@linuxbox:~/Desktop$ ./pzip_55183.png
 linuxbox% bash ./pzip_55183.png 
 
 ``` 
-Alternative extraction (Linux).  Using ***wget*** to download and run the image directly from the hosting site.  
-**X/Twitter** *wget* example: **Image with embedded python script**.
+Alternative extraction (***Linux***).  Using ***wget*** to download and run the image directly from the hosting site.  
+***X/Twitter*** *wget* example: **Image with embedded ***python*** script**.
 ```console
 
 wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png";chmod +x Fibo.png;bash ./Fibo.png
@@ -78,31 +78,31 @@ G:\demo> ren pzip_55183.png pzip_55183.cmd
 G:\demo> .\pzip_55183.cmd
 
 ```
-Alternative extraction (Windows).  Using ***iwr*** to download and run the image directly from the hosting site.  
-**Flickr** *iwr* example: **Image with embedded mp4 video file.**
+Alternative extraction (***Windows***).  Using ***iwr*** to download and run the image directly from the hosting site.  
+***Flickr*** *iwr* example: **Image with embedded mp4 video file.**
 ```console
 
 iwr -o swing.cmd "https://live.staticflickr.com/65535/53660445495_16a6880388_o_d.png";.\swing.cmd
 
 ```
 
-Opening the ***.cmd*** file from the desktop, on its first run, Windows may display a security warning.  
+Opening the ***.cmd*** file from the desktop, on its first run, ***Windows*** may display a security warning.  
 Clear this by clicking '***More info***' then select '***Run anyway***'.  
 
-To avoid security warnings, run the file from a Windows console, as shown in the above example.  
+To avoid security warnings, run the file from a ***Windows console***, as shown in the above example.  
 
-For common video & audio files, Linux will use the ***vlc*** or ***mpv*** media player. Windows uses the default media player.  
+For common video & audio files, ***Linux*** will use the ***vlc*** or ***mpv*** media player. ***Windows*** uses the default media player.  
 
-PDF - Linux will use ***evince*** or ***firefox***. Windows uses the default PDF viewer.  
-Python - Linux & Windows use ***python3*** to run these programs.  
-PowerShell - Linux uses ***pwsh*** (if installed), Windows uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
-Folder - Linux uses **xdg-open**, Windows uses **powershell.exe** with II (**Invoke-Item**) command, to open zipped folders.
+***PDF*** - ***Linux*** will use ***evince*** or ***firefox***. ***Windows*** uses the default ***PDF*** viewer.  
+***Python*** - ***Linux*** & ***Windows*** use ***python3*** to run these programs.  
+***PowerShell*** - ***Linux*** uses ***pwsh*** (if installed), ***Windows*** uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
+***Folder*** - ***Linux*** uses ***xdg-open***, ***Windows*** uses ***powershell.exe*** with II (***Invoke-Item***) command, to open zipped folders.
 
-For any other file type, Linux & Windows will rely on the operating system's set default method/application.  
+For any other file type, ***Linux*** & ***Windows*** will rely on the operating system's set default method/application.  
 Obviously, the compressed/embedded file needs to be compatible with the operating system you run it on.
 
-If the embedded archive file type is PowerShell, Python, Shell script or a Windows/Linux executable,  
-pdvzip will give you the option to provide command-line arguments for your file, if required.  
+If the embedded archive file type is ***PowerShell***, ***Python***, ***Shell script*** or a ***Windows/Linux*** executable,  
+***pdvzip*** will give you the option to provide command-line arguments for your file, if required.  
 
 Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. 
 ```console
@@ -113,10 +113,10 @@ For this file type you can provide command-line arguments here, if required.
 Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 
 ```
-Also, be aware when using arguments, you are always working from within the subdirectory "*pdvzip_extracted*".
+Also, be aware when using arguments, you are always working from within the subdirectory "***pdvzip_extracted***".
   
-To just get access to the file(s) within the ZIP archive, rename the '*.png*' file extension to '*.zip*'.  
-Treat the ZIP archive as read-only, do not add or remove files from the PNG-ZIP polyglot file.  
+To just get access to the file(s) within the ***ZIP*** archive, rename the '***.png***' file extension to '***.zip***'.  
+Treat the ***ZIP*** archive as read-only, do not add or remove files from the ***PNG-ZIP** polyglot file.  
 
 ## Executing Embedded JAR Files  
 
