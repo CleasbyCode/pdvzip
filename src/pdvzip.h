@@ -37,7 +37,7 @@ bool
 	writeFile(std::vector<uint_fast8_t>&, const uint_fast32_t, bool);
 void 
 	valueUpdater(std::vector<uint_fast8_t>&, uint_fast32_t, const uint_fast32_t, uint_fast8_t, bool),
-	adjustZipOffsets(std::vector<uint_fast8_t>&, const uint_fast32_t),
+	adjustZipOffsets(std::vector<uint_fast8_t>&, const uint_fast32_t, const uint_fast32_t),
 	displayInfo();
 
 uint_fast8_t pdvZip(const std::string&, const std::string&, bool);
