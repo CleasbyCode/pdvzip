@@ -1,5 +1,5 @@
 // Erase superfluous PNG chunks from the cover image. Just keep the critical PNG chunks/data. (HEADER/IHDR/*PLTE/IDAT/IEND).
-bool eraseChunks(std::vector<uint_fast8_t>& Vec) {
+bool eraseChunks(std::vector<uint8_t>& Vec) {
 
 	constexpr uint_fast8_t 
 		PNG_HEADER_WITH_IHDR_CHUNK_BYTES = 33,
@@ -13,7 +13,7 @@ bool eraseChunks(std::vector<uint_fast8_t>& Vec) {
 		PLTE_SIG[] { 0x50, 0x4C, 0x54, 0x45 },
 		IDAT_SIG[] { 0x49, 0x44, 0x41, 0x54 };
 
-	std::vector<uint_fast8_t>Temp_Vec;
+	std::vector<uint8_t>Temp_Vec;
 	Temp_Vec.reserve(Vec.size());
 	
 	// Copy the first 33 bytes of the cover image into Temp_Vec. This contains the PNG header along with the IHDR chunk.
