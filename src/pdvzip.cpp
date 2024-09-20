@@ -1,20 +1,19 @@
 uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, bool isZipFile) {
 
-	constexpr uint_fast32_t MAX_FILE_SIZE = 1094713344;
+	constexpr uint_fast32_t COMBINED_MAX_FILE_SIZE 	= 2147483648;	// 2GB. (image + archive file)
 	constexpr uint_fast8_t MIN_FILE_SIZE = 30;
 	
-	// Check cover image and ZIP file for valid file sizes.
 	const size_t 
 		IMAGE_FILE_SIZE = std::filesystem::file_size(IMAGE_FILENAME),
 		ZIP_FILE_SIZE = std::filesystem::file_size(ZIP_FILENAME),
 		COMBINED_FILE_SIZE = ZIP_FILE_SIZE + IMAGE_FILE_SIZE;
 
-	if (COMBINED_FILE_SIZE > MAX_FILE_SIZE 
+	if (COMBINED_FILE_SIZE > COMBINED_MAX_FILE_SIZE 
 		|| MIN_FILE_SIZE > IMAGE_FILE_SIZE
 		|| MIN_FILE_SIZE > ZIP_FILE_SIZE) {
 		std::cerr << "\nFile Size Error: " 
-			<< (COMBINED_FILE_SIZE > MAX_FILE_SIZE 
-				? "Combined size of image and ZIP file exceeds the maximum limit of 1GB"
+			<< (COMBINED_FILE_SIZE > COMBINED_MAX_FILE_SIZE 
+				? "Combined size of image and ZIP file exceeds the maximum limit of 2GB"
         			: (MIN_FILE_SIZE > IMAGE_FILE_SIZE 
 	        			? "Image is too small to be a valid PNG image" 
 					: "ZIP file is too small to be a valid ZIP archive")) 	
@@ -22,7 +21,6 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
     		return 1;
 	}
 
-	// Attempt to open both cover image and ZIP file.
 	std::ifstream
 		image_file_ifs(IMAGE_FILENAME, std::ios::binary),
 		zip_file_ifs(ZIP_FILENAME, std::ios::binary);
@@ -36,12 +34,14 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		return 1;
 	}
 	
-	std::vector<uint_fast8_t>Image_Vec((std::istreambuf_iterator<char>(image_file_ifs)), std::istreambuf_iterator<char>());
+	std::vector<uint8_t> Image_Vec;
+	Image_Vec.reserve(COMBINED_FILE_SIZE); 
+	
+	std::copy(std::istreambuf_iterator<char>(image_file_ifs), std::istreambuf_iterator<char>(), std::back_inserter(Image_Vec));
 
-	// Check for valid PNG cover image. 
 	constexpr uint_fast8_t
-			PNG_SIG[] 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
-			PNG_IEND_SIG[]	{ 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
+		PNG_SIG[] 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
+		PNG_IEND_SIG[]	{ 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
 
 	if (!std::equal(std::begin(PNG_SIG), std::end(PNG_SIG), std::begin(Image_Vec)) || !std::equal(std::begin(PNG_IEND_SIG), std::end(PNG_IEND_SIG), std::end(Image_Vec) - 8)) {
         		std::cerr << "\nImage File Error: Signature check failure. This file is not a valid PNG image.\n\n";
@@ -51,8 +51,8 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	// A range of characters that may appear within the image width/height dimension fields of the IHDR chunk or within the 4-byte IHDR chunk's CRC field,
 	// which will break the Linux extraction script. If any of these characters are detected, the user will have to modify the image manually or try another image.
 	constexpr uint_fast8_t
-			LINUX_PROBLEM_CHARACTERS[] { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 },
-			IHDR_STOP_INDEX = 0x20;
+		LINUX_PROBLEM_CHARACTERS[] { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 },
+		IHDR_STOP_INDEX = 0x20;
 	
 	uint_fast8_t ihdr_check_index = 0x12;
 
@@ -67,21 +67,21 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 
 	// Check cover image for valid image dimensions and color type values.
 	constexpr uint_fast8_t
-		IMAGE_WIDTH_INDEX = 0x12,
-		IMAGE_HEIGHT_INDEX = 0x16,
-		IMAGE_COLOR_TYPE_INDEX = 0x19,
-		MIN_DIMS = 68,
-		INDEXED_COLOR = 3,
-		TRUECOLOR = 2,
-		BYTE_LENGTH = 2;
+		IMAGE_WIDTH_INDEX 	= 0x12,
+		IMAGE_HEIGHT_INDEX 	= 0x16,
+		IMAGE_COLOR_TYPE_INDEX 	= 0x19,
+		MIN_DIMS 		= 68,
+		INDEXED_COLOR 		= 3,
+		TRUECOLOR 		= 2,
+		BYTE_LENGTH 		= 2;
 
 	constexpr uint_fast16_t
-		MAX_TRUECOLOR_DIMS = 899,
-		MAX_INDEXED_COLOR_DIMS = 4096;
+		MAX_TRUECOLOR_DIMS 	= 899,
+		MAX_INDEXED_COLOR_DIMS 	= 4096;
 
 	const uint_fast16_t
-		IMAGE_WIDTH = getByteValue(Image_Vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, true),
-		IMAGE_HEIGHT = getByteValue(Image_Vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, true);
+		IMAGE_WIDTH 	= getByteValue(Image_Vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, true),
+		IMAGE_HEIGHT 	= getByteValue(Image_Vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, true);
 
 	const uint_fast8_t IMAGE_COLOR_TYPE = Image_Vec[IMAGE_COLOR_TYPE_INDEX] == 6 ? 2 : Image_Vec[IMAGE_COLOR_TYPE_INDEX];
 
@@ -112,12 +112,18 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	}
 	
 	const uint_fast32_t IMAGE_VEC_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());
+	
+	constexpr uint_fast32_t LARGE_FILE_SIZE = 104857600;
 
-	std::vector<uint_fast8_t>Idat_Zip_Vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
-
+	if (ZIP_FILE_SIZE > LARGE_FILE_SIZE) {
+		std::cout << "\nPlease wait. Larger files will take longer to complete this process.\n";
+	}
+				    
+	std::vector<uint8_t>Idat_Zip_Vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
+	Idat_Zip_Vec.reserve(Idat_Zip_Vec.size() + ZIP_FILE_SIZE);
+					    
 	Idat_Zip_Vec.insert(Idat_Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(zip_file_ifs), std::istreambuf_iterator<char>());
 
-	// Check for valid ZIP file.
 	constexpr uint_fast8_t ZIP_SIG[] { 0x50, 0x4B, 0x03, 0x04 };
 
 	if (!std::equal(std::begin(ZIP_SIG), std::end(ZIP_SIG), std::begin(Idat_Zip_Vec) + 8)) {
@@ -135,9 +141,9 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 
 	// The following section (~158 lines) completes and embeds the extraction script, based on the file type within the ZIP archive.
 	constexpr uint_fast8_t 
-		ZIP_RECORD_FIRST_FILENAME_MIN_LENGTH = 4,
-		ZIP_RECORD_FIRST_FILENAME_LENGTH_INDEX = 0x22, 
-		ZIP_RECORD_FIRST_FILENAME_INDEX = 0x26;
+		ZIP_RECORD_FIRST_FILENAME_MIN_LENGTH 	= 4,
+		ZIP_RECORD_FIRST_FILENAME_LENGTH_INDEX 	= 0x22, 
+		ZIP_RECORD_FIRST_FILENAME_INDEX 	= 0x26;
 	
 	const uint_fast8_t ZIP_RECORD_FIRST_FILENAME_LENGTH = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_LENGTH_INDEX];
 
@@ -146,22 +152,22 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		return 1;
 	}
 
-	constexpr const char* Extension_List_Vec[] = {	"mp4", "mp3", "wav", "mpg", "webm", "flac", "3gp", "aac", "aiff", "aif", "alac", "ape", "avchd", "avi", "dsd", "divx",
-    							"f4v", "flv", "m4a", "m4v", "mkv", "mov", "midi", "mpeg", "ogg", "pcm", "swf", "wma", "wmv", "xvid", "pdf", "py", "ps1", "sh", "exe"	};
+	constexpr const char* Extension_List[] {	"mp4", "mp3", "wav", "mpg", "webm", "flac", "3gp", "aac", "aiff", "aif", "alac", "ape", "avchd", "avi", "dsd", "divx", "f4v",
+							"flv", "m4a", "m4v", "mkv", "mov", "midi", "mpeg", "ogg", "pcm", "swf", "wma", "wmv", "xvid", "pdf", "py", "ps1", "sh", "exe"	};
 						    
 	const std::string ZIP_RECORD_FIRST_FILENAME{ Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX, Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH };
 
 	constexpr uint_fast8_t 
-		VIDEO_AUDIO = 29,
-		PDF = 30, 
-		PYTHON = 31, 
-		POWERSHELL = 32, 
-		BASH_SHELL = 33,
-		WINDOWS_EXECUTABLE = 34, 
-		UNKNOWN_FILE_TYPE = 35, // Default case, unmatched file extension.
-		FOLDER = 36, 
-		LINUX_EXECUTABLE = 37, 
-		JAR = 38;
+		VIDEO_AUDIO 		= 29,
+		PDF 			= 30, 
+		PYTHON 			= 31, 
+		POWERSHELL 		= 32, 
+		BASH_SHELL 		= 33,
+		WINDOWS_EXECUTABLE 	= 34, 
+		UNKNOWN_FILE_TYPE 	= 35, // Default case, unmatched file extension.
+		FOLDER 			= 36, 
+		LINUX_EXECUTABLE 	= 37, 
+		JAR 			= 38;
 
 	uint_fast8_t extension_list_index = (isZipFile) ? 0 : JAR;
 						    
@@ -189,10 +195,10 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		}
 	}
 	
-	// Try to match the file extension of the first file of the ZIP archive with the vector list of file extensions (Extension_List_Vec).
+	// Try to match the file extension of the first file of the ZIP archive with the array list of file extensions (Extension_List).
 	// This will determine what extraction script to embed within the image, so that it correctly deals with the file type.
 	while (UNKNOWN_FILE_TYPE > extension_list_index) {
-		if (Extension_List_Vec[extension_list_index] == ZIP_RECORD_FIRST_FILENAME_EXTENSION) {
+		if (Extension_List[extension_list_index] == ZIP_RECORD_FIRST_FILENAME_EXTENSION) {
 			extension_list_index = VIDEO_AUDIO >= extension_list_index ? VIDEO_AUDIO : extension_list_index;
 			break;
 		}
@@ -218,8 +224,8 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		}
 	}
 
-	std::vector<uint_fast8_t> Iccp_Script_Vec = {	0x00, 0x00, 0x00, 0x00, 0x69, 0x43, 0x43, 0x50, 0x44, 0x56, 0x5A, 0x49, 0x50, 0x5F, 
-							0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
+	std::vector<uint8_t> Iccp_Script_Vec {	0x00, 0x00, 0x00, 0x00, 0x69, 0x43, 0x43, 0x50, 0x44, 0x56, 0x5A, 0x49, 0x50, 0x5F, 
+						0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
 
 	std::unordered_map<int_fast8_t, std::vector<uint_fast16_t>> case_map = {
 		{VIDEO_AUDIO,		{	0, 0x1E4, 0x1C }}, // The single digit integer is the extraction script id (see Extraction_Scripts_Vec), the hex values are insert index locations
@@ -298,13 +304,13 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INSERT_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
 	Image_Vec.insert((Image_Vec.end() - 12), Idat_Zip_Vec.begin(), Idat_Zip_Vec.end());
 
-	const uint_fast32_t LAST_IDAT_CHUNK_NAME_INDEX = IMAGE_VEC_SIZE + iccp_chunk_script_size + 4;
-
-	adjustZipOffsets(Image_Vec, LAST_IDAT_CHUNK_NAME_INDEX);
-
 	const uint_fast32_t 
-		LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], IDAT_CHUNK_ZIP_FILE_SIZE - 8),
-		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());
+		LAST_IDAT_CHUNK_NAME_INDEX = IMAGE_VEC_SIZE + iccp_chunk_script_size + 4; 	// Important to use the old image size before the above inserts.
+		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());  	// Image size updated to include the inserts.
+
+	adjustZipOffsets(Image_Vec, COMPLETE_POLYGLOT_IMAGE_SIZE, LAST_IDAT_CHUNK_NAME_INDEX);
+
+	const uint_fast32_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], IDAT_CHUNK_ZIP_FILE_SIZE - 8),
 	
 	uint_fast32_t last_idat_chunk_crc_index = COMPLETE_POLYGLOT_IMAGE_SIZE - 16;
 	
@@ -312,7 +318,6 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 
 	valueUpdater(Image_Vec, last_idat_chunk_crc_index, LAST_IDAT_CHUNK_CRC, value_bit_length, true);
 	
-	// Attempt to write out completed polyglot image file.		
 	if (!writeFile(Image_Vec, COMPLETE_POLYGLOT_IMAGE_SIZE, isZipFile)) {
 		return 1;
 	}
