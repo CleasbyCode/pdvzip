@@ -27,18 +27,17 @@
 #include "information.cpp"
 
 template <uint_fast8_t N>
-uint_fast32_t searchFunc(std::vector<uint_fast8_t>&, uint_fast32_t, const uint_fast8_t, const uint_fast8_t (&)[N]);
+uint_fast32_t searchFunc(std::vector<uint8_t>&, uint_fast32_t, const uint_fast8_t, const uint_fast8_t (&)[N]);
 
 uint_fast32_t
 	crcUpdate(uint_fast8_t*, uint_fast32_t),
-	getByteValue(const std::vector<uint_fast8_t>&, const uint_fast32_t, const uint_fast8_t BYTE_LENGTH, bool isBigEndian);
+	getByteValue(const std::vector<uint8_t>&, const uint_fast32_t, const uint_fast8_t BYTE_LENGTH, bool isBigEndian);
 bool 
-	eraseChunks(std::vector<uint_fast8_t>&),
-	writeFile(std::vector<uint_fast8_t>&, const uint_fast32_t, bool);
+	eraseChunks(std::vector<uint8_t>&),
+	writeFile(std::vector<uint8_t>&, const uint_fast32_t, bool);
 void 
-	valueUpdater(std::vector<uint_fast8_t>&, uint_fast32_t, const uint_fast32_t, uint_fast8_t, bool),
-	adjustZipOffsets(std::vector<uint_fast8_t>&, const uint_fast32_t, const uint_fast32_t),
+	valueUpdater(std::vector<uint8_t>&, uint_fast32_t, const uint_fast32_t, uint_fast8_t, bool),
+	adjustZipOffsets(std::vector<uint8_t>&, const uint_fast32_t, const uint_fast32_t),
 	displayInfo();
 
 uint_fast8_t pdvZip(const std::string&, const std::string&, bool);
-
