@@ -1,5 +1,5 @@
 // ZIP file has been moved to another location. We need to find and adjust the ZIP file record offsets to their new location.
-void adjustZipOffsets(std::vector<uint_fast8_t>& Vec, const uint_fast32_t VEC_SIZE, const uint_fast32_t LAST_IDAT_INDEX) {
+void adjustZipOffsets(std::vector<uint8_t>& Vec, const uint_fast32_t VEC_SIZE, const uint_fast32_t LAST_IDAT_INDEX) {
 	constexpr uint_fast8_t 
 		ZIP_SIG[] 		{ 0x50, 0x4B, 0x03, 0x04 },
 		START_CENTRAL_DIR_SIG[] { 0x50, 0x4B, 0x01, 0x02 },
