@@ -14,7 +14,8 @@ bool eraseChunks(std::vector<uint_fast8_t>& Vec) {
 		IDAT_SIG[] { 0x49, 0x44, 0x41, 0x54 };
 
 	std::vector<uint_fast8_t>Temp_Vec;
-
+	Temp_Vec.reserve(Vec.size());
+	
 	// Copy the first 33 bytes of the cover image into Temp_Vec. This contains the PNG header along with the IHDR chunk.
 	Temp_Vec.insert(Temp_Vec.begin(), Vec.begin(), Vec.begin() + PNG_HEADER_WITH_IHDR_CHUNK_BYTES);
 
