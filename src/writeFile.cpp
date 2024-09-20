@@ -1,4 +1,4 @@
-bool writeFile(std::vector<uint_fast8_t>& Vec, const uint_fast32_t FILE_SIZE, bool isZipFile) {
+bool writeFile(std::vector<uint8_t>& Vec, const uint_fast32_t FILE_SIZE, bool isZipFile) {
 
 	srand((unsigned)time(NULL));
 
@@ -15,7 +15,9 @@ bool writeFile(std::vector<uint_fast8_t>& Vec, const uint_fast32_t FILE_SIZE, bo
 	}
 
 	file_ofs.write((char*)&Vec[0], FILE_SIZE);
-
+	
+	std::vector<uint8_t>().swap(Vec);
+	
 	std::cout << "\nCreated " 
 		<< (isZipFile 
 			? "PNG-ZIP" 
