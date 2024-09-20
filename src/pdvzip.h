@@ -5,6 +5,7 @@
 #endif
 
 #include <vector>
+#include <iterator>
 #include <filesystem>
 #include <cstdint>
 #include <algorithm>
