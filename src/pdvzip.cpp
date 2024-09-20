@@ -304,6 +304,8 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INSERT_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
 	Image_Vec.insert((Image_Vec.end() - 12), Idat_Zip_Vec.begin(), Idat_Zip_Vec.end());
 
+	std::vector<uint8_t>().swap(Idat_Zip_Vec);
+				 
 	const uint_fast32_t 
 		LAST_IDAT_CHUNK_NAME_INDEX = IMAGE_VEC_SIZE + iccp_chunk_script_size + 4, 	// Important to use the old image size before the above inserts.
 		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());  	// Image size updated to include the inserts.
