@@ -137,7 +137,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		idat_chunk_length_index{},
 		value_bit_length = 32;
 
-	valueUpdater(Idat_Zip_Vec, idat_chunk_length_index, IDAT_CHUNK_ZIP_FILE_SIZE - 12, value_bit_length, true);
+	valueUpdater(Idat_Zip_Vec, idat_chunk_length_index, IDAT_CHUNK_ZIP_FILE_SIZE - 12, value_bit_length);
 
 	// The following section (~158 lines) completes and embeds the extraction script, based on the file type within the ZIP archive.
 	constexpr uint_fast8_t 
@@ -268,7 +268,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	
 	uint_fast16_t iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size()) - 12;
 
-	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
+	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 
 	const uint_fast8_t iccp_chunk_length_first_byte_value = Iccp_Script_Vec[iccp_chunk_length_first_byte_index];
 
@@ -279,7 +279,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "........";
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + iccp_chunk_script_size + 8, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
 			iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size()) - 12;
-			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length, true);
+			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 	}
 	
 	constexpr uint_fast16_t MAX_SCRIPT_SIZE = 1500;
@@ -299,7 +299,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 
 	uint_fast16_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
 
-	valueUpdater(Iccp_Script_Vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length, true);
+	valueUpdater(Iccp_Script_Vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length);
 
 	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INSERT_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
 	Image_Vec.insert((Image_Vec.end() - 12), Idat_Zip_Vec.begin(), Idat_Zip_Vec.end());
@@ -317,8 +317,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	uint_fast32_t last_idat_chunk_crc_index = COMPLETE_POLYGLOT_IMAGE_SIZE - 16;
 	
 	value_bit_length = 32;
-
-	valueUpdater(Image_Vec, last_idat_chunk_crc_index, LAST_IDAT_CHUNK_CRC, value_bit_length, true);
+	valueUpdater(Image_Vec, last_idat_chunk_crc_index, LAST_IDAT_CHUNK_CRC, value_bit_length);
 	
 	if (!writeFile(Image_Vec, COMPLETE_POLYGLOT_IMAGE_SIZE, isZipFile)) {
 		return 1;
