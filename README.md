@@ -29,13 +29,13 @@ user1@linuxbox:~/Desktop$ pdvzip
 Usage: pdvzip <cover_image> <zip/jar>
        pdvzip --info
 
-user1@linuxbox:~/Desktop$ pdvzip boat_lake.png coding_pdf_doc.zip
+user1@linuxbox:~/Desktop$ pdvzip my_cover_image.png document_pdf.zip
 
 Created PNG-ZIP polyglot image file: pzip_55183.png 4038367 Bytes.
 
 Complete!
 
-user1@linuxbox:~/Desktop$ pdvzip blue_bottle.png hello_world.jar
+user1@linuxbox:~/Desktop$ pdvzip my_cover_image.png hello_world.jar
 
 Created PNG-JAR polyglot image file: pjar_19662.png 1016336 Bytes.
 
