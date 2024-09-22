@@ -32,11 +32,12 @@ uint_fast32_t searchFunc(std::vector<uint8_t>&, uint_fast32_t, const uint_fast8_
 uint_fast32_t
 	crcUpdate(uint_fast8_t*, uint_fast32_t),
 	getByteValue(const std::vector<uint8_t>&, const uint_fast32_t, const uint_fast8_t BYTE_LENGTH, bool isBigEndian);
-bool 
-	eraseChunks(std::vector<uint8_t>&),
-	writeFile(std::vector<uint8_t>&, const uint_fast32_t, bool);
+
+bool writeFile(std::vector<uint8_t>&, const uint_fast32_t, bool);
+
 void 
 	valueUpdater(std::vector<uint8_t>&, uint_fast32_t, const uint_fast32_t, uint_fast8_t),
+	eraseChunks(std::vector<uint8_t>&),
 	adjustZipOffsets(std::vector<uint8_t>&, const uint_fast32_t, const uint_fast32_t),
 	displayInfo();
 
