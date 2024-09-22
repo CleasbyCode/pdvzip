@@ -107,10 +107,8 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	}
 
 	// Strip superfluous PNG chunks from the cover image.
-	if(!eraseChunks(Image_Vec)) {
-		return 1;
-	}
-	
+	eraseChunks(Image_Vec);
+
 	const uint_fast32_t IMAGE_VEC_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());
 	
 	constexpr uint_fast32_t LARGE_FILE_SIZE = 104857600;
