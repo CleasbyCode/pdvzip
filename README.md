@@ -8,7 +8,7 @@ With ***pdvzip***, you can embed a ***ZIP*** file up to a maximum size of **~2GB
 ****Compatible hosting sites, listed below, have their own much smaller size limits:***
 * ***X/Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**32MB**), ***ImgPile*** (**8MB**).
   
-![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_30892.png)  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_4172.png)  
 ***Image credit:*** [***@z3pio_***](https://x.com/z3pio_)
  
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original ***Python*** program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
