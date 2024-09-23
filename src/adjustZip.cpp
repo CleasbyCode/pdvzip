@@ -42,7 +42,6 @@ void adjustZipOffsets(std::vector<uint8_t>& Vec, const uint_fast32_t VEC_SIZE, c
 		record_count = 0;
 	
 	uint_fast8_t value_bit_length = 16;
-
 	valueUpdater(Vec, zip_comment_length_index, zip_comment_length, value_bit_length); // Update extended comment length value. 
 		
 	// Find the first start_central_directory index location by reverse iterating over the vector, starting from the end of the IMAGE/ZIP contents.
@@ -56,7 +55,6 @@ void adjustZipOffsets(std::vector<uint8_t>& Vec, const uint_fast32_t VEC_SIZE, c
 	uint_fast32_t central_dir_local_offset_index = start_central_dir_index + CENTRAL_LOCAL_INDEX_DIFF;
 
 	value_bit_length = 32;
-
 	valueUpdater(Vec, end_central_start_index, start_central_dir_index, value_bit_length);
 	
 	while (total_zip_records--) {
