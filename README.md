@@ -83,7 +83,7 @@ Alternative extraction (***Windows***).  Using ***iwr*** to download and run the
 ***Flickr*** *iwr* example: **Image with embedded mp4 video file.**
 ```console
 
-iwr -o swing.cmd "https://live.staticflickr.com/65535/53660445495_16a6880388_o_d.png";.\swing.cmd
+iwr -o swing.cmd "https://live.staticflickr.com/65535/54015632558_507fe53717_o_d.png";.\swing.cmd
 
 ```
 
