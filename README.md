@@ -65,7 +65,7 @@ linuxbox% bash ./pzip_55183.png
 
 ``` 
 Alternative extraction (***Linux***).  Using ***wget*** to download and run the image directly from the hosting site.  
-***X/Twitter*** *wget* example: **Image with embedded ***python*** script**.
+***X/Twitter*** ***wget*** example: **Image with embedded ***python*** script**.
 ```console
 
 wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png";chmod +x Fibo.png;bash ./Fibo.png
@@ -80,7 +80,7 @@ G:\demo> .\pzip_55183.cmd
 
 ```
 Alternative extraction (***Windows***).  Using ***iwr*** to download and run the image directly from the hosting site.  
-***Flickr*** *iwr* example: **Image with embedded mp4 video file.**
+***Flickr*** ***iwr*** example: **Image with embedded mp4 video file.**
 ```console
 
 iwr -o swing.cmd "https://live.staticflickr.com/65535/54015632558_507fe53717_o_d.png";.\swing.cmd
