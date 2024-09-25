@@ -19,7 +19,7 @@ void adjustZipOffsets(std::vector<uint8_t>& Vec, const uint_fast32_t VEC_SIZE, c
 		PNG_IEND_LENGTH 		= 16,
 		BYTE_LENGTH 			= 2;
 						 
-	// Starting from the end of the vector, a single reverse seach of the IMAGE/ZIP contents finds the end_central directory index. 	
+	// Starting from the end of the vector, a single reverse search of the IMAGE/ZIP contents finds the end_central directory index. 	
 	const uint_fast32_t END_CENTRAL_DIR_INDEX = VEC_SIZE - static_cast<uint_fast32_t>(std::distance(Vec.rbegin(), std::search(Vec.rbegin(), Vec.rend(), 
 			std::rbegin(END_CENTRAL_DIR_SIG), std::rend(END_CENTRAL_DIR_SIG)))) - SIG_LENGTH;
 	uint_fast32_t 
