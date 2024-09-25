@@ -17,8 +17,6 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 Demo Videos: [***Python***](https://youtu.be/Y_JObBTF80A) | [***Folder***](https://youtu.be/XHLwAYp1EPk) | [***MP4***](https://youtu.be/mK_n-Br-i8E) | [***Executable***](https://youtu.be/_g4Zdr3fiRs) | [***PowerShell***](https://youtu.be/ZB_EzbPjpcw) | [***PDF***](https://youtu.be/-wunA45_86Y) | [***Shell Script***](https://youtu.be/jDySe3HoqjQ) | [***JAR***](https://youtu.be/_6vyPqevEQo)
 
-Compile and run ***pdvzip*** under ***Linux*** or Windows.  
-
 ## Usage (Linux)
 
 ```console
