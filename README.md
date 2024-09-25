@@ -15,8 +15,6 @@ With ***pdvzip***, you can embed a ***ZIP*** file up to a maximum size of ***2GB
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original ***Python*** program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
 ***pdvzip*** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a ***PNG*** image.  
 
-Demo Videos: [***Python***](https://youtu.be/Y_JObBTF80A) | [***Folder***](https://youtu.be/XHLwAYp1EPk) | [***MP4***](https://youtu.be/mK_n-Br-i8E) | [***Executable***](https://youtu.be/_g4Zdr3fiRs) | [***PowerShell***](https://youtu.be/ZB_EzbPjpcw) | [***PDF***](https://youtu.be/-wunA45_86Y) | [***Shell Script***](https://youtu.be/jDySe3HoqjQ) | [***JAR***](https://youtu.be/_6vyPqevEQo)
-
 ## Usage (Linux)
 
 ```console
