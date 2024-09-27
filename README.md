@@ -46,7 +46,7 @@ Complete!
 
 The following section covers the extraction of embedded ***ZIP*** files.  [***JAR***](https://youtu.be/_6vyPqevEQo) files are covered later.
 
-***pdvzip*** (for ***Linux***) will attempt to automatically set executable permissions on newly created polyglot image files.  
+***pdvzip*** (for ***Linux***) will attempt to ***automatically set executable permissions*** on newly created polyglot image files.  
 
 You will need to manually set executable permissions using ***chmod*** on these polyglot images downloaded from hosting sites.
 
