@@ -44,6 +44,8 @@ Complete!
 ## Extracting Your Embedded File(s)  
 **Important:** When saving images from ***X/Twitter***, click the image in the post to ***fully expand it***, before saving.  
 
+https://github.com/user-attachments/assets/d4d28f3b-0583-4a63-bc95-e905b6386411
+
 The following section covers the extraction of embedded ***ZIP*** files.  [***JAR***](https://youtu.be/_6vyPqevEQo) files are covered later.
 
 ***pdvzip*** (for ***Linux***) will attempt to automatically set executable permissions on newly created polyglot image files.  
