@@ -1,5 +1,4 @@
 void displayInfo() {
-
 	std::cout << R"(
 PNG Data Vehicle ZIP Edition (PDVZIP v2.4). 
 Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
