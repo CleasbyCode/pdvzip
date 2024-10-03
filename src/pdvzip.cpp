@@ -1,7 +1,7 @@
-uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, bool isZipFile) {
+uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, bool isZipFile) {
 
-	constexpr uint_fast32_t COMBINED_MAX_FILE_SIZE 	= 2147483648;	// 2GB. (image + archive file)
-	constexpr uint_fast8_t MIN_FILE_SIZE = 30;
+	constexpr uint32_t COMBINED_MAX_FILE_SIZE = 2147483648;	// 2GB. (image + archive file)
+	constexpr uint8_t MIN_FILE_SIZE = 30;
 	
 	const size_t 
 		IMAGE_FILE_SIZE = std::filesystem::file_size(IMAGE_FILENAME),
@@ -39,7 +39,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	
 	std::copy(std::istreambuf_iterator<char>(image_file_ifs), std::istreambuf_iterator<char>(), std::back_inserter(Image_Vec));
 
-	constexpr uint_fast8_t
+	constexpr uint8_t
 		PNG_SIG[] 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
 		PNG_IEND_SIG[]	{ 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
 
@@ -50,11 +50,11 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	
 	// A range of characters that may appear within the image width/height dimension fields of the IHDR chunk or within the 4-byte IHDR chunk's CRC field,
 	// which will break the Linux extraction script. If any of these characters are detected, the user will have to modify the image manually or try another image.
-	constexpr uint_fast8_t
+	constexpr uint8_t
 		LINUX_PROBLEM_CHARACTERS[] { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 },
 		IHDR_STOP_INDEX = 0x20;
 	
-	uint_fast8_t ihdr_check_index = 0x12;
+	uint8_t ihdr_check_index = 0x12;
 
 	while (ihdr_check_index++ < IHDR_STOP_INDEX) {
 		if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS),
@@ -66,7 +66,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	}
 
 	// Check cover image for valid image dimensions and color type values.
-	constexpr uint_fast8_t
+	constexpr uint8_t
 		IMAGE_WIDTH_INDEX 	= 0x12,
 		IMAGE_HEIGHT_INDEX 	= 0x16,
 		IMAGE_COLOR_TYPE_INDEX 	= 0x19,
@@ -75,19 +75,19 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		TRUECOLOR 		= 2,
 		BYTE_LENGTH 		= 2;
 
-	constexpr uint_fast16_t
+	constexpr uint16_t
 		MAX_TRUECOLOR_DIMS 	= 899,
 		MAX_INDEXED_COLOR_DIMS 	= 4096;
 
-	const uint_fast16_t
+	const uint16_t
 		IMAGE_WIDTH 	= getByteValue(Image_Vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, true),
 		IMAGE_HEIGHT 	= getByteValue(Image_Vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, true);
 
-	const uint_fast8_t IMAGE_COLOR_TYPE = Image_Vec[IMAGE_COLOR_TYPE_INDEX] == 6 ? 2 : Image_Vec[IMAGE_COLOR_TYPE_INDEX];
+	const uint8_t IMAGE_COLOR_TYPE = Image_Vec[IMAGE_COLOR_TYPE_INDEX] == 6 ? 2 : Image_Vec[IMAGE_COLOR_TYPE_INDEX];
 
 	const bool VALID_COLOR_TYPE = (IMAGE_COLOR_TYPE == INDEXED_COLOR || IMAGE_COLOR_TYPE == TRUECOLOR);
 
-	auto checkDimensions = [&](uint_fast8_t COLOR_TYPE, uint_fast16_t MAX_DIMS) {
+	auto checkDimensions = [&](uint8_t COLOR_TYPE, uint16_t MAX_DIMS) {
 		return (IMAGE_COLOR_TYPE == COLOR_TYPE &&
             		IMAGE_WIDTH <= MAX_DIMS && IMAGE_HEIGHT <= MAX_DIMS &&
             		IMAGE_WIDTH >= MIN_DIMS && IMAGE_HEIGHT >= MIN_DIMS);
@@ -109,9 +109,9 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	// Strip superfluous PNG chunks from the cover image.
 	eraseChunks(Image_Vec);
 
-	const uint_fast32_t IMAGE_VEC_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());
+	const uint32_t IMAGE_VEC_SIZE = static_cast<uint32_t>(Image_Vec.size());
 	
-	constexpr uint_fast32_t LARGE_FILE_SIZE = 104857600;
+	constexpr uint32_t LARGE_FILE_SIZE = 104857600;
 
 	if (ZIP_FILE_SIZE > LARGE_FILE_SIZE) {
 		std::cout << "\nPlease wait. Larger files will take longer to complete this process.\n";
@@ -122,28 +122,28 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 					    
 	Idat_Zip_Vec.insert(Idat_Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(zip_file_ifs), std::istreambuf_iterator<char>());
 
-	constexpr uint_fast8_t ZIP_SIG[] { 0x50, 0x4B, 0x03, 0x04 };
+	constexpr uint8_t ZIP_SIG[] { 0x50, 0x4B, 0x03, 0x04 };
 
 	if (!std::equal(std::begin(ZIP_SIG), std::end(ZIP_SIG), std::begin(Idat_Zip_Vec) + 8)) {
 		std::cerr << "\nZIP File Error: File does not appear to be a valid ZIP archive.\n\n";
 		return 1;
 	}
 
-	const uint_fast32_t IDAT_CHUNK_ZIP_FILE_SIZE = static_cast<uint_fast32_t>(Idat_Zip_Vec.size());
+	const uint32_t IDAT_CHUNK_ZIP_FILE_SIZE = static_cast<uint32_t>(Idat_Zip_Vec.size());
 
-	uint_fast8_t 
+	uint8_t 
 		idat_chunk_length_index{},
 		value_bit_length = 32;
 
 	valueUpdater(Idat_Zip_Vec, idat_chunk_length_index, IDAT_CHUNK_ZIP_FILE_SIZE - 12, value_bit_length);
 
 	// The following section (~158 lines) completes and embeds the extraction script, based on the file type within the ZIP archive.
-	constexpr uint_fast8_t 
+	constexpr uint8_t 
 		ZIP_RECORD_FIRST_FILENAME_MIN_LENGTH 	= 4,
 		ZIP_RECORD_FIRST_FILENAME_LENGTH_INDEX 	= 0x22, 
 		ZIP_RECORD_FIRST_FILENAME_INDEX 	= 0x26;
 	
-	const uint_fast8_t ZIP_RECORD_FIRST_FILENAME_LENGTH = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_LENGTH_INDEX];
+	const uint8_t ZIP_RECORD_FIRST_FILENAME_LENGTH = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_LENGTH_INDEX];
 
 	if (ZIP_RECORD_FIRST_FILENAME_MIN_LENGTH > ZIP_RECORD_FIRST_FILENAME_LENGTH) {
 		std::cerr << "\nZIP File Error:\n\nName length of first file within ZIP archive is too short.\nIncrease its length (minimum 4 characters) and make sure it has a valid extension.\n\n";
@@ -155,7 +155,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 						    
 	const std::string ZIP_RECORD_FIRST_FILENAME{ Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX, Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH };
 
-	constexpr uint_fast8_t 
+	constexpr uint8_t 
 		VIDEO_AUDIO 		= 29,
 		PDF 			= 30, 
 		PYTHON 			= 31, 
@@ -167,14 +167,14 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		LINUX_EXECUTABLE 	= 37, 
 		JAR 			= 38;
 
-	uint_fast8_t extension_list_index = (isZipFile) ? 0 : JAR;
+	uint8_t extension_list_index = (isZipFile) ? 0 : JAR;
 						    
 	if (extension_list_index == JAR && (ZIP_RECORD_FIRST_FILENAME != "META-INF/MANIFEST.MF" && ZIP_RECORD_FIRST_FILENAME != "META-INF/")) {
 		std::cerr << "\nFile Type Error: Archive file does not appear to be a valid JAR file.\n\n";
 		return 1;
 	}
 						    
-	const uint_fast16_t EXTENSION_POS = static_cast<uint_fast16_t>(ZIP_RECORD_FIRST_FILENAME.rfind('.'));
+	const uint16_t EXTENSION_POS = static_cast<uint16_t>(ZIP_RECORD_FIRST_FILENAME.rfind('.'));
 	const std::string ZIP_RECORD_FIRST_FILENAME_EXTENSION = ZIP_RECORD_FIRST_FILENAME_LENGTH > EXTENSION_POS ? ZIP_RECORD_FIRST_FILENAME.substr(EXTENSION_POS + 1) : "?";
 
 	// Deal with filenames that don't have extensions. Folders and Linux executables.
@@ -225,7 +225,7 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 	std::vector<uint8_t> Iccp_Script_Vec {	0x00, 0x00, 0x00, 0x00, 0x69, 0x43, 0x43, 0x50, 0x44, 0x56, 0x5A, 0x49, 0x50, 0x5F, 
 						0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
 
-	std::unordered_map<int_fast8_t, std::vector<uint_fast16_t>> case_map = {
+	std::unordered_map<int8_t, std::vector<uint16_t>> case_map = {
 		{VIDEO_AUDIO,		{	0, 0x1E4, 0x1C }}, // The single digit integer is the extraction script id (see Extraction_Scripts_Vec), the hex values are insert index locations
 		{PDF,			{	1, 0x196, 0x1C }}, // within the extraction script vector. We use these index locations to insert additional items into the script in order to complete it.
 		{PYTHON,		{	2, 0x10B, 0x101, 0xBC, 0x1C}},
@@ -238,11 +238,11 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		{-1,			{	9, 0x127, 0x1C}} // Unknown file type, unmatched file extension. Default case.
 	};
 
-	std::vector<uint_fast16_t> Case_Values_Vec = case_map.count(extension_list_index) ? case_map[extension_list_index] : case_map[-1];
+	std::vector<uint16_t> Case_Values_Vec = case_map.count(extension_list_index) ? case_map[extension_list_index] : case_map[-1];
 
-	const uint_fast16_t SCRIPT_SELECTION = Case_Values_Vec[0];
+	const uint16_t SCRIPT_SELECTION = Case_Values_Vec[0];
 
-	constexpr uint_fast8_t SCRIPT_INSERT_INDEX = 0x16;
+	constexpr uint8_t SCRIPT_INSERT_INDEX = 0x16;
 
 	Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + SCRIPT_INSERT_INDEX, Extraction_Scripts_Vec[SCRIPT_SELECTION].begin(), Extraction_Scripts_Vec[SCRIPT_SELECTION].end());
 
@@ -260,15 +260,15 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		}
 	}
 	
-	uint_fast8_t 
+	uint8_t 
 		iccp_chunk_length_index{},
 		iccp_chunk_length_first_byte_index = 3;
 	
-	uint_fast16_t iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size()) - 12;
+	uint16_t iccp_chunk_script_size = static_cast<uint16_t>(Iccp_Script_Vec.size()) - 12;
 
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 
-	const uint_fast8_t iccp_chunk_length_first_byte_value = Iccp_Script_Vec[iccp_chunk_length_first_byte_index];
+	const uint8_t iccp_chunk_length_first_byte_value = Iccp_Script_Vec[iccp_chunk_length_first_byte_index];
 
 	// If a problem character (that breaks the Linux extraction script) is found within the first byte of the updated iccp chunk length field, 
 	// insert a short string to the end of the iccp chunk to increase its length, avoiding the problem characters when chunk length is updated.
@@ -280,9 +280,9 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 	}
 	
-	constexpr uint_fast16_t MAX_SCRIPT_SIZE = 1500;
+	constexpr uint16_t MAX_SCRIPT_SIZE = 1500;
 
-	constexpr uint_fast8_t
+	constexpr uint8_t
 		ICCP_CHUNK_NAME_INDEX = 4,
 		ICCP_CHUNK_INSERT_INDEX = 0x21;
 
@@ -291,11 +291,11 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 		return 1;
 	}
 
-	const uint_fast16_t ICCP_CHUNK_LENGTH = iccp_chunk_script_size + 4;
+	const uint16_t ICCP_CHUNK_LENGTH = iccp_chunk_script_size + 4;
 
-	const uint_fast32_t ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH);
+	const uint32_t ICCP_CHUNK_CRC = crcUpdate(&Iccp_Script_Vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH);
 
-	uint_fast16_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
+	uint16_t iccp_chunk_crc_index = iccp_chunk_script_size + 8;
 
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length);
 
@@ -304,15 +304,15 @@ uint_fast8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FI
 
 	std::vector<uint8_t>().swap(Idat_Zip_Vec);
 				 
-	const uint_fast32_t 
+	const uint32_t 
 		LAST_IDAT_CHUNK_NAME_INDEX = IMAGE_VEC_SIZE + iccp_chunk_script_size + 4, 	// Important to use the old image size before the above inserts.
-		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint_fast32_t>(Image_Vec.size());  	// Image size updated to include the inserts.
+		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint32_t>(Image_Vec.size());  	// Image size updated to include the inserts.
 
 	adjustZipOffsets(Image_Vec, COMPLETE_POLYGLOT_IMAGE_SIZE, LAST_IDAT_CHUNK_NAME_INDEX);
 
-	const uint_fast32_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], IDAT_CHUNK_ZIP_FILE_SIZE - 8);
+	const uint32_t LAST_IDAT_CHUNK_CRC = crcUpdate(&Image_Vec[LAST_IDAT_CHUNK_NAME_INDEX], IDAT_CHUNK_ZIP_FILE_SIZE - 8);
 	
-	uint_fast32_t last_idat_chunk_crc_index = COMPLETE_POLYGLOT_IMAGE_SIZE - 16;
+	uint32_t last_idat_chunk_crc_index = COMPLETE_POLYGLOT_IMAGE_SIZE - 16;
 	
 	value_bit_length = 32;
 	valueUpdater(Image_Vec, last_idat_chunk_crc_index, LAST_IDAT_CHUNK_CRC, value_bit_length);
