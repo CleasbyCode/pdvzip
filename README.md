@@ -144,7 +144,7 @@ PS C:\Users\Nick\Desktop\jar_demo> .\pjar_19662.cmd
 ## PNG Image Requirements for Arbitrary Data Preservation
 
 
-***PNG*** file size (image + embedded content) must not exceed the hosting site's size limits.  
+***PNG*** file size (image + archive file) must not exceed the hosting site's size limits.  
 The site will either refuse to upload your image or it will convert your image to ***jpg***, such as ***X/Twitter***.
 
 ***Dimensions:***
