@@ -15,7 +15,10 @@ X/Twitter (5MB), Flickr (200MB), Imgbb (32MB), PostImage (32MB), ImgPile (8MB).
 Once the ZIP file has been embedded within a PNG image, it can be shared on your chosen
 hosting site or 'executed' whenever you want to access the embedded file(s).
 
-From a Linux terminal: ./pzip_image.png (Image file requires executable permissions / chmod +x pzip_image.png).
+pdvzip (Linux) will attempt to automatically set executable permissions on newly created polyglot image files.
+You will need to manually set executable permissions using chmod on these polyglot images downloaded from hosting sites.
+		
+From a Linux terminal: ./pzip_image.png (chmod +x pzip_image.png, if required).
 From a Windows terminal: First, rename the '.png' file extension to '.cmd', then .\pzip_image.cmd 
 
 For common video/audio files, Linux uses the media player vlc or mpv. Windows uses the set default media player.
@@ -38,7 +41,7 @@ The following dimension size limits are specific to pdvzip and not necessarily t
 
 PNG-32/24 (Truecolor)
 
-Image dimensions can be set between a minimum of 68 x 68 and a maximum of 899 x 899.
+Image dimensions can be set between a minimum of 68x68 and a maximum of 899x899.
 These dimension size limits are for compatibility reasons, allowing it to work with all the above listed platforms.
 
 Note: Images that are created & saved within your image editor as PNG-32/24 that are either 
@@ -47,9 +50,9 @@ PNG-8 and you will lose the embedded content. If you want to use a simple "singl
 then fill an area with a gradient colour instead of a single solid colour.
 X/Twitter should then keep the image as PNG-32/24.
 
-PNG-8 (Indexed-colour [3])
+PNG-8 (Indexed-colour)
 
-Image dimensions can be set between a minimum of 68 x 68 and a maximum of 4096 x 4096.
+Image dimensions can be set between a minimum of 68x68 and a maximum of 4096x4096.
 
 PNG Chunks:
 
