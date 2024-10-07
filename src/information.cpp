@@ -10,7 +10,7 @@ The supported hosting sites will retain the embedded archive within the PNG imag
 		
 PNG image size limits are platform dependant:  
 
-X/Twitter (5MB), Flickr (200MB), Imgbb (32MB), PostImage (24MB), ImgPile (8MB).
+X/Twitter (5MB), Flickr (200MB), Imgbb (32MB), PostImage (32MB), ImgPile (8MB).
 
 Once the ZIP file has been embedded within a PNG image, it can be shared on your chosen
 hosting site or 'executed' whenever you want to access the embedded file(s).
