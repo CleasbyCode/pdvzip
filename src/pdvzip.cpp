@@ -242,9 +242,9 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 
 	const uint16_t SCRIPT_SELECTION = Case_Values_Vec[0];
 
-	constexpr uint8_t SCRIPT_INSERT_INDEX = 0x16;
+	constexpr uint8_t SCRIPT_INDEX = 0x16;
 
-	Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + SCRIPT_INSERT_INDEX, Extraction_Scripts_Vec[SCRIPT_SELECTION].begin(), Extraction_Scripts_Vec[SCRIPT_SELECTION].end());
+	Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + SCRIPT_INDEX, Extraction_Scripts_Vec[SCRIPT_SELECTION].begin(), Extraction_Scripts_Vec[SCRIPT_SELECTION].end());
 
 	if (isZipFile) {
 		if (extension_list_index == WINDOWS_EXECUTABLE || extension_list_index == LINUX_EXECUTABLE) {
@@ -261,7 +261,7 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 	}
 	
 	uint8_t 
-		iccp_chunk_length_index{},
+		iccp_chunk_length_index = 0,
 		iccp_chunk_length_first_byte_index = 3;
 	
 	uint16_t iccp_chunk_script_size = static_cast<uint16_t>(Iccp_Script_Vec.size()) - 12;
@@ -284,7 +284,7 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 
 	constexpr uint8_t
 		ICCP_CHUNK_NAME_INDEX = 4,
-		ICCP_CHUNK_INSERT_INDEX = 0x21;
+		ICCP_CHUNK_INDEX = 0x21;
 
 	if (iccp_chunk_script_size > MAX_SCRIPT_SIZE) {
 		std::cerr << "\nScript Size Error: Extraction script exceeds size limit.\n\n";
@@ -299,7 +299,7 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length);
 
-	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INSERT_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
+	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
 	Image_Vec.insert((Image_Vec.end() - 12), Idat_Zip_Vec.begin(), Idat_Zip_Vec.end());
 
 	std::vector<uint8_t>().swap(Idat_Zip_Vec);
