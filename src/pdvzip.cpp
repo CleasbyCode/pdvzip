@@ -276,7 +276,7 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 		iccp_chunk_length_first_byte_value) != std::end(LINUX_PROBLEM_CHARACTERS)) {
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "........";
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + iccp_chunk_script_size + 8, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
-			iccp_chunk_script_size = static_cast<uint_fast16_t>(Iccp_Script_Vec.size()) - 12;
+			iccp_chunk_script_size = static_cast<uint16_t>(Iccp_Script_Vec.size()) - 12;
 			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 	}
 	
