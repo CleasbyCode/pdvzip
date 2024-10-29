@@ -7,6 +7,7 @@
 #include <vector>
 #include <iterator>
 #include <filesystem>
+#include <random>
 #include <cstdint>
 #include <algorithm>
 #include <iostream>
@@ -37,8 +38,8 @@ bool writeFile(std::vector<uint8_t>&, const uint32_t, bool);
 
 void 
 	valueUpdater(std::vector<uint8_t>&, uint32_t, const uint32_t, uint8_t),
-	eraseChunks(std::vector<uint8_t>&),
+	eraseChunks(std::vector<uint8_t>&, const size_t),
 	adjustZipOffsets(std::vector<uint8_t>&, const uint32_t, const uint32_t),
 	displayInfo();
 
-uint8_t pdvZip(const std::string&, const std::string&, bool);
+int pdvZip(const std::string&, const std::string&, bool);
