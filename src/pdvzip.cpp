@@ -1,6 +1,6 @@
-uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, bool isZipFile) {
+int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, bool isZipFile) {
 
-	constexpr uint32_t COMBINED_MAX_FILE_SIZE = 2147483648;	// 2GB. (image + archive file)
+	constexpr uint32_t COMBINED_MAX_FILE_SIZE = 2U * 1024U * 1024U * 1024U;	// 2GB. (image + archive file)
 	constexpr uint8_t MIN_FILE_SIZE = 30;
 	
 	const size_t 
@@ -35,16 +35,16 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 	}
 	
 	std::vector<uint8_t> Image_Vec;
-	Image_Vec.reserve(COMBINED_FILE_SIZE); 
+	Image_Vec.resize(IMAGE_FILE_SIZE); 
 	
-	std::copy(std::istreambuf_iterator<char>(image_file_ifs), std::istreambuf_iterator<char>(), std::back_inserter(Image_Vec));
+	image_file_ifs.read(reinterpret_cast<char*>(Image_Vec.data()), IMAGE_FILE_SIZE);
 
 	constexpr uint8_t
 		PNG_SIG[] 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
 		PNG_IEND_SIG[]	{ 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
 
 	if (!std::equal(std::begin(PNG_SIG), std::end(PNG_SIG), std::begin(Image_Vec)) || !std::equal(std::begin(PNG_IEND_SIG), std::end(PNG_IEND_SIG), std::end(Image_Vec) - 8)) {
-        		std::cerr << "\nImage File Error: Signature check failure. This file is not a valid PNG image.\n\n";
+        		std::cerr << "\nImage File Error: Signature check failure. Not a valid PNG image.\n\n";
 			return 1;
     	}
 	
@@ -80,8 +80,8 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 		MAX_INDEXED_COLOR_DIMS 	= 4096;
 
 	const uint16_t
-		IMAGE_WIDTH 	= getByteValue(Image_Vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, true),
-		IMAGE_HEIGHT 	= getByteValue(Image_Vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, true);
+		IMAGE_WIDTH  = getByteValue(Image_Vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, true),
+		IMAGE_HEIGHT = getByteValue(Image_Vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, true);
 
 	const uint8_t IMAGE_COLOR_TYPE = Image_Vec[IMAGE_COLOR_TYPE_INDEX] == 6 ? 2 : Image_Vec[IMAGE_COLOR_TYPE_INDEX];
 
@@ -107,25 +107,25 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 	}
 
 	// Strip superfluous PNG chunks from the cover image.
-	eraseChunks(Image_Vec);
+	eraseChunks(Image_Vec, IMAGE_FILE_SIZE);
 
-	const uint32_t IMAGE_VEC_SIZE = static_cast<uint32_t>(Image_Vec.size());
+	const uint32_t IMAGE_VEC_SIZE = static_cast<uint32_t>(Image_Vec.size()); // New size after chunks removed.
 	
-	constexpr uint32_t LARGE_FILE_SIZE = 104857600;
+	constexpr uint32_t LARGE_FILE_SIZE = 400 * 1024 * 1024;  // 400MB.
 
 	if (ZIP_FILE_SIZE > LARGE_FILE_SIZE) {
 		std::cout << "\nPlease wait. Larger files will take longer to complete this process.\n";
 	}
 				    
 	std::vector<uint8_t>Idat_Zip_Vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
-	Idat_Zip_Vec.reserve(Idat_Zip_Vec.size() + ZIP_FILE_SIZE);
-					    
-	Idat_Zip_Vec.insert(Idat_Zip_Vec.begin() + 8, std::istreambuf_iterator<char>(zip_file_ifs), std::istreambuf_iterator<char>());
+	Idat_Zip_Vec.resize(Idat_Zip_Vec.size() + ZIP_FILE_SIZE);
+				    
+	zip_file_ifs.read(reinterpret_cast<char*>(Idat_Zip_Vec.data() + 8), ZIP_FILE_SIZE);
 
 	constexpr uint8_t ZIP_SIG[] { 0x50, 0x4B, 0x03, 0x04 };
-
+	
 	if (!std::equal(std::begin(ZIP_SIG), std::end(ZIP_SIG), std::begin(Idat_Zip_Vec) + 8)) {
-		std::cerr << "\nZIP File Error: File does not appear to be a valid ZIP archive.\n\n";
+		std::cerr << "\nZIP File Error: Signature check failure. Not a valid ZIP archive file.\n\n";
 		return 1;
 	}
 
@@ -150,8 +150,8 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 		return 1;
 	}
 
-	constexpr const char* Extension_List[] {	"mp4", "mp3", "wav", "mpg", "webm", "flac", "3gp", "aac", "aiff", "aif", "alac", "ape", "avchd", "avi", "dsd", "divx", "f4v",
-							"flv", "m4a", "m4v", "mkv", "mov", "midi", "mpeg", "ogg", "pcm", "swf", "wma", "wmv", "xvid", "pdf", "py", "ps1", "sh", "exe"	};
+	constexpr const char* Extension_List[] { "mp4", "mp3", "wav", "mpg", "webm", "flac", "3gp", "aac", "aiff", "aif", "alac", "ape", "avchd", "avi", "dsd", "divx", "f4v",
+						 "flv", "m4a", "m4v", "mkv", "mov", "midi", "mpeg", "ogg", "pcm", "swf", "wma", "wmv", "xvid", "pdf", "py", "ps1", "sh", "exe"	};
 						    
 	const std::string ZIP_RECORD_FIRST_FILENAME{ Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX, Idat_Zip_Vec.begin() + ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH };
 
@@ -173,10 +173,10 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 		std::cerr << "\nFile Type Error: Archive file does not appear to be a valid JAR file.\n\n";
 		return 1;
 	}
-						    
-	const uint16_t EXTENSION_POS = static_cast<uint16_t>(ZIP_RECORD_FIRST_FILENAME.rfind('.'));
-	const std::string ZIP_RECORD_FIRST_FILENAME_EXTENSION = ZIP_RECORD_FIRST_FILENAME_LENGTH > EXTENSION_POS ? ZIP_RECORD_FIRST_FILENAME.substr(EXTENSION_POS + 1) : "?";
-
+	
+	const size_t EXTENSION_POS = ZIP_RECORD_FIRST_FILENAME.rfind('.');
+	const std::string ZIP_RECORD_FIRST_FILENAME_EXTENSION = (EXTENSION_POS != std::string::npos) ? ZIP_RECORD_FIRST_FILENAME.substr(EXTENSION_POS + 1) : "?";
+	
 	// Deal with filenames that don't have extensions. Folders and Linux executables.
 	if (isZipFile && ZIP_RECORD_FIRST_FILENAME_EXTENSION  == "?") {
 		extension_list_index = Idat_Zip_Vec[ZIP_RECORD_FIRST_FILENAME_INDEX + ZIP_RECORD_FIRST_FILENAME_LENGTH - 1] == '/' ? FOLDER : LINUX_EXECUTABLE;
@@ -222,35 +222,46 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 		}
 	}
 
-	std::vector<uint8_t> Iccp_Script_Vec {	0x00, 0x00, 0x00, 0x00, 0x69, 0x43, 0x43, 0x50, 0x44, 0x56, 0x5A, 0x49, 0x50, 0x5F, 
-						0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
+	std::vector<uint8_t> Iccp_Script_Vec { 0x00, 0x00, 0x00, 0x00, 0x69, 0x43, 0x43, 0x50, 0x44, 0x56, 0x5A, 0x49, 0x50, 0x5F, 
+						  0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
 
-	std::unordered_map<int8_t, std::vector<uint16_t>> case_map = {
-		{VIDEO_AUDIO,		{	0, 0x1E4, 0x1C }}, // The single digit integer is the extraction script id (see Extraction_Scripts_Vec), the hex values are insert index locations
-		{PDF,			{	1, 0x196, 0x1C }}, // within the extraction script vector. We use these index locations to insert additional items into the script in order to complete it.
-		{PYTHON,		{	2, 0x10B, 0x101, 0xBC, 0x1C}},
-		{POWERSHELL,		{	3, 0x105, 0xFB, 0xB6, 0x33 }},
-		{BASH_SHELL,		{	4, 0x134, 0x132, 0x8E, 0x1C }},
-		{WINDOWS_EXECUTABLE,	{	5, 0x116, 0x114 }},
-		{FOLDER,		{	6, 0x149, 0x1C }},
-		{LINUX_EXECUTABLE,	{	7, 0x8E,  0x1C }},
-		{JAR,			{	8 }},
-		{-1,			{	9, 0x127, 0x1C}} // Unknown file type, unmatched file extension. Default case.
+	constexpr uint16_t MAX_SCRIPT_SIZE = 1500;
+
+	Iccp_Script_Vec.reserve(Iccp_Script_Vec.size() + MAX_SCRIPT_SIZE);
+	
+	std::unordered_map<uint8_t, std::vector<uint16_t>> case_map = {
+		{VIDEO_AUDIO,		{ 0, 0x1E4, 0x1C }}, // The single digit integer is the extraction script id (see Extraction_Scripts_Vec), the hex values are insert index locations
+		{PDF,			{ 1, 0x196, 0x1C }}, // within the extraction script vector. We use these index locations to insert additional items into the script in order to complete it.
+		{PYTHON,		{ 2, 0x10B, 0x101, 0xBC, 0x1C}},
+		{POWERSHELL,		{ 3, 0x105, 0xFB, 0xB6, 0x33 }},
+		{BASH_SHELL,		{ 4, 0x134, 0x132, 0x8E, 0x1C }},
+		{WINDOWS_EXECUTABLE,	{ 5, 0x116, 0x114 }},
+		{FOLDER,		{ 6, 0x149, 0x1C }},
+		{LINUX_EXECUTABLE,	{ 7, 0x8E,  0x1C }},
+		{JAR,			{ 8 }},
+		{UNKNOWN_FILE_TYPE,	{ 9, 0x127, 0x1C}} // Fallback/placeholder. Unknown file type, unmatched file extension case.
 	};
 
-	std::vector<uint16_t> Case_Values_Vec = case_map.count(extension_list_index) ? case_map[extension_list_index] : case_map[-1];
+	auto it = case_map.find(extension_list_index);
 
-	const uint16_t SCRIPT_SELECTION = Case_Values_Vec[0];
+	if (it == case_map.end()) {
+    		extension_list_index = UNKNOWN_FILE_TYPE;
+	}
+
+	std::vector<uint16_t> Case_Values_Vec = (it != case_map.end()) ? it->second : case_map[extension_list_index];
+
+	constexpr uint8_t EXTRACTION_SCRIPT_ELEMENT_INDEX = 0;
+	const uint16_t EXTRACTION_SCRIPT = Case_Values_Vec[EXTRACTION_SCRIPT_ELEMENT_INDEX];
 
 	constexpr uint8_t SCRIPT_INDEX = 0x16;
 
-	Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + SCRIPT_INDEX, Extraction_Scripts_Vec[SCRIPT_SELECTION].begin(), Extraction_Scripts_Vec[SCRIPT_SELECTION].end());
+	Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + SCRIPT_INDEX, Extraction_Scripts_Vec[EXTRACTION_SCRIPT].begin(), Extraction_Scripts_Vec[EXTRACTION_SCRIPT].end());
 
 	if (isZipFile) {
 		if (extension_list_index == WINDOWS_EXECUTABLE || extension_list_index == LINUX_EXECUTABLE) {
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args.begin(), args.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());	
-		} else if (extension_list_index > PDF && extension_list_index < WINDOWS_EXECUTABLE) { 
+		} else if (extension_list_index > PDF && WINDOWS_EXECUTABLE > extension_list_index) { 
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args_windows.begin(), args_windows.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
 			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[3], args_linux.begin(), args_linux.end());
@@ -280,8 +291,6 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 			valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 	}
 	
-	constexpr uint16_t MAX_SCRIPT_SIZE = 1500;
-
 	constexpr uint8_t
 		ICCP_CHUNK_NAME_INDEX = 4,
 		ICCP_CHUNK_INDEX = 0x21;
@@ -302,6 +311,7 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAM
 	Image_Vec.insert((Image_Vec.begin() + ICCP_CHUNK_INDEX), Iccp_Script_Vec.begin(), Iccp_Script_Vec.end());
 	Image_Vec.insert((Image_Vec.end() - 12), Idat_Zip_Vec.begin(), Idat_Zip_Vec.end());
 
+	std::vector<uint8_t>().swap(Iccp_Script_Vec);
 	std::vector<uint8_t>().swap(Idat_Zip_Vec);
 				 
 	const uint32_t 
