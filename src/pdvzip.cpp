@@ -38,6 +38,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 	Image_Vec.resize(IMAGE_FILE_SIZE); 
 	
 	image_file_ifs.read(reinterpret_cast<char*>(Image_Vec.data()), IMAGE_FILE_SIZE);
+	image_file_ifs.close();
 
 	constexpr uint8_t
 		PNG_SIG[] 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
@@ -121,6 +122,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 	Idat_Zip_Vec.resize(Idat_Zip_Vec.size() + ZIP_FILE_SIZE);
 				    
 	zip_file_ifs.read(reinterpret_cast<char*>(Idat_Zip_Vec.data() + 8), ZIP_FILE_SIZE);
+	zip_file_ifs.close();
 
 	constexpr uint8_t ZIP_SIG[] { 0x50, 0x4B, 0x03, 0x04 };
 	
