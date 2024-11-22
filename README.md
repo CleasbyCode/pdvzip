@@ -115,6 +115,8 @@ Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 ```
 Also, be aware when using arguments, you are always working from within the subdirectory "***pdvzip_extracted***".
   
+https://github.com/user-attachments/assets/9125d4e5-f94b-4d27-987e-fb2d76a90e8f
+
 To just get access to the file(s) within the ***ZIP*** archive, rename the '***.png***' file extension to '***.zip***'.  
 Treat the ***ZIP*** archive as read-only, do not add or remove files from the ***PNG-ZIP*** polyglot file.  
 
