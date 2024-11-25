@@ -210,7 +210,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 		args_windows{},
 		args{};
 
-	if ((extension_list_index > PDF && UNKNOWN_FILE_TYPE > extension_list_index) || extension_list_index == LINUX_EXECUTABLE) {
+	if ((extension_list_index > PDF && UNKNOWN_FILE_TYPE > extension_list_index) || extension_list_index == LINUX_EXECUTABLE || extension_list_index == JAR) {
 		std::cout << "\nFor this file type, if required, you can provide command-line arguments here.\n";
 		if (extension_list_index != WINDOWS_EXECUTABLE) {
 			std::cout << "\nLinux: ";
@@ -240,7 +240,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 		{WINDOWS_EXECUTABLE,	{ 5, 0x116, 0x114 }},
 		{FOLDER,		{ 6, 0x149, 0x1C }},
 		{LINUX_EXECUTABLE,	{ 7, 0x8E,  0x1C }},
-		{JAR,			{ 8 }},
+		{JAR,			{ 8, 0xA6,  0x61 }},
 		{UNKNOWN_FILE_TYPE,	{ 9, 0x127, 0x1C}} // Fallback/placeholder. Unknown file type, unmatched file extension case.
 	};
 
@@ -259,18 +259,20 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 
 	Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + SCRIPT_INDEX, Extraction_Scripts_Vec[EXTRACTION_SCRIPT].begin(), Extraction_Scripts_Vec[EXTRACTION_SCRIPT].end());
 
-	if (isZipFile) {
-		if (extension_list_index == WINDOWS_EXECUTABLE || extension_list_index == LINUX_EXECUTABLE) {
-			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args.begin(), args.end());
-			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());	
-		} else if (extension_list_index > PDF && WINDOWS_EXECUTABLE > extension_list_index) { 
-			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args_windows.begin(), args_windows.end());
-			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
-			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[3], args_linux.begin(), args_linux.end());
-			Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[4], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
-		} else { Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
-			 Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
-		}
+	if (extension_list_index == WINDOWS_EXECUTABLE || extension_list_index == LINUX_EXECUTABLE) {
+		Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args.begin(), args.end());
+		Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());	
+	} else if (extension_list_index == JAR) {
+		Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args_windows.begin(), args_windows.end());
+		Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], args_linux.begin(), args_linux.end());
+	} else if (extension_list_index > PDF && WINDOWS_EXECUTABLE > extension_list_index) { 
+		Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], args_windows.begin(), args_windows.end());
+		Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
+		Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[3], args_linux.begin(), args_linux.end());
+		Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[4], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
+	} else { 
+		 Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[1], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
+		 Iccp_Script_Vec.insert(Iccp_Script_Vec.begin() + Case_Values_Vec[2], ZIP_RECORD_FIRST_FILENAME.begin(), ZIP_RECORD_FIRST_FILENAME.end());
 	}
 	
 	uint8_t 
