@@ -156,6 +156,8 @@ PS C:\Users\Nick\Desktop\jar_demo> .\pjar_19662.cmd
 Note: This method will execute the embedded JAR file and also use any
       embedded command-line arguments with the JAR program.
 ```
+https://github.com/user-attachments/assets/9451ad50-4c7c-4fa3-a1be-3854189bde00
+
 ## PNG Image Requirements for Arbitrary Data Preservation
 
 ***PNG*** file size (image + archive file) must not exceed the hosting site's size limits.  
