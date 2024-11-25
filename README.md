@@ -44,7 +44,7 @@ Complete!
 ## Extracting Your Embedded File(s)  
 **Important:** When saving images from ***X/Twitter***, click the image in the post to ***fully expand it***, before saving.  
 
-The following section covers the extraction of embedded ***ZIP*** files.  [***JAR***](https://youtu.be/_6vyPqevEQo) files are covered later.
+The following section covers the extraction of embedded ***ZIP*** files. ***JAR*** files are covered later.
 
 ***pdvzip*** (for ***Linux***) will attempt to ***automatically set executable permissions*** on newly created polyglot image files.  
 
@@ -92,18 +92,18 @@ Clear this by clicking '***More info***' then select '***Run anyway***'.
 
 To avoid security warnings, run the file from a ***Windows console***, as shown in the above example.  
 
-For common [***video & audio***](https://youtu.be/mK_n-Br-i8E) files, ***Linux*** will use the ***vlc*** or ***mpv*** media player. ***Windows*** uses the default media player.  
+For common ***video & audio*** files, ***Linux*** will use the ***vlc*** or ***mpv*** media player. ***Windows*** uses the default media player.  
 
-[***PDF***](https://youtu.be/-wunA45_86Y) - ***Linux*** will use ***evince*** or ***firefox***. ***Windows*** uses the default ***PDF*** viewer.  
-[***Python***](https://youtu.be/Y_JObBTF80A) - ***Linux*** & ***Windows*** use ***python3*** to run these programs.  
-[***PowerShell***](https://youtu.be/ZB_EzbPjpcw) - ***Linux*** uses ***pwsh*** (if installed), ***Windows*** uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
+***PDF*** - ***Linux*** will use ***evince*** or ***firefox***. ***Windows*** uses the default ***PDF*** viewer.  
+***Python*** - ***Linux*** & ***Windows*** use ***python3*** to run these programs.  
+***PowerShell*** - ***Linux*** uses ***pwsh*** (if installed), ***Windows*** uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
 ***Folder*** - ***Linux*** uses ***xdg-open***, ***Windows*** uses ***powershell.exe*** with II (***Invoke-Item***) command, to open zipped folders.
 
 For any other file type within your ***ZIP*** file, ***Linux*** & ***Windows*** will rely on the operating system's set default method/application. Obviously, the compressed/embedded file needs to be compatible with the operating system you run it on.
 
-If the archive file is JAR or the compressed file type within the ZIP archive is ***PowerShell***, ***Python***, [***Shell Script***](https://youtu.be/jDySe3HoqjQ) or a ***Windows/Linux*** [***Executable***](https://youtu.be/_g4Zdr3fiRs), ***pdvzip*** will give you the option to provide command-line arguments for your file, if required.  
+If the archive file is JAR or the compressed file type within the ZIP archive is ***PowerShell***, ***Python***, ***Shell Script*** or a ***Windows/Linux Executable, pdvzip*** will give you the option to provide command-line arguments for your file, if required.  
 
-Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. 
+Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.
 ```console
 user1@linuxbox:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
@@ -151,7 +151,6 @@ PS C:\Users\Nick\Desktop\jar_demo> .\pjar_19662.cmd
 Note: This method will execute the embedded JAR file and also use any embedded command-line arguments with the JAR program.
 ```
 ## PNG Image Requirements for Arbitrary Data Preservation
-
 
 ***PNG*** file size (image + archive file) must not exceed the hosting site's size limits.  
 The site will either refuse to upload your image or it will convert your image to ***jpg***, such as ***X/Twitter***.
