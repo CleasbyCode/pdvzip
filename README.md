@@ -103,7 +103,7 @@ For any other file type within your ***ZIP*** file, ***Linux*** & ***Windows*** 
 
 If the archive file is JAR or the compressed file type within the ZIP archive is ***PowerShell***, ***Python***, ***Shell Script*** or a ***Windows/Linux Executable, pdvzip*** will give you the option to provide command-line arguments for your file, if required.  
 
-Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. E.g.
+Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.
 ```console
 user1@linuxbox:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
@@ -126,13 +126,16 @@ Treat the ***ZIP*** archive as read-only, do not add or remove files from the **
 ***Linux Option 1:***
 ```console
 user1@linuxbox:~/Desktop$ java -jar pjar_19662.png
-Note: If you use this method to run your embedded JAR file, you will have to manually add command-line arguments (if required) to the end of the command,
-      as your embedded arguments will not work with this method. e.g. PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png -u myUsername -a 25 -f "John Doe"
+Note: If you use this method to run your embedded JAR file, you will have to manually add command-line
+      arguments (if required) to the end of the command, as your embedded arguments will not work with
+      this method. e.g.
+      PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png -u myUsername -a 25 -f "John Doe"
 ```
 ***Linux Option 2a, using bash (or sh) shell environment:***
 ```console
 user1@linuxbox:~/Desktop$ ./pjar_19662.png
-Note: This method will execute the embedded JAR file and also use any embedded command-line arguments with the JAR program.
+Note: This method will execute the embedded JAR file and also use any embedded
+      command-line arguments with the JAR program.
 ```
 ***Linux Option 2b, using any other shell environment, you will need to invoke bash (or sh) to execute the image:***
 ```console
@@ -141,14 +144,17 @@ linuxbox% bash ./pjar_19662.png
 ***Windows Option 1:***
 ```console
 PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png 
-Note: If you use this method to run your embedded JAR file, you will have to manually add command-line arguments (if required) to the end of the command line,
-      as your embedded arguments will not work with this method. e.g. PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png -u myUsername -a 25 -f "John Doe"
+Note: If you use this method to run your embedded JAR file, you will have to manually add command-line
+      arguments (if required) to the end of the command, as your embedded arguments will not work with
+      this method. e.g.
+      PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png -u myUsername -a 25 -f "John Doe"
 ```
 ***Windows Option 2:***
 ```console
 PS C:\Users\Nick\Desktop\jar_demo> ren .\pjar_19662.png .\pjar_19662.cmd
 PS C:\Users\Nick\Desktop\jar_demo> .\pjar_19662.cmd
-Note: This method will execute the embedded JAR file and also use any embedded command-line arguments with the JAR program.
+Note: This method will execute the embedded JAR file and also use any
+      embedded command-line arguments with the JAR program.
 ```
 ## PNG Image Requirements for Arbitrary Data Preservation
 
