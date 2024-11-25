@@ -103,7 +103,7 @@ For any other file type within your ***ZIP*** file, ***Linux*** & ***Windows*** 
 
 If the archive file is JAR or the compressed file type within the ZIP archive is ***PowerShell***, ***Python***, ***Shell Script*** or a ***Windows/Linux Executable, pdvzip*** will give you the option to provide command-line arguments for your file, if required.  
 
-Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.
+Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. E.g.
 ```console
 user1@linuxbox:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
