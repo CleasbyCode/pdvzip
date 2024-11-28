@@ -15,7 +15,9 @@ Compatible hosting sites, ***listed below***, have their own ***much smaller*** 
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original ***Python*** program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
 ***pdvzip*** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a ***PNG*** image.  
 
-The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk of the ***PNG*** image. The embedded ***ZIP/JAR*** file is stored within the last ***IDAT*** chunk of the image.
+The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk of the ***PNG*** image. The embedded ***ZIP/JAR*** file is stored within the last ***IDAT*** chunk of the image.  
+
+(*You can try the [***pdvzip Web App, here,***](https://cleasbycode.co.uk/pdvzip/index/) if you don't want to download and compile the source code.*)  
 
 ## Usage (Linux)
 
@@ -113,8 +115,6 @@ Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 
 ```
 Also, be aware when using arguments for the compressed ZIP file types (not JAR), you are always working from within the subdirectory "***pdvzip_extracted***".  
-
-(*You can try the [***pdvzip Web App***](https://cleasbycode.co.uk/pdvzip/index/) if you don't want to download and compile the source code.*)  
 
 https://github.com/user-attachments/assets/9125d4e5-f94b-4d27-987e-fb2d76a90e8f
 
