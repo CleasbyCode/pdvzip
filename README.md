@@ -17,7 +17,7 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk of the ***PNG*** image. The embedded ***ZIP/JAR*** file is stored within the last ***IDAT*** chunk of the image.  
 
-(*You can try the [***pdvzip Web App, here,***](https://cleasbycode.co.uk/pdvzip/index/) if you don't want to download and compile the source code.*)  
+(*You can try the [***pdvzip Web App, here,***](https://cleasbycode.co.uk/pdvzip/index/) if you don't want to download and compile the CLI source code.*)  
 
 ## Usage (Linux)
 
