@@ -1,4 +1,4 @@
-// Erase superfluous PNG chunks from the cover image. Just keep the critical PNG chunks/data. (HEADER/IHDR/*PLTE/IDAT/IEND).
+// Make a copy of the cover image, but only include the critical PNG chunks/data. (HEADER/IHDR/*PLTE/IDAT/IEND).
 void eraseChunks(std::vector<uint8_t>& Vec, const size_t VEC_SIZE) {
 	constexpr uint8_t 
 		PLTE_SIG[] { 0x50, 0x4C, 0x54, 0x45 },
