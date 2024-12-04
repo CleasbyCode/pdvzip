@@ -129,7 +129,7 @@ user1@linuxbox:~/Desktop$ java -jar pjar_19662.png
 Note: If you use this method to run your embedded JAR file, you will have to manually add command-line
       arguments (if required) to the end of the command, as your embedded arguments will not work with
       this method. e.g.
-      PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png -u john_s -a 42 -f "John Smith"
+      user1@linuxbox:~/Desktop$ java -jar ./pjar_19662.png -u john_s -a 42 -f "John Smith"
 ```
 ***Linux Option 2a, using bash (or sh) shell environment:***
 ```console
