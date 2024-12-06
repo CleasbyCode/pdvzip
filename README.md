@@ -212,7 +212,7 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
   A file without an extension within a ***ZIP*** archive will be considered a ***Linux*** executable.      
 * ***Paint.net*** application is recommended for easily creating compatible ***PNG*** image files.  
 
-### Third-Party Libraries
+## Third-Party Libraries
 
 This project includes the following third-party library:
 
