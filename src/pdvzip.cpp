@@ -49,21 +49,26 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 			return 1;
     	}
 	
-	// A range of characters that may appear within the image width/height dimension fields of the IHDR chunk or within the 4-byte IHDR chunk's CRC field,
-	// which will break the Linux extraction script. If any of these characters are detected, the user will have to modify the image manually or try another image.
+	// A selection of "problem characters" may appear within the cover image's width/height dimension fields of the IHDR chunk or within the 4-byte IHDR chunk's CRC field,
+	// which will break the Linux extraction script. If any of these characters are detected, the program will attempt to decrease the width/height dimension size
+	// of the image by 1 pixel value, repeated if necessary, until no problem characters are found within the dimension size fields or the IHDR chunk's CRC field.
 	constexpr uint8_t
-		LINUX_PROBLEM_CHARACTERS[] { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 },
+		LINUX_PROBLEM_CHARACTERS[] { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 }, // This list could grow...
 		IHDR_STOP_INDEX = 0x20;
 	
 	uint8_t ihdr_check_index = 0x12;
 
-	while (ihdr_check_index++ < IHDR_STOP_INDEX) {
-		if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS),
-			Image_Vec[ihdr_check_index]) != std::end(LINUX_PROBLEM_CHARACTERS)) {
-				std::cerr << "\nImage File Error:\n\nThe IHDR chunk of this image contains a character that will break the Linux extraction script."
-				"\nTry modifying image width & height dimensions (1% increase or decrease) to resolve the issue.\nRepeat if necessary or try another image.\n\n";
-			return 1;
-		}
+	bool isBadImage = true;
+
+	while (isBadImage) {
+    		isBadImage = false;
+    		for (uint8_t index = 0x12; index < IHDR_STOP_INDEX; ++index) { // Check IHDR chunk section where problem characters may occur.
+        		if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS), Image_Vec[index]) != std::end(LINUX_PROBLEM_CHARACTERS)) {
+            			resizeImage(Image_Vec);
+            			isBadImage = true;
+            			break;
+        		}
+    		}
 	}
 
 	// Check cover image for valid image dimensions and color type values.
