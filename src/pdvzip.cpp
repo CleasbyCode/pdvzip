@@ -111,7 +111,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 	}
 
 	// Strip superfluous PNG chunks from the cover image.
-	eraseChunks(Image_Vec, IMAGE_FILE_SIZE);
+	eraseChunks(Image_Vec);
 
 	const uint32_t IMAGE_VEC_SIZE = static_cast<uint32_t>(Image_Vec.size()); // New size after chunks removed.
 	
