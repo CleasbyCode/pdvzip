@@ -17,8 +17,8 @@
 #include <fstream>
 
 // https://github.com/lvandeve/lodepng 
-#include "lodepng\lodepng.h"
-#include "lodepng\lodepng.cpp"
+#include "lodepng/lodepng.h"
+#include "lodepng/lodepng.cpp"
 // (Copyright (c) 2005-2024 Lode Vandevenne)
 
 #include "resizeImage.cpp"
