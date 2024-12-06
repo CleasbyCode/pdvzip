@@ -212,11 +212,12 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
   A file without an extension within a ***ZIP*** archive will be considered a ***Linux*** executable.      
 * ***Paint.net*** application is recommended for easily creating compatible ***PNG*** image files.  
 
-My other programs you may find useful:-
+### Third-Party Libraries
 
-* [jdvrif: CLI tool to encrypt & embed any file type within a JPG image.](https://github.com/CleasbyCode/jdvrif)
-* [imgprmt: CLI tool to embed an image prompt (e.g. "Midjourney") within a tweetable JPG-HTML polyglot image.](https://github.com/CleasbyCode/imgprmt)
-* [pdvrdt: CLI tool to encrypt, compress & embed any file type within a PNG image.](https://github.com/CleasbyCode/pdvrdt)
-* [pdvps: PowerShell / C++ CLI tool to encrypt & embed any file type within a tweetable & "executable" PNG image](https://github.com/CleasbyCode/pdvps)  
+This project includes the following third-party library:
+
+- **LodePNG** by Lode Vandevenne
+  - License: zlib/libpng (see [***LICENSE***](https://github.com/lvandeve/lodepng/blob/master/LICENSE) file)
+  - Copyright (c) 2005-2024 Lode Vandevenne
 
 ##
