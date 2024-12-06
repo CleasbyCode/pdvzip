@@ -17,10 +17,8 @@ void resizeImage(std::vector<uint8_t>& Image_Vec) {
 
    for (unsigned y = 0; y < newHeight; ++y) {
         for (unsigned x = 0; x < newWidth; ++x) {
-
             unsigned origX = x;
             unsigned origY = y;
-
             for (unsigned c = 0; c < 4; ++c) { // R, G, B, A channels
                 resizedImage[4 * (y * newWidth + x) + c] =
                     Temp_Vec[4 * (origY * width + origX) + c];
