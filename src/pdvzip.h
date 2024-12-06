@@ -16,6 +16,12 @@
 #include <regex>
 #include <fstream>
 
+// https://github.com/lvandeve/lodepng 
+#include "lodepng\lodepng.h"
+#include "lodepng\lodepng.cpp"
+// (Copyright (c) 2005-2024 Lode Vandevenne)
+
+#include "resizeImage.cpp"
 #include "getByteValue.cpp"
 #include "searchFunc.cpp"
 #include "crc32.cpp"
@@ -38,7 +44,8 @@ bool writeFile(std::vector<uint8_t>&, const uint32_t, bool);
 
 void 
 	valueUpdater(std::vector<uint8_t>&, uint32_t, const uint32_t, uint8_t),
-	eraseChunks(std::vector<uint8_t>&, const size_t),
+	resizeImage(std::vector<uint8_t>&),
+	eraseChunks(std::vector<uint8_t>&),
 	adjustZipOffsets(std::vector<uint8_t>&, const uint32_t, const uint32_t),
 	displayInfo();
 
