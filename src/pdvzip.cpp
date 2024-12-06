@@ -55,8 +55,6 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ZIP_FILENAME, b
 	constexpr uint8_t
 		LINUX_PROBLEM_CHARACTERS[] { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 }, // This list could grow...
 		IHDR_STOP_INDEX = 0x20;
-	
-	uint8_t ihdr_check_index = 0x12;
 
 	bool isBadImage = true;
 
