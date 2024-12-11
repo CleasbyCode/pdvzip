@@ -121,12 +121,12 @@ https://github.com/user-attachments/assets/9125d4e5-f94b-4d27-987e-fb2d76a90e8f
 To just get access to the file(s) within the ***ZIP*** archive, rename the '***.png***' file extension to '***.zip***'.  
 Treat the ***ZIP*** archive as read-only, do not add or remove files from the ***PNG-ZIP*** polyglot file.  
 
-## Executing Embedded JAR Files  
+## Executing Embedded Java Programs
 
 ***Linux Option 1:***
 ```console
 user1@linuxbox:~/Desktop$ java -jar pjar_19662.png
-Note: If you use this method to run your embedded JAR file, you will have to manually add command-line
+Note: If you use this method to run your embedded Java program, you will have to manually add command-line
       arguments (if required) to the end of the command, as your embedded arguments will not work with
       this method. e.g.
       user1@linuxbox:~/Desktop$ java -jar ./pjar_19662.png -u john_s -a 42 -f "John Smith"
@@ -134,8 +134,8 @@ Note: If you use this method to run your embedded JAR file, you will have to man
 ***Linux Option 2a, using bash (or sh) shell environment:***
 ```console
 user1@linuxbox:~/Desktop$ ./pjar_19662.png
-Note: This method will execute the embedded JAR file and also use any embedded
-      command-line arguments with the JAR program.
+Note: This method will execute the embedded Java program and also use any embedded
+      command-line arguments with the Java program.
 ```
 ***Linux Option 2b, using any other shell environment, you will need to invoke bash (or sh) to execute the image:***
 ```console
@@ -144,7 +144,7 @@ linuxbox% bash ./pjar_19662.png
 ***Windows Option 1:***
 ```console
 PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png 
-Note: If you use this method to run your embedded JAR file, you will have to manually add command-line
+Note: If you use this method to run your embedded Java program, you will have to manually add command-line
       arguments (if required) to the end of the command, as your embedded arguments will not work with
       this method. e.g.
       PS C:\Users\Nick\Desktop\jar_demo> java -jar .\pjar_19662.png -u john_s -a 42 -f "John Smith"
@@ -153,8 +153,8 @@ Note: If you use this method to run your embedded JAR file, you will have to man
 ```console
 PS C:\Users\Nick\Desktop\jar_demo> ren .\pjar_19662.png .\pjar_19662.cmd
 PS C:\Users\Nick\Desktop\jar_demo> .\pjar_19662.cmd
-Note: This method will execute the embedded JAR file and also use any
-      embedded command-line arguments with the JAR program.
+Note: This method will execute the embedded Java program and also use any
+      embedded command-line arguments with the Java program.
 ```
 https://github.com/user-attachments/assets/9451ad50-4c7c-4fa3-a1be-3854189bde00
 
