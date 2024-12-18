@@ -3,9 +3,9 @@
 Embed a ***ZIP*** or ***JAR*** file within a ***PNG*** image, to create a ***tweetable*** and "[***executable***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" ***PNG*** polyglot file.  
 Share the image on ***X/Twitter*** and a few other hosting sites, which will retain the embedded archive.  
 
-With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **2GB** (cover image + archive file).
+With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of ***2GB** (cover image + archive file).
 
-Compatible sites, ***listed below***, have their own ***much smaller*** size limits:-
+*Compatible sites, ***listed below***, have their own ***much smaller*** size limits:-
 
 ***X/Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**32MB**), ***ImgPile*** (**8MB**).
   
