@@ -29,10 +29,10 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	const std::string
-		IMAGE_FILENAME = argv[1],
-		ARCHIVE_FILENAME = argv[2];
-
+	const std::string 
+		IMAGE_FILENAME(argv[1]),
+		ARCHIVE_FILENAME(argv[2]);
+	
 	constexpr const char* REG_EXP = ("(\\.[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+)?[a-zA-Z_0-9\\.\\\\\\s\\-\\/]+?(\\.[a-zA-Z0-9]+)?");
 	const std::regex regex_pattern(REG_EXP);
 
