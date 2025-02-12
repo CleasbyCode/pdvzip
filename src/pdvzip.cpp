@@ -1,6 +1,6 @@
 int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAME, ArchiveType thisArchiveType) {
 
-	constexpr uint32_t COMBINED_MAX_FILE_SIZE = 2U * 1024U * 1024U * 1024U;	// 2GB. (image + archive file)
+	constexpr uint32_t COMBINED_MAX_FILE_SIZE = 2U * 1024U * 1024U * 1024U;	
 	constexpr uint8_t MIN_FILE_SIZE = 30;
 	
 	const size_t 
@@ -48,20 +48,16 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
         		std::cerr << "\nImage File Error: Signature check failure. Not a valid PNG image.\n\n";
 			return 1;
     	}
-	
-	// A selection of "problem characters" may appear within the cover image's width/height dimension fields of the IHDR chunk or within the 4-byte IHDR chunk's CRC field.
-	// These characters will break the Linux extraction script. If any of these characters are detected, the program will attempt to decrease the width/height dimension size
-	// of the image by 1 pixel value, repeated if necessary, until no problem characters are found within the dimension size fields or the IHDR chunk's CRC field.
 
 	constexpr uint8_t
-		LINUX_PROBLEM_CHARACTERS[] { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 }, // This list could grow...
+		LINUX_PROBLEM_CHARACTERS[] { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 }, 
 		IHDR_STOP_INDEX = 0x20;
 
 	bool isBadImage = true;
 
 	while (isBadImage) {
     		isBadImage = false;
-    		for (uint8_t index = 0x12; index < IHDR_STOP_INDEX; ++index) { // Check IHDR chunk section where problem characters may occur.
+    		for (uint8_t index = 0x12; index < IHDR_STOP_INDEX; ++index) { 
         		if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS), Image_Vec[index]) != std::end(LINUX_PROBLEM_CHARACTERS)) {
             			resizeImage(Image_Vec);
             			isBadImage = true;
@@ -70,7 +66,6 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
     		}
 	}
 
-	// Check cover image for valid image dimensions and color type values.
 	constexpr uint8_t
 		IMAGE_WIDTH_INDEX 	= 0x12,
 		IMAGE_HEIGHT_INDEX 	= 0x16,
@@ -105,7 +100,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
     		if (!VALID_COLOR_TYPE) {
         		std::cerr << "Color type of cover image is not supported.\n\nSupported formats: PNG-32/24 (Truecolor) or PNG-8 (Indexed-Color).";
     		} else {
-        		std::cerr << "Dimensions of cover image are not within the supported range.\n\nSupported ranges:\n - PNG-32/24 Truecolor: [68 x 68] to [899 x 899]\n - PNG-8 Indexed-Color: [68 x 68] to [4096 x 4096]";
+        		std::cerr << "Dimensions of cover image are not within the supported range.\n\nSupported ranges:\n - PNG-32/24 Truecolor: [68 x 68] to [900 x 900]\n - PNG-8 Indexed-Color: [68 x 68] to [4096 x 4096]";
     		}
     		std::cerr << "\n\n";
     		return 1;
@@ -113,7 +108,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 
 	eraseChunks(Image_Vec);
 
-	const uint32_t IMAGE_VEC_SIZE = static_cast<uint32_t>(Image_Vec.size()); // New size after chunks removed.
+	const uint32_t IMAGE_VEC_SIZE = static_cast<uint32_t>(Image_Vec.size()); 
 				    
 	std::vector<uint8_t>Idat_Archive_Vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
 	Idat_Archive_Vec.resize(Idat_Archive_Vec.size() + ARCHIVE_FILE_SIZE);
@@ -136,7 +131,6 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 
 	valueUpdater(Idat_Archive_Vec, idat_chunk_length_index, IDAT_CHUNK_ARCHIVE_FILE_SIZE - 12, value_bit_length);
 
-	// The following section (~158 lines) completes and embeds the extraction script, based on the file type within the archive.
 	constexpr uint8_t 
 		ARC_RECORD_FIRST_FILENAME_MIN_LENGTH 	= 4,
 		ARC_RECORD_FIRST_FILENAME_LENGTH_INDEX 	= 0x22, 
@@ -168,13 +162,10 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	const size_t EXTENSION_POS = ARC_RECORD_FIRST_FILENAME.rfind('.');
 	const std::string ARC_RECORD_FIRST_FILENAME_EXTENSION = (EXTENSION_POS != std::string::npos) ? ARC_RECORD_FIRST_FILENAME.substr(EXTENSION_POS + 1) : "?";
 	
-	// Deal with filenames that don't have extensions. Folders and Linux executables.
 	if (isZipFile && ARC_RECORD_FIRST_FILENAME_EXTENSION  == "?") {
 		extension_list_index = Idat_Archive_Vec[ARC_RECORD_FIRST_FILENAME_INDEX + ARC_RECORD_FIRST_FILENAME_LENGTH - 1] == '/' ? FOLDER : LINUX_EXECUTABLE;
 	}
 						    
-	// Even though we found a period character, indicating a file extension, it could still be a folder that just has a "." somewhere within its name, check for it here.
-	// Linux allows a zipped folder to have a "." for the last character of its name (e.g. "my_folder."), but this will cause issues with Windows, so also check for it here.
 	if (isZipFile && extension_list_index != FOLDER && Idat_Archive_Vec[ARC_RECORD_FIRST_FILENAME_INDEX + ARC_RECORD_FIRST_FILENAME_LENGTH - 1] == '/') {
 		if (Idat_Archive_Vec[ARC_RECORD_FIRST_FILENAME_INDEX + ARC_RECORD_FIRST_FILENAME_LENGTH - 2] != '.') {
 			extension_list_index = FOLDER; 
@@ -184,8 +175,6 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 		}
 	}
 	
-	// Try to match the file extension of the first file of the archive with the array list of file extensions (Extension_List).
-	// This will determine what extraction script to embed within the image, so that it correctly deals with the file type.
 	while (UNKNOWN_FILE_TYPE > extension_list_index) {
 		if (Extension_List[extension_list_index] == ARC_RECORD_FIRST_FILENAME_EXTENSION) {
 			extension_list_index = VIDEO_AUDIO >= extension_list_index ? VIDEO_AUDIO : extension_list_index;
@@ -221,10 +210,6 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	Iccp_Script_Vec.reserve(Iccp_Script_Vec.size() + MAX_SCRIPT_SIZE);
 	
 	std::unordered_map<uint8_t, std::vector<uint16_t>> case_map = {
-
-	// The single digit integer is the extraction script id (see Extraction_Scripts_Vec), the hex values are insert index locations
-	// within the extraction script vector. We use these index locations to insert additional items into the script in order to complete it.
-
 		{VIDEO_AUDIO,		{ 0, 0x1E4, 0x1C }}, 
 		{PDF,			{ 1, 0x196, 0x1C }}, 
 		{PYTHON,		{ 2, 0x10B, 0x101, 0xBC, 0x1C}},
@@ -234,7 +219,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 		{FOLDER,		{ 6, 0x149, 0x1C }},
 		{LINUX_EXECUTABLE,	{ 7, 0x8E,  0x1C }},
 		{JAR,			{ 8, 0xA6,  0x61 }},
-		{UNKNOWN_FILE_TYPE,	{ 9, 0x127, 0x1C}} // Fallback/placeholder. Unknown file type, unmatched file extension case.
+		{UNKNOWN_FILE_TYPE,	{ 9, 0x127, 0x1C}} 
 	};
 
 	auto it = case_map.find(extension_list_index);
@@ -277,10 +262,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	valueUpdater(Iccp_Script_Vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 
 	const uint8_t iccp_chunk_length_first_byte_value = Iccp_Script_Vec[iccp_chunk_length_first_byte_index];
-
-	// If a problem character (that breaks the Linux extraction script) is found within the first byte of the updated iccp chunk length field, 
-	// insert a short string to the end of the iccp chunk to increase its length, avoiding the problem characters when chunk length is updated.
-
+					    
 	if (std::find(std::begin(LINUX_PROBLEM_CHARACTERS), std::end(LINUX_PROBLEM_CHARACTERS), 
 		iccp_chunk_length_first_byte_value) != std::end(LINUX_PROBLEM_CHARACTERS)) {
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "........";
@@ -313,8 +295,8 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	std::vector<uint8_t>().swap(Idat_Archive_Vec);
 				 
 	const uint32_t 
-		LAST_IDAT_CHUNK_NAME_INDEX = IMAGE_VEC_SIZE + iccp_chunk_script_size + 4, 	// Important to use the old image size before the above inserts.
-		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint32_t>(Image_Vec.size());  	// Image size updated to include the inserts.
+		LAST_IDAT_CHUNK_NAME_INDEX = IMAGE_VEC_SIZE + iccp_chunk_script_size + 4, 	
+		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint32_t>(Image_Vec.size());  	
 
 	adjustZipOffsets(Image_Vec, COMPLETE_POLYGLOT_IMAGE_SIZE, LAST_IDAT_CHUNK_NAME_INDEX);
 
