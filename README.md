@@ -9,7 +9,7 @@ With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **
 
 ***X/Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**32MB**), ***ImgPile*** (**8MB**).
   
-![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_83973.png)  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_24334.png)  
 ***Image credit:*** [***@obeca***](https://x.com/obeca)
  
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original ***Python*** program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
