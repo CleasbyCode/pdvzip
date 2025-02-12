@@ -52,7 +52,7 @@ The following section covers the extraction of embedded ***ZIP*** files. ***JAR*
 
 You will need to manually set executable permissions using ***chmod*** on these polyglot images downloaded from hosting sites.
 
-https://github.com/user-attachments/assets/d4d28f3b-0583-4a63-bc95-e905b6386411
+https://github.com/user-attachments/assets/b775f8b8-059f-4460-89fa-d3692a245a53
 
 ***Linux - using bash (or sh) shell environment.***
 ```console
