@@ -170,7 +170,7 @@ These dimension size limits are for compatibility reasons, allowing it to work w
 
 ***PNG-32/24 (Truecolor)***
 
-Image dimensions can be set between a minimum of **68 x 68** and a maximum of **899 x 899**.
+Image dimensions can be set between a minimum of **68 x 68** and a maximum of **900 x 900**.
 
 *Note: Images that are created & saved within your image editor as ***PNG-32/24*** that are either
 black & white/grayscale, images with 256 colors or less, will be converted by ***X/Twitter*** to
