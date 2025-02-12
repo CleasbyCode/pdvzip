@@ -1,16 +1,15 @@
-// Make a copy of the cover image, but only include the critical PNG chunks/data. (HEADER/IHDR/*PLTE/IDAT/IEND).
 void eraseChunks(std::vector<uint8_t>& Vec) {
 	constexpr uint8_t 
 		PLTE_SIG[] 	{ 0x50, 0x4C, 0x54, 0x45 },
 		IDAT_SIG[] 	{ 0x49, 0x44, 0x41, 0x54 },
 		PNG_FIRST_BYTES 	= 33,
 		PNG_IEND_CHUNK_LENGTH 	= 12,
-		COMBINED_FIELD_LENGTHS 	= 12, // Length (4), Name (4), CRC (4).
+		COMBINED_FIELD_LENGTHS 	= 12, 
 		INC_NEXT_SEARCH_INDEX 	= 5,
 		BYTE_LENGTH 		= 4;
 	
 	std::vector<uint8_t>Tmp_Vec;
-	Tmp_Vec.insert(Tmp_Vec.begin(), Vec.begin(), Vec.begin() + PNG_FIRST_BYTES); // Copy first 33 bytes of cover image into Temp_Vec. PNG header and IHDR chunk.
+	Tmp_Vec.insert(Tmp_Vec.begin(), Vec.begin(), Vec.begin() + PNG_FIRST_BYTES); 
 
 	const size_t VEC_SIZE = Vec.size();
 	auto copyChunk = [&](const uint8_t (&SIG)[4]) {
