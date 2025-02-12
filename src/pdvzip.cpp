@@ -81,7 +81,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 		BYTE_LENGTH 		= 2;
 
 	constexpr uint16_t
-		MAX_TRUECOLOR_DIMS 	= 899,
+		MAX_TRUECOLOR_DIMS 	= 900,
 		MAX_INDEXED_COLOR_DIMS 	= 4096;
 
 	const uint16_t
