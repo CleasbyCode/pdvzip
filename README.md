@@ -94,7 +94,7 @@ Clear this by clicking '***More info***' then select '***Run anyway***'.
 
 To avoid security warnings, run the file from a ***Windows console***, as shown in the above example.  
 
-***The file within the ZIP archive that appears first within the ZIP file record, determines what extraction script, based on file type, is used.***
+***The "file" (could be a folder) within the ZIP archive that appears first within the ZIP file record, determines what extraction script, based on type, is used.***
 
 For common ***video & audio*** files, ***Linux*** will use the ***vlc*** or ***mpv*** media player. ***Windows*** uses the default media player.  
 
