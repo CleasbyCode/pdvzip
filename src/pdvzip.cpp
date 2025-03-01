@@ -79,13 +79,15 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 		MAX_TRUECOLOR_DIMS 	= 900,
 		MAX_INDEXED_COLOR_DIMS 	= 4096;
 
+	bool isBigEndian = true;
+
 	const uint16_t
-		IMAGE_WIDTH  = getByteValue(Image_Vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, true),
-		IMAGE_HEIGHT = getByteValue(Image_Vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, true);
+		IMAGE_WIDTH  = getByteValue(Image_Vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, isBigEndian),
+		IMAGE_HEIGHT = getByteValue(Image_Vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, isBigEndian);
 
 	const uint8_t IMAGE_COLOR_TYPE = Image_Vec[IMAGE_COLOR_TYPE_INDEX] == 6 ? 2 : Image_Vec[IMAGE_COLOR_TYPE_INDEX];
 
-	const bool VALID_COLOR_TYPE = (IMAGE_COLOR_TYPE == INDEXED_COLOR || IMAGE_COLOR_TYPE == TRUECOLOR);
+	bool hasValidColorType = (IMAGE_COLOR_TYPE == INDEXED_COLOR || IMAGE_COLOR_TYPE == TRUECOLOR);
 
 	auto checkDimensions = [&](uint8_t COLOR_TYPE, uint16_t MAX_DIMS) {
 		return (IMAGE_COLOR_TYPE == COLOR_TYPE &&
@@ -93,11 +95,11 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
             		IMAGE_WIDTH >= MIN_DIMS && IMAGE_HEIGHT >= MIN_DIMS);
 	};
 
-	const bool VALID_IMAGE_DIMS = checkDimensions(TRUECOLOR, MAX_TRUECOLOR_DIMS) || checkDimensions(INDEXED_COLOR, MAX_INDEXED_COLOR_DIMS);
+	bool hasValidDimensions = checkDimensions(TRUECOLOR, MAX_TRUECOLOR_DIMS) || checkDimensions(INDEXED_COLOR, MAX_INDEXED_COLOR_DIMS);
 
-	if (!VALID_COLOR_TYPE || !VALID_IMAGE_DIMS) {
+	if (!hasValidColorType || !hasValidDimensions) {
     		std::cerr << "\nImage File Error: ";
-    		if (!VALID_COLOR_TYPE) {
+    		if (!hasValidColorType) {
         		std::cerr << "Color type of cover image is not supported.\n\nSupported formats: PNG-32/24 (Truecolor) or PNG-8 (Indexed-Color).";
     		} else {
         		std::cerr << "Dimensions of cover image are not within the supported range.\n\nSupported ranges:\n - PNG-32/24 Truecolor: [68 x 68] to [900 x 900]\n - PNG-8 Indexed-Color: [68 x 68] to [4096 x 4096]";
