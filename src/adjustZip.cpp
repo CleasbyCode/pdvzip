@@ -1,4 +1,3 @@
-// ZIP file has been moved to another location. We need to find and adjust the ZIP file record offsets to their new location.
 void adjustZipOffsets(std::vector<uint8_t>& vec, const uint32_t VEC_SIZE, const uint32_t LAST_IDAT_INDEX) {
 	auto valueUpdater = [](std::vector<uint8_t>& vec, uint32_t value_insert_index, const uint32_t NEW_VALUE, uint8_t bits) {
 		while (bits) { vec[value_insert_index--] = (NEW_VALUE >> (bits -= 8)) & 0xff; }
@@ -20,7 +19,6 @@ void adjustZipOffsets(std::vector<uint8_t>& vec, const uint32_t VEC_SIZE, const 
 		PNG_IEND_LENGTH 		= 16,
 		BYTE_LENGTH 			= 2;
 						 
-	// Starting from the end of the vector, a single reverse search of the IMAGE/ZIP contents finds the end_central directory index. 	
 	const uint32_t END_CENTRAL_DIR_INDEX = VEC_SIZE - static_cast<uint32_t>(std::distance(vec.rbegin(), std::search(vec.rbegin(), vec.rend(), 
 			END_CENTRAL_DIR_SIG.rbegin(), END_CENTRAL_DIR_SIG.rend()))) - SIG_LENGTH;
 	uint32_t 
@@ -32,13 +30,12 @@ void adjustZipOffsets(std::vector<uint8_t>& vec, const uint32_t VEC_SIZE, const 
 						 
 	uint16_t 
 		total_zip_records = getByteValue(vec, total_zip_records_index, BYTE_LENGTH, false),
-		zip_comment_length = getByteValue(vec, zip_comment_length_index, BYTE_LENGTH, false) + PNG_IEND_LENGTH, // Get and extend comment length to include end bytes of PNG. Important for JAR files.
+		zip_comment_length = getByteValue(vec, zip_comment_length_index, BYTE_LENGTH, false) + PNG_IEND_LENGTH, 
 		record_count = 0;
 						 
 	uint8_t value_bit_length = 16;
-	valueUpdater(vec, zip_comment_length_index, zip_comment_length, value_bit_length); // Update extended comment length value. 
+	valueUpdater(vec, zip_comment_length_index, zip_comment_length, value_bit_length); 
 
-	// Find the start_central directory index location by reverse iterating over the vector, starting from the end of the IMAGE/ZIP contents.
 	while (record_count++ != total_zip_records) {
 		start_central_dir_index = VEC_SIZE - static_cast<uint32_t>(std::distance(vec.rbegin(), std::search(vec.rbegin() + (VEC_SIZE - start_central_dir_index + SIG_LENGTH),
 			vec.rend(), START_CENTRAL_DIR_SIG.rbegin(), START_CENTRAL_DIR_SIG.rend()))) - SIG_LENGTH;
@@ -47,7 +44,7 @@ void adjustZipOffsets(std::vector<uint8_t>& vec, const uint32_t VEC_SIZE, const 
 	uint32_t central_dir_local_index = start_central_dir_index + CENTRAL_LOCAL_INDEX_DIFF;
 
 	value_bit_length = 32;
-	valueUpdater(vec, end_central_start_index, start_central_dir_index, value_bit_length);  // Update end_central index location with start_central directory offset.
+	valueUpdater(vec, end_central_start_index, start_central_dir_index, value_bit_length);  
 	
 	while (total_zip_records--) {
 		valueUpdater(vec, central_dir_local_index, zip_record_local_index, value_bit_length);
