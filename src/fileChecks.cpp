@@ -46,8 +46,8 @@ void validateFiles(const std::string& image_file, const std::string& archive_fil
 		throw std::runtime_error("Archive File Error: Invalid file size.");
 	}
 
-    	constexpr uintmax_t MAX_SIZE_DEFAULT = 2ULL * 1024 * 1024 * 1024;   // 2GB (cover image + data file)
-
+    	constexpr uintmax_t MAX_SIZE_DEFAULT = 2ULL * 1024 * 1024 * 1024;   
+	
     	const uintmax_t COMBINED_FILE_SIZE = std::filesystem::file_size(archive_path) + std::filesystem::file_size(image_path);
 	
    	if (COMBINED_FILE_SIZE > MAX_SIZE_DEFAULT) {
