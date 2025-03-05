@@ -5,6 +5,7 @@
 #endif
 
 #include <vector>
+#include <array>
 #include <iterator>
 #include <filesystem>
 #include <random>
@@ -13,7 +14,6 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <regex>
 #include <fstream>
 
 // https://github.com/lvandeve/lodepng 
@@ -22,30 +22,35 @@
 // (Copyright (c) 2005-2024 Lode Vandevenne)
 
 #include "resizeImage.cpp"
+#include "information.cpp"
+#include "programArgs.cpp"
+#include "fileChecks.cpp"
 #include "getByteValue.cpp"
 #include "searchFunc.cpp"
 #include "crc32.cpp"
-#include "eraseChunks.cpp"
+#include "copyChunks.cpp"
 #include "extractionScripts.cpp"
 #include "valueUpdater.cpp"
 #include "adjustZip.cpp"
 #include "writeFile.cpp"
 #include "pdvzip.cpp"
-#include "information.cpp"
 
-template <uint8_t N>
-uint32_t searchFunc(std::vector<uint8_t>&, uint32_t, const uint8_t, const uint8_t (&)[N]);
+template <typename T, size_t N>
+uint32_t searchFunc(std::vector<uint8_t>&, uint32_t, const uint8_t, const std::array<T, N>&);
 
 uint32_t
 	crcUpdate(uint8_t*, uint32_t),
-	getByteValue(const std::vector<uint8_t>&, const uint32_t, const uint8_t BYTE_LENGTH, bool isBigEndian);
+	getByteValue(const std::vector<uint8_t>&, const uint32_t, const uint8_t, bool);
 
-bool writeFile(std::vector<uint8_t>&, const uint32_t, bool);
+bool 
+	hasValidFilename(const std::string&),
+	writeFile(std::vector<uint8_t>&, const uint32_t, bool);
 
 void 
+	validateFiles(const std::string&, const std::string&),
 	valueUpdater(std::vector<uint8_t>&, uint32_t, const uint32_t, uint8_t),
 	resizeImage(std::vector<uint8_t>&),
-	eraseChunks(std::vector<uint8_t>&),
+	copyEssentialPngChunks(std::vector<uint8_t>&),
 	adjustZipOffsets(std::vector<uint8_t>&, const uint32_t, const uint32_t),
 	displayInfo();
 

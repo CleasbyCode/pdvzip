@@ -1,6 +1,6 @@
 void displayInfo() {
 	std::cout << R"(
-PNG Data Vehicle ZIP/JAR Edition (PDVZIP v2.8). 
+PNG Data Vehicle ZIP/JAR Edition (PDVZIP v2.9). 
 Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 
 Use PDVZIP to embed a ZIP/JAR file within a PNG image, 
@@ -41,7 +41,7 @@ The following dimension size limits are specific to pdvzip and not necessarily t
 
 PNG-32/24 (Truecolor)
 
-Image dimensions can be set between a minimum of 68x68 and a maximum of 899x899.
+Image dimensions can be set between a minimum of 68x68 and a maximum of 900x900.
 These dimension size limits are for compatibility reasons, allowing it to work with all the above listed platforms.
 
 Note: Images that are created & saved within your image editor as PNG-32/24 that are either 
