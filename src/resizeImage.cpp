@@ -1,15 +1,12 @@
-// Using lodepng to resize the cover image within the vector, by reducing it's width & height by 1 pixel. 
+// Using lodepng to resize the cover image within the vector (if required), by reducing the width & height by 1 pixel. 
 // https://github.com/lvandeve/lodepng  (Copyright (c) 2005-2024 Lode Vandevenne).
-
 void resizeImage(std::vector<uint8_t>& image_vec) {
     std::vector<uint8_t> temp_vec; 
     unsigned width, height;
-
     unsigned error = lodepng::decode(temp_vec, width, height, image_vec); 
     if (error) {
         throw std::runtime_error("Decoder error: " + std::string(lodepng_error_text(error)));
     }
-
    unsigned new_width = width - 1;
    unsigned new_height = height - 1;
 
