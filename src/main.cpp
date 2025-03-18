@@ -17,8 +17,6 @@ int main(int argc, char** argv) {
             		throw std::runtime_error("Invalid Input Error: Unsupported characters in filename arguments.");
         	}
         	validateFiles(args.image_file, args.archive_file);
-        	std::filesystem::path archive_path(args.archive_file);
-
         	pdvZip(args.image_file, args.archive_file, args.thisArchiveType);
     	}
 	catch (const std::runtime_error& e) {
