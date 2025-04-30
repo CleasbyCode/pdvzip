@@ -54,4 +54,4 @@ void
 	adjustZipOffsets(std::vector<uint8_t>&, const uint32_t, const uint32_t),
 	displayInfo();
 
-int pdvZip(const std::string&, const std::string&, ArchiveType);
+uint8_t pdvZip(const std::string&, const std::string&, ArchiveType);
