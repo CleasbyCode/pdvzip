@@ -186,11 +186,18 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 			return 1;
 		}
 	}
+
+	auto toLowerCase = [](std::string str) -> std::string {
+    		std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    		return str;
+	};
+	
+	const std::string FILENAME_EXTENSION = toLowerCase(ARC_RECORD_FIRST_FILENAME_EXTENSION);
 	
 	// Try to match the file extension of the first file of the archive with the array list of file extensions (Extension_List).
 	// This will determine what extraction script to embed within the image, so that it correctly deals with the file type.
 	while (UNKNOWN_FILE_TYPE > extension_list_index) {
-		if (EXTENSION_LIST[extension_list_index] == ARC_RECORD_FIRST_FILENAME_EXTENSION) {
+		if (EXTENSION_LIST[extension_list_index] == FILENAME_EXTENSION) {
 			extension_list_index = VIDEO_AUDIO >= extension_list_index ? VIDEO_AUDIO : extension_list_index;
 			break;
 		}
