@@ -37,7 +37,7 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 	// of the image by 1 pixel value, repeated if necessary, until no problem characters are found within the dimension size fields or the IHDR chunk's CRC field.
 
 	constexpr uint8_t 
-		IHDR_BAD_CHARS = 7,
+		IHDR_BAD_CHARS 	 = 7,
 		IHDR_START_INDEX = 0x12,
 		IHDR_STOP_INDEX  = 0x20;
 
@@ -107,16 +107,16 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 	std::vector<uint8_t>archive_vec { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
 	archive_vec.resize(archive_vec.size() + ARCHIVE_FILE_SIZE);
 	
-	constexpr uint8_t IDAT_CHUNK_ARCHIVE_FILE_INSERT_INDEX = 0x08;
+	constexpr uint8_t 
+		IDAT_CHUNK_ARCHIVE_FILE_INSERT_INDEX = 0x08,
+		EXCLUDED_PNG_CHUNK_FIELDS_LENGTH = 12,  // size_field + name_field + crc_field = 12 bytes.
+		ARC_SIG_LENGTH = 4,
+		INDEX_DIFF = 0x08;
 			    
 	archive_file_ifs.read(reinterpret_cast<char*>(archive_vec.data() + IDAT_CHUNK_ARCHIVE_FILE_INSERT_INDEX), ARCHIVE_FILE_SIZE);
 	archive_file_ifs.close();
 
-	constexpr uint8_t ARC_SIG_LENGTH = 4;
-
 	constexpr std::array<uint8_t, ARC_SIG_LENGTH> ARCHIVE_SIG { 0x50, 0x4B, 0x03, 0x04 };
-
-	constexpr uint8_t INDEX_DIFF = 0x08;	
 	
 	if (!std::equal(ARCHIVE_SIG.begin(), ARCHIVE_SIG.end(), std::begin(archive_vec) + INDEX_DIFF)) {
 		std::cerr << "\nArchive File Error: Signature check failure. Not a valid archive file.\n\n";
@@ -129,15 +129,14 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 		idat_chunk_length_index = 0,
 		value_bit_length = 32;
 
-	constexpr uint8_t EXCLUDED_PNG_CHUNK_FIELDS_LENGTH = 12; // size_field + name_field + crc_field = 12 bytes.
-
 	valueUpdater(archive_vec, idat_chunk_length_index, IDAT_CHUNK_ARCHIVE_FILE_SIZE - EXCLUDED_PNG_CHUNK_FIELDS_LENGTH, value_bit_length);
 
 	// The following section (~158 lines) completes and embeds the extraction script determined by the file type within the archive.
 	constexpr uint8_t 
 		ARC_RECORD_FIRST_FILENAME_MIN_LENGTH 	= 4,
 		ARC_RECORD_FIRST_FILENAME_LENGTH_INDEX 	= 0x22, 
-		ARC_RECORD_FIRST_FILENAME_INDEX 	= 0x26;
+		ARC_RECORD_FIRST_FILENAME_INDEX 	= 0x26,
+		TOTAL_FILE_EXTENSIONS 			= 35;
 	
 	const uint8_t ARC_RECORD_FIRST_FILENAME_LENGTH = archive_vec[ARC_RECORD_FIRST_FILENAME_LENGTH_INDEX];
 
@@ -146,18 +145,15 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 		return 1;
 	}
 
-	constexpr uint8_t TOTAL_FILE_EXTENSIONS = 35;
-
 	constexpr std::array<const char*, TOTAL_FILE_EXTENSIONS> EXTENSION_LIST  { 
 		"mp4", "mp3", "wav", "mpg", "webm", "flac", "3gp", "aac", "aiff", "aif", "alac", "ape", "avchd", "avi",
 		"dsd", "divx", "f4v", "flv", "m4a", "m4v", "mkv", "mov", "midi", "mpeg", "ogg", "pcm", "swf", "wma", "wmv",
 		"xvid", "pdf", "py", "ps1", "sh", "exe" 
 	};
 						    
-	const std::string ARC_RECORD_FIRST_FILENAME{ archive_vec.begin() + ARC_RECORD_FIRST_FILENAME_INDEX, 
-							archive_vec.begin() + ARC_RECORD_FIRST_FILENAME_INDEX + ARC_RECORD_FIRST_FILENAME_LENGTH };
+	const std::string ARC_RECORD_FIRST_FILENAME{archive_vec.begin() + ARC_RECORD_FIRST_FILENAME_INDEX, archive_vec.begin() + ARC_RECORD_FIRST_FILENAME_INDEX + ARC_RECORD_FIRST_FILENAME_LENGTH};
 
-	enum FileType { VIDEO_AUDIO = 29, PDF, PYTHON, POWERSHELL, BASH_SHELL, WINDOWS_EXECUTABLE, UNKNOWN_FILE_TYPE, FOLDER, LINUX_EXECUTABLE, JAR};
+	enum FileType {VIDEO_AUDIO = 29, PDF, PYTHON, POWERSHELL, BASH_SHELL, WINDOWS_EXECUTABLE, UNKNOWN_FILE_TYPE, FOLDER, LINUX_EXECUTABLE, JAR};
 
 	bool isZipFile = (thisArchiveType == ArchiveType::ZIP);
 
@@ -186,7 +182,7 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 			return 1;
 		}
 	}
-
+	
 	auto toLowerCase = [](std::string str) -> std::string {
     		std::transform(str.begin(), str.end(), str.begin(), ::tolower);
     		return str;
@@ -253,10 +249,11 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 
 	std::vector<uint16_t> case_values_vec = (it != case_map.end()) ? it->second : case_map[extension_list_index];
 
-	constexpr uint8_t EXTRACTION_SCRIPT_ELEMENT_INDEX = 0;
+	constexpr uint8_t 
+		EXTRACTION_SCRIPT_ELEMENT_INDEX = 0,
+		SCRIPT_INDEX = 0x16;
+			
 	const uint16_t EXTRACTION_SCRIPT = case_values_vec[EXTRACTION_SCRIPT_ELEMENT_INDEX];
-
-	constexpr uint8_t SCRIPT_INDEX = 0x16;
 
 	script_vec.insert(script_vec.begin() + SCRIPT_INDEX, extraction_scripts_vec[EXTRACTION_SCRIPT].begin(), extraction_scripts_vec[EXTRACTION_SCRIPT].end());
 
@@ -284,40 +281,41 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 
 	valueUpdater(script_vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 
-	const uint8_t iccp_chunk_length_first_byte_value = script_vec[iccp_chunk_length_first_byte_index];
-
-	// If a problem character (that breaks the Linux extraction script) is found within the first byte of the updated iCCP chunk length field, 
+	const uint8_t ICCP_CHUNK_LENGTH_FIRST_BYTE_VALUE = script_vec[iccp_chunk_length_first_byte_index];
+	
+	// If a problem character (which breaks the Linux extraction script) is found within the first byte of the updated iCCP chunk length field, 
 	// insert a short string to the end of the iCCP chunk to increase its length, avoiding the problem characters when chunk length is updated.
 
 	if (std::find(LINUX_PROBLEM_CHARACTERS.begin(), LINUX_PROBLEM_CHARACTERS.end(), 
-		iccp_chunk_length_first_byte_value) != LINUX_PROBLEM_CHARACTERS.end()) {
+		ICCP_CHUNK_LENGTH_FIRST_BYTE_VALUE) != LINUX_PROBLEM_CHARACTERS.end()) {
 			const std::string INCREASE_CHUNK_LENGTH_STRING = "........";
-			constexpr uint8_t INSERT_INDEX_DIFF = 0x08;
-			script_vec.insert(script_vec.begin() + iccp_chunk_script_size + INSERT_INDEX_DIFF, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
+			script_vec.insert(script_vec.begin() + iccp_chunk_script_size + INDEX_DIFF, INCREASE_CHUNK_LENGTH_STRING.begin(), INCREASE_CHUNK_LENGTH_STRING.end());
 			iccp_chunk_script_size = static_cast<uint16_t>(script_vec.size()) - EXCLUDED_PNG_CHUNK_FIELDS_LENGTH;
 			valueUpdater(script_vec, iccp_chunk_length_index, iccp_chunk_script_size, value_bit_length);
 	}
 	
 	constexpr uint8_t
-		ICCP_CHUNK_NAME_INDEX = 0x04,
-		ICCP_CHUNK_INDEX = 0x21;
+		ICCP_CHUNK_NAME_INDEX 			= 0x04,
+		ICCP_CHUNK_INDEX 			= 0x21,
+		ICCP_CHUNK_NAME_FIELD_LENGTH 		= 4,
+		ICCP_CHUNK_CRC_INDEX_DIFF 		= 0x08,
+		LAST_IDAT_CHUNK_NAME_INDEX_DIFF 	= 0x04,
+		LAST_IDAT_CHUNK_CRC_INDEX_DIFF 		= 0x10,
+		EXCLUDE_SIZE_FIELD_AND_CRC_FIELD_LENGTH = 8,
+		PNG_END_BYTES_LENGTH 			= 12;
 
 	if (iccp_chunk_script_size > MAX_SCRIPT_SIZE) {
 		std::cerr << "\nScript Size Error: Extraction script exceeds size limit.\n\n";
 		return 1;
 	}
 
-	constexpr uint8_t ICCP_CHUNK_NAME_FIELD_LENGTH = 4;
 	const uint16_t ICCP_CHUNK_LENGTH = iccp_chunk_script_size + ICCP_CHUNK_NAME_FIELD_LENGTH;
 
 	const uint32_t ICCP_CHUNK_CRC = crcUpdate(&script_vec[ICCP_CHUNK_NAME_INDEX], ICCP_CHUNK_LENGTH);
 
-	constexpr uint8_t ICCP_CHUNK_CRC_INDEX_DIFF = 0x8;
 	uint16_t iccp_chunk_crc_index = iccp_chunk_script_size + ICCP_CHUNK_CRC_INDEX_DIFF;
 
 	valueUpdater(script_vec, iccp_chunk_crc_index, ICCP_CHUNK_CRC, value_bit_length);
-
-	constexpr uint8_t PNG_END_BYTES_LENGTH = 12;
 
 	image_vec.insert((image_vec.begin() + ICCP_CHUNK_INDEX), script_vec.begin(), script_vec.end());
 	image_vec.insert((image_vec.end() - PNG_END_BYTES_LENGTH), archive_vec.begin(), archive_vec.end());
@@ -325,17 +323,14 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 	std::vector<uint8_t>().swap(script_vec);
 	std::vector<uint8_t>().swap(archive_vec);
 	
-	constexpr uint8_t LAST_IDAT_CHUNK_NAME_INDEX_DIFF = 0x04;			 
 	const uint32_t 
 		LAST_IDAT_CHUNK_NAME_INDEX = IMAGE_VEC_SIZE + iccp_chunk_script_size + LAST_IDAT_CHUNK_NAME_INDEX_DIFF, // Important to use the old image size before the above inserts.
 		COMPLETE_POLYGLOT_IMAGE_SIZE = static_cast<uint32_t>(image_vec.size());  				// Image size updated to include the inserts.
 
 	adjustZipOffsets(image_vec, COMPLETE_POLYGLOT_IMAGE_SIZE, LAST_IDAT_CHUNK_NAME_INDEX);
 
-	constexpr uint8_t EXCLUDE_SIZE_FIELD_AND_CRC_FIELD_LENGTH = 8;
 	const uint32_t LAST_IDAT_CHUNK_CRC = crcUpdate(&image_vec[LAST_IDAT_CHUNK_NAME_INDEX], IDAT_CHUNK_ARCHIVE_FILE_SIZE - EXCLUDE_SIZE_FIELD_AND_CRC_FIELD_LENGTH);
 	
-	constexpr uint8_t LAST_IDAT_CHUNK_CRC_INDEX_DIFF = 0x10;
 	uint32_t last_idat_chunk_crc_index = COMPLETE_POLYGLOT_IMAGE_SIZE - LAST_IDAT_CHUNK_CRC_INDEX_DIFF;
 	
 	value_bit_length = 32;
