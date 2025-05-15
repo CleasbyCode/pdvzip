@@ -50,7 +50,7 @@ void
 	validateFiles(const std::string&, const std::string&),
 	valueUpdater(std::vector<uint8_t>&, uint32_t, const uint32_t, uint8_t),
 	resizeImage(std::vector<uint8_t>&),
-	copyEssentialPngChunks(std::vector<uint8_t>&),
+	copyEssentialChunks(std::vector<uint8_t>&),
 	adjustZipOffsets(std::vector<uint8_t>&, const uint32_t, const uint32_t),
 	displayInfo();
 
