@@ -190,11 +190,11 @@ With ***X/Twitter***, for example, you can ***overfill*** the following ***PNG**
 in which the platform will preserve as long as you keep within the image dimension & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,***  
-***iCCP,*** (Limited size chunk. Only **10KB** max. with ***X/Twitter***).  
+***iCCP,*** (Limited size chunk. Only **10KB** Max. with ***X/Twitter***).  
 ***IDAT,*** (Use as last ***IDAT*** chunk, after the final image ***IDAT*** chunk).  
 ***PLTE,*** (Use only with ***PNG-32/24*** images).  
 ***pHYs, sBIT, sPLT, sRGB,***   
-***tRNS. (Use only with ***PNG-32/24*** images).***  
+***tRNS. (Use only with ***PNG-32*** images).***  
 
 *Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
