@@ -112,7 +112,13 @@ uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FIL
 		EXCLUDED_PNG_CHUNK_FIELDS_LENGTH = 12,  // size_field + name_field + crc_field = 12 bytes.
 		ARC_SIG_LENGTH = 4,
 		INDEX_DIFF = 0x08;
-			    
+
+	constexpr uint32_t LARGE_FILE_SIZE = 300 * 1024 * 1024;  
+
+	if (ARCHIVE_FILE_SIZE > LARGE_FILE_SIZE) {
+		std::cout << "\nPlease wait. Larger files will take longer to complete this process.\n";
+	}
+
 	archive_file_ifs.read(reinterpret_cast<char*>(archive_vec.data() + IDAT_CHUNK_ARCHIVE_FILE_INSERT_INDEX), ARCHIVE_FILE_SIZE);
 	archive_file_ifs.close();
 
