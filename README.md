@@ -22,7 +22,9 @@ The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk 
 ## Usage (Linux)
 
 ```console
-user1@linuxbox:~/Downloads/pdvzip-main/src$ g++ main.cpp -O2 -s -o pdvzip
+user1@linuxbox:~/Downloads/pdvzip-main/src$ 
+user1@linuxbox:~/Downloads/pdvzip-main/src$ ./compile_pdvzip.sh
+user1@linuxbox:~/Downloads/pdvzip-main/src$ Compilation successful. Executable 'pdvzip' created.
 user1@linuxbox:~/Downloads/pdvzip-main/src$ sudo cp pdvzip /usr/bin
 
 user1@linuxbox:~/Desktop$ pdvzip
