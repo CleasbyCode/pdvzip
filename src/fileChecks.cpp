@@ -1,6 +1,5 @@
 
 #include "fileChecks.h"
-#include <string>
 #include <stdexcept>
 #include <cctype>
 #include <algorithm>

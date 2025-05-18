@@ -6,9 +6,7 @@
 #include <algorithm>    
 #include <array>        
 #include <cstddef>      
-#include <cstdint>      
-#include <iterator>     
-#include <vector>       
+#include <iterator>         
 
 void adjustZipOffsets(std::vector<uint8_t>& vec, const uint32_t VEC_SIZE, const uint32_t LAST_IDAT_INDEX) {
 	auto valueUpdater = [](std::vector<uint8_t>& vec, uint32_t value_insert_index, const uint32_t NEW_VALUE, uint8_t bits) {

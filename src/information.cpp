@@ -1,7 +1,7 @@
 
-#include <iostream>
-#include "information.h"
 
+#include "information.h"
+#include <iostream>
 
 void displayInfo() {
 	std::cout << R"(

@@ -1,12 +1,9 @@
 
-
-#include "writeFile.h"
-#include <vector>          
+#include "writeFile.h"       
 #include <string>          
 #include <fstream>         
 #include <iostream>        
-#include <random>          
-#include <cstdint>         
+#include <random>                  
 #include <cstdlib>         
 #ifdef __unix__
 	#include <sys/stat.h>      

@@ -5,11 +5,9 @@
 #include <algorithm>    
 #include <array>        
 #include <cstddef>      
-#include <cstdint>      
 #include <iterator>     
 #include <stdexcept>    
-#include <utility>      
-#include <vector>       
+#include <utility>            
 
 void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
 	constexpr uint8_t SIG_LENGTH = 4;

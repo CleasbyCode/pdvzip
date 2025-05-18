@@ -1,8 +1,6 @@
 // Writes updated values, such as chunk lengths, CRC, etc. into the relevant vector index locations.
 
 #include "valueUpdater.h"
-#include <vector>    
-#include <cstdint>   
 
 void valueUpdater(std::vector<uint8_t>& vec, uint32_t value_index, const uint32_t NEW_VALUE, uint8_t value_bit_length) {
 	while (value_bit_length) {

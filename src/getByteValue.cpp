@@ -1,8 +1,6 @@
 // Return either a 4-byte or 2-byte value from a given vector index position.
 
 #include "getByteValue.h"
-#include <cstdint>   
-#include <vector>
 
 uint32_t getByteValue(const std::vector<uint8_t>& VEC, const uint32_t INDEX, const uint8_t BYTE_LENGTH, bool isBigEndian) {
 	if (BYTE_LENGTH == 4) {

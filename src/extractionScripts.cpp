@@ -1,6 +1,5 @@
+
 #include "extractionScripts.h"
-#include <vector>
-#include <cstdint>
 
 std::vector<std::vector<uint8_t>> extraction_scripts_vec {
 	

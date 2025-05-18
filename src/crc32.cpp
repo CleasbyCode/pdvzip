@@ -1,8 +1,7 @@
 // The following function (slightly modified) to compute CRC32 for PNG chunks is taken from: https://www.w3.org/TR/2003/REC-PNG-20031110/#D-CRCAppendix 
 
 #include "crc32.h"
-#include <cstdint>    // for uint8_t, uint32_t
-#include <array>      // for std::array
+#include <array>   
 
 uint32_t crcUpdate(uint8_t* buf, uint32_t buf_length) {
 	constexpr uint16_t TABLE_LENGTH = 256;
