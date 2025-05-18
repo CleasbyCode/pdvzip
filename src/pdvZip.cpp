@@ -8,7 +8,6 @@
 #include "writeFile.h"
 #include "adjustZip.h"
 #include "extractionScripts.h"
-#include "programArgs.h"
 
 #include <iostream>
 #include <fstream>

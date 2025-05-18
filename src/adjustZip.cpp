@@ -2,10 +2,7 @@
 
 #include "adjustZip.h"
 #include "searchFunc.h"
-#include "getByteValue.h"
-#include <algorithm>    
-#include <array>        
-#include <cstddef>      
+#include "getByteValue.h"    
 #include <iterator>         
 
 void adjustZipOffsets(std::vector<uint8_t>& vec, const uint32_t VEC_SIZE, const uint32_t LAST_IDAT_INDEX) {

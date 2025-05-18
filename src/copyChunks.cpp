@@ -1,10 +1,7 @@
 
 #include "copyChunks.h"
 #include "searchFunc.h"
-#include "getByteValue.h"
-#include <algorithm>    
-#include <array>        
-#include <cstddef>      
+#include "getByteValue.h"     
 #include <iterator>     
 #include <stdexcept>    
 #include <utility>            

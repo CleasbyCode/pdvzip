@@ -3,8 +3,7 @@
 
 #include "resizeImage.h"
 #include "lodepng/lodepng.h"
-#include <stdexcept>
-#include <string>       
+#include <stdexcept>     
 
 void resizeImage(std::vector<uint8_t>& image_vec) {
     std::vector<uint8_t> temp_vec; 
