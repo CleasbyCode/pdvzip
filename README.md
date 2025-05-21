@@ -22,23 +22,23 @@ The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk 
 ## Usage (Linux)
 
 ```console
-user1@linuxbox:~/Downloads/pdvzip-main/src$ chmod +x compile_pdvzip.sh
-user1@linuxbox:~/Downloads/pdvzip-main/src$ ./compile_pdvzip.sh
-user1@linuxbox:~/Downloads/pdvzip-main/src$ Compilation successful. Executable 'pdvzip' created.
-user1@linuxbox:~/Downloads/pdvzip-main/src$ sudo cp pdvzip /usr/bin
+user1@mx:~/Downloads/pdvzip-main/src$ chmod +x compile_pdvzip.sh
+user1@mx:~/Downloads/pdvzip-main/src$ ./compile_pdvzip.sh
+user1@mx:~/Downloads/pdvzip-main/src$ Compilation successful. Executable 'pdvzip' created.
+user1@mx:~/Downloads/pdvzip-main/src$ sudo cp pdvzip /usr/bin
 
-user1@linuxbox:~/Desktop$ pdvzip
+user1@mx:~/Desktop$ pdvzip
 
 Usage: pdvzip <cover_image> <zip/jar>
        pdvzip --info
 
-user1@linuxbox:~/Desktop$ pdvzip my_cover_image.png document_pdf.zip
+user1@mx:~/Desktop$ pdvzip my_cover_image.png document_pdf.zip
 
 Created PNG-ZIP polyglot image file: pzip_55183.png (4038367 bytes).
 
 Complete!
 
-user1@linuxbox:~/Desktop$ pdvzip my_cover_image.png hello_world.jar
+user1@mx:~/Desktop$ pdvzip my_cover_image.png hello_world.jar
 
 Created PNG-JAR polyglot image file: pjar_19662.png (1016336 bytes).
 
@@ -59,13 +59,13 @@ https://github.com/user-attachments/assets/2c545745-279b-4e07-83aa-2ce5d0b78c90
 ***Linux - using bash (or sh) shell environment.***
 ```console
 
-user1@linuxbox:~/Desktop$ ./pzip_55183.png
+user1@mx:~/Desktop$ ./pzip_55183.png
 
 ```
 **For any other Linux shell environment, you will probably need to invoke bash (or sh) to run the image file.**
 ```console
 
-linuxbox% bash ./pzip_55183.png 
+mx% bash ./pzip_55183.png 
 
 ``` 
 Alternative extraction (***Linux***).  Using ***wget*** to download and run the image directly from the hosting site.  
@@ -111,7 +111,7 @@ If the archive file is JAR or the compressed file type within the ZIP archive is
 
 Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.
 ```console
-user1@linuxbox:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
+user1@mx:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
 For this file type you can provide command-line arguments here, if required.
 
@@ -129,21 +129,21 @@ Treat the ***ZIP*** archive as read-only, do not add or remove files from the **
 
 ***Linux Option 1:***
 ```console
-user1@linuxbox:~/Desktop$ java -jar pjar_19662.png
+user1@mx:~/Desktop$ java -jar pjar_19662.png
 Note: If you use this method to run your embedded Java program, you will have to manually add command-line
       arguments (if required) to the end of the command, as your embedded arguments will not work with
       this method. e.g.
-      user1@linuxbox:~/Desktop$ java -jar ./pjar_19662.png -u john_s -a 42 -f "John Smith"
+      user1@mx:~/Desktop$ java -jar ./pjar_19662.png -u john_s -a 42 -f "John Smith"
 ```
 ***Linux Option 2a, using bash (or sh) shell environment:***
 ```console
-user1@linuxbox:~/Desktop$ ./pjar_19662.png
+user1@mx:~/Desktop$ ./pjar_19662.png
 Note: This method will execute the embedded Java program and also use any embedded
       command-line arguments with the Java program.
 ```
 ***Linux Option 2b, using any other shell environment, you will need to invoke bash (or sh) to execute the image:***
 ```console
-linuxbox% bash ./pjar_19662.png
+mx% bash ./pjar_19662.png
 ```
 ***Windows Option 1:***
 ```console
