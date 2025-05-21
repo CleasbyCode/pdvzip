@@ -18,7 +18,7 @@
 #include <unordered_map>
 #include <filesystem>
 
-uint8_t pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAME, ArchiveType thisArchiveType) {
+int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAME, ArchiveType thisArchiveType) {
 
 	std::ifstream
 		image_file_ifs(IMAGE_FILENAME, std::ios::binary),
