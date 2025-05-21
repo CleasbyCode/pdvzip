@@ -5,7 +5,7 @@
 
 void displayInfo() {
 	std::cout << R"(
-PNG Data Vehicle ZIP/JAR Edition (PDVZIP v2.9). 
+PNG Data Vehicle ZIP/JAR Edition (PDVZIP v3.1). 
 Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 
 Use PDVZIP to embed a ZIP/JAR file within a PNG image, 
@@ -71,7 +71,7 @@ iCCP, (Only 10KB max. with X/Twitter).
 IDAT, (Use as last IDAT chunk, after the final image IDAT chunk).
 PLTE, (Use only with PNG-32 & PNG-24 for arbitrary data).
 pHYs, sBIT, sPLT, sRGB,
-tRNS. (Not recommended, may distort image).
+tRNS. (PNG-32 only).
 
 This program uses the iCCP (extraction script) and IDAT (zip file) chunk names for storing arbitrary data.
 
