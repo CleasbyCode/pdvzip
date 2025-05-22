@@ -107,7 +107,7 @@ For common ***video & audio*** files, ***Linux*** will use the ***vlc*** or ***m
 
 For any other file type within your ***ZIP*** file, ***Linux*** & ***Windows*** will rely on the operating system's set default method/application. Obviously, the compressed/embedded file needs to be compatible with the operating system you run it on.
 
-If the archive file is JAR or the compressed file type within the ZIP archive is ***PowerShell***, ***Python***, ***Shell Script*** or a ***Windows/Linux Executable, pdvzip*** will give you the option to provide command-line arguments for your file, if required.  
+If the archive file is JAR or the compressed file type within the ZIP archive is ***PowerShell***, ***Python***, ***Shell Script*** or a ***Windows/Linux Executable, pdvzip*** will give you the option to provide command-line arguments for your file, if required. Your ***command-line arguments*** will be added to the ***Linux/Windows*** extraction script, embedded within the ***iCCP*** chunk of the ***PNG*** cover image. 
 
 Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.
 ```console
