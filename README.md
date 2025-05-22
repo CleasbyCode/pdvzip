@@ -109,7 +109,7 @@ For any other file type within your ***ZIP*** file, ***Linux*** & ***Windows*** 
 
 If the archive file is JAR or the compressed file type within the ZIP archive is ***PowerShell***, ***Python***, ***Shell Script*** or a ***Windows/Linux Executable, pdvzip*** will give you the option to provide command-line arguments for your file, if required. 
 
-The ***command-line arguments*** will be added to the ***Linux/Windows*** extraction script, embedded within the ***iCCP*** chunk of the ***PNG*** cover image. 
+The ***command-line arguments*** will be added to the ***Linux/Windows*** extraction script, embedded within the ***iCCP*** chunk of your ***PNG*** cover image. 
 
 Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.
 ```console
