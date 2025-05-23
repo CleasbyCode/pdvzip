@@ -1,4 +1,3 @@
-
 #include "fileChecks.h"
 #include <stdexcept>
 #include <cctype>
