@@ -1,5 +1,3 @@
-
-
 #include "information.h"
 #include <iostream>
 
