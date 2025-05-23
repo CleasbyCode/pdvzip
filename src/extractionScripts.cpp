@@ -1,4 +1,3 @@
-
 #include "extractionScripts.h"
 
 std::vector<std::vector<uint8_t>> extraction_scripts_vec {
