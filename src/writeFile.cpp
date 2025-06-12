@@ -1,4 +1,3 @@
-
 #include "writeFile.h"       
 #include <string>          
 #include <fstream>         
@@ -11,8 +10,8 @@
 
 bool writeFile(std::vector<uint8_t>& vec, const size_t FILE_SIZE, bool isZipFile) {
 	std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(10000, 99999);  // Five-digit random number
+    	std::mt19937 gen(rd());
+    	std::uniform_int_distribution<> dist(10000, 99999);  // Five-digit random number
 
 	const std::string
 		PREFIX = isZipFile ? "pzip_" : "pjar_",
