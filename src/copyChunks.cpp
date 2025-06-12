@@ -14,11 +14,11 @@ void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
 		IDAT_SIG {0x49, 0x44, 0x41, 0x54};
 
     	constexpr uint8_t
-		PNG_FIRST_BYTES = 33,
-		PNG_IEND_BYTES = 12,
-		PNG_COLOR_TYPE_INDEX = 0x19,
-		PNG_TRUECOLOR_VAL = 2,
-		PNG_INDEXED_COLOR_VAL = 3;
+		PNG_FIRST_BYTES 	= 33,
+		PNG_IEND_BYTES 		= 12,
+		PNG_COLOR_TYPE_INDEX 	= 0x19,
+		PNG_TRUECOLOR_VAL 	= 2,
+		PNG_INDEXED_COLOR_VAL 	= 3;
 		
     	const uint32_t 
     		IMAGE_VEC_SIZE = static_cast<uint32_t>(image_vec.size()),
@@ -35,15 +35,15 @@ void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
 
     	auto copy_chunk_type = [&](const auto& chunk_signature) {
 		constexpr uint8_t 
-			PNG_CHUNK_FIELDS_COMBINED_LENGTH = 12, // Size_field + Name_field + CRC_field.
-			PNG_CHUNK_LENGTH_FIELD_SIZE = 4,
-			INCREMENT_NEXT_SEARCH_POS = 5;
+			PNG_CHUNK_FIELDS_COMBINED_LENGTH 	= 12, // Size_field + Name_field + CRC_field.
+			PNG_CHUNK_LENGTH_FIELD_SIZE 		= 4,
+			INCREMENT_NEXT_SEARCH_POS 		= 5;
 
         	uint32_t 
-			chunk_search_pos = 0,
-			chunk_length_pos = 0,
-			chunk_count = 0,
-			chunk_length = 0;
+			chunk_search_pos 	= 0,
+			chunk_length_pos 	= 0,
+			chunk_count 		= 0,
+			chunk_length 		= 0;
 			
 		bool isBigEndian = true;
 		
