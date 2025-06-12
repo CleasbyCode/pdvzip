@@ -17,10 +17,10 @@ void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
 		IDAT_SIG {0x49, 0x44, 0x41, 0x54};
 
     	constexpr uint8_t
-		PNG_FIRST_BYTES = 33,
-		PNG_IEND_BYTES = 12,
-		PNG_TRUECOLOR_VAL = 2,
-		PNG_INDEXED_COLOR_VAL = 3;
+		PNG_FIRST_BYTES 	= 33,
+		PNG_IEND_BYTES 		= 12,
+		PNG_TRUECOLOR_VAL 	= 2,
+		PNG_INDEXED_COLOR_VAL 	= 3;
 		
     	const size_t 
     		IMAGE_VEC_SIZE = image_vec.size(),
@@ -53,7 +53,6 @@ void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
 		
         	while (true) {
             		chunk_search_index = searchFunc(image_vec, chunk_search_index, INCREMENT_NEXT_SEARCH_POS, chunk_signature);
-            		
 			if (chunk_signature != IDAT_SIG && chunk_search_index > FIRST_IDAT_INDEX) {
 				if (chunk_signature == PLTE_SIG && !chunk_count) {
 					throw std::runtime_error("Image Error: Invalid or corrupt image file. PLTE chunk not found.");
@@ -63,7 +62,6 @@ void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
 			} else if (chunk_search_index == IMAGE_VEC_SIZE) {
 				break;
 			}
-			
 			++chunk_count;
 			chunk_length_index = chunk_search_index - PNG_CHUNK_LENGTH_FIELD_SIZE;
             		chunk_length = getByteValue(image_vec, chunk_length_index, PNG_CHUNK_LENGTH_FIELD_SIZE, isBigEndian) + PNG_CHUNK_FIELDS_COMBINED_LENGTH;
