@@ -3,7 +3,7 @@
 # compile_pdvzip.sh
 
 g++ main.cpp lodepng/lodepng.cpp programArgs.cpp fileChecks.cpp copyChunks.cpp \
-    information.cpp adjustZip.cpp writeFile.cpp getByteValue.cpp valueUpdater.cpp \
+    information.cpp adjustZip.cpp writeFile.cpp getByteValue.cpp updateValue.cpp \
     crc32.cpp resizeImage.cpp extractionScripts.cpp pdvZip.cpp \
     -Wall -O2 -s -o pdvzip
 

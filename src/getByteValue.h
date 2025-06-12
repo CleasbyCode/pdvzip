@@ -2,5 +2,6 @@
 
 #include <vector>
 #include <cstdint>
+#include <cstddef>
 
-uint32_t getByteValue(const std::vector<uint8_t>&, const uint32_t, const uint8_t, bool);
+uint32_t getByteValue(const std::vector<uint8_t>&, const size_t, const uint8_t, bool);

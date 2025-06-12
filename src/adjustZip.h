@@ -2,5 +2,6 @@
 
 #include <vector>
 #include <cstdint>
+#include <cstddef>
 
-void adjustZipOffsets(std::vector<uint8_t>&, const uint32_t, const uint32_t);
+void adjustZipOffsets(std::vector<uint8_t>&, const size_t);

@@ -1,3 +1,4 @@
+
 #include "writeFile.h"       
 #include <string>          
 #include <fstream>         
@@ -8,10 +9,10 @@
 	#include <sys/stat.h>      
 #endif
 
-bool writeFile(std::vector<uint8_t>& vec, const uint32_t FILE_SIZE, bool isZipFile) {
+bool writeFile(std::vector<uint8_t>& vec, const size_t FILE_SIZE, bool isZipFile) {
 	std::random_device rd;
-    	std::mt19937 gen(rd());
-    	std::uniform_int_distribution<> dist(10000, 99999);  // Five-digit random number
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(10000, 99999);  // Five-digit random number
 
 	const std::string
 		PREFIX = isZipFile ? "pzip_" : "pjar_",
@@ -23,9 +24,9 @@ bool writeFile(std::vector<uint8_t>& vec, const uint32_t FILE_SIZE, bool isZipFi
 		std::cerr << "\nWrite File Error: Unable to write to file.\n\n";
 		return false;
 	}
-	
+
 	file_ofs.write(reinterpret_cast<const char*>(vec.data()), FILE_SIZE);
-	
+
 	std::vector<uint8_t>().swap(vec);
 
 	std::cout << "\nCreated " 
