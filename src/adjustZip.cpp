@@ -10,19 +10,19 @@ void adjustZipOffsets(std::vector<uint8_t>& vec, const size_t LAST_IDAT_INDEX) {
 	};
 
 	constexpr uint8_t
-		CENTRAL_LOCAL_INDEX_DIFF 		= 45,
+		CENTRAL_LOCAL_INDEX_DIFF 	= 45,
 		ZIP_COMMENT_LENGTH_INDEX_DIFF 	= 21,
 		END_CENTRAL_START_INDEX_DIFF 	= 19,
-		ZIP_RECORDS_INDEX_DIFF 			= 11,
-		PNG_IEND_LENGTH 				= 16,
-		ZIP_LOCAL_INDEX_DIFF 			= 4,
-		INCREMENT_NEXT_SEARCH_POS		= 1;
+		ZIP_RECORDS_INDEX_DIFF 		= 11,
+		PNG_IEND_LENGTH 		= 16,
+		ZIP_LOCAL_INDEX_DIFF 		= 4,
+		INCREMENT_NEXT_SEARCH_POS	= 1;
 	
 	constexpr size_t SIG_LENGTH = 4;
 		
 	constexpr std::array<uint8_t, SIG_LENGTH>
-		ZIP_LOCAL_SIG			{ 0x50, 0x4B, 0x03, 0x04 },
-		END_CENTRAL_DIR_SIG		{ 0x50, 0x4B, 0x05, 0x06 },
+		ZIP_LOCAL_SIG		{ 0x50, 0x4B, 0x03, 0x04 },
+		END_CENTRAL_DIR_SIG	{ 0x50, 0x4B, 0x05, 0x06 },
 		START_CENTRAL_DIR_SIG	{ 0x50, 0x4B, 0x01, 0x02 };
 		
 	const size_t VEC_SIZE = vec.size();
