@@ -78,19 +78,19 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 
 	// Check cover image for valid image dimensions and color type values.
 	constexpr size_t
-		IMAGE_WIDTH_INDEX 		= 0x12,
-		IMAGE_HEIGHT_INDEX 		= 0x16,
+		IMAGE_WIDTH_INDEX 	= 0x12,
+		IMAGE_HEIGHT_INDEX 	= 0x16,
 		IMAGE_COLOR_TYPE_INDEX 	= 0x19;
 	
 	constexpr uint8_t	
-		MIN_DIMS 		= 68,
+		MIN_DIMS 	= 68,
 		INDEXED_COLOR 	= 3,
 		TRUECOLOR_ALPHA	= 6,
-		TRUECOLOR 		= 2,
+		TRUECOLOR 	= 2,
 		BYTE_LENGTH 	= 2;
 
 	constexpr uint16_t
-		MAX_TRUECOLOR_DIMS 		= 900,
+		MAX_TRUECOLOR_DIMS 	= 900,
 		MAX_INDEXED_COLOR_DIMS 	= 4096;
 
 	bool isBigEndian = true;
@@ -105,8 +105,8 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 
 	auto checkDimensions = [&](uint8_t COLOR_TYPE, uint16_t MAX_DIMS) {
 		return (IMAGE_COLOR_TYPE == COLOR_TYPE &&
-            	IMAGE_WIDTH <= MAX_DIMS && IMAGE_HEIGHT <= MAX_DIMS &&
-            	IMAGE_WIDTH >= MIN_DIMS && IMAGE_HEIGHT >= MIN_DIMS);
+            		IMAGE_WIDTH <= MAX_DIMS && IMAGE_HEIGHT <= MAX_DIMS &&
+            		IMAGE_WIDTH >= MIN_DIMS && IMAGE_HEIGHT >= MIN_DIMS);
 	};
 
 	bool hasValidDimensions = checkDimensions(TRUECOLOR, MAX_TRUECOLOR_DIMS) || checkDimensions(INDEXED_COLOR, MAX_INDEXED_COLOR_DIMS);
@@ -160,8 +160,8 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 		
 	constexpr size_t
 		ARC_RECORD_FIRST_FILENAME_LENGTH_INDEX 	= 0x22, 
-		ARC_RECORD_FIRST_FILENAME_INDEX 		= 0x26,
-		TOTAL_FILE_EXTENSIONS 		     		= 35;
+		ARC_RECORD_FIRST_FILENAME_INDEX 	= 0x26,
+		TOTAL_FILE_EXTENSIONS 		     	= 35;
 	
 	const size_t ARC_RECORD_FIRST_FILENAME_LENGTH = archive_vec[ARC_RECORD_FIRST_FILENAME_LENGTH_INDEX];
 
@@ -243,7 +243,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	}
 
 	std::vector<uint8_t> script_vec { 0x00, 0x00, 0x00, 0x00, 0x69, 0x43, 0x43, 0x50, 0x44, 0x56, 0x5A, 0x49, 0x50, 0x5F, 
-										0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
+					  0x5F, 0x00, 0x00, 0x0D, 0x52, 0x45, 0x4D, 0x3B, 0x0D, 0x0A, 0x00, 0x00, 0x00, 0x00 };
 
 	constexpr size_t MAX_SCRIPT_SIZE = 1500;
 
@@ -254,16 +254,16 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	// The single digit integer is the extraction script id (see Extraction_Scripts_Vec), the hex values are insert index locations
 	// within the extraction script vector. We use these index locations to insert additional items into the script in order to complete it.
 
-		{VIDEO_AUDIO,			{ 0, 0x1E4, 0x1C }}, 
-		{PDF,					{ 1, 0x196, 0x1C }}, 
-		{PYTHON,				{ 2, 0x10B, 0x101, 0xBC, 0x1C}},
-		{POWERSHELL,			{ 3, 0x105, 0xFB, 0xB6, 0x33 }},
-		{BASH_SHELL,			{ 4, 0x134, 0x132, 0x8E, 0x1C }},
+		{VIDEO_AUDIO,		{ 0, 0x1E4, 0x1C }}, 
+		{PDF,			{ 1, 0x196, 0x1C }}, 
+		{PYTHON,		{ 2, 0x10B, 0x101, 0xBC, 0x1C}},
+		{POWERSHELL,		{ 3, 0x105, 0xFB, 0xB6, 0x33 }},
+		{BASH_SHELL,		{ 4, 0x134, 0x132, 0x8E, 0x1C }},
 		{WINDOWS_EXECUTABLE,	{ 5, 0x116, 0x114 }},
-		{FOLDER,				{ 6, 0x149, 0x1C }},
-		{LINUX_EXECUTABLE,		{ 7, 0x8E,  0x1C }},
-		{JAR,					{ 8, 0xA6,  0x61 }},
-		{UNKNOWN_FILE_TYPE,		{ 9, 0x127, 0x1C}} // Fallback/placeholder. Unknown file type, unmatched file extension case.
+		{FOLDER,		{ 6, 0x149, 0x1C }},
+		{LINUX_EXECUTABLE,	{ 7, 0x8E,  0x1C }},
+		{JAR,			{ 8, 0xA6,  0x61 }},
+		{UNKNOWN_FILE_TYPE,	{ 9, 0x127, 0x1C}} // Fallback/placeholder. Unknown file type, unmatched file extension case.
 	};
 
 	auto it = case_map.find(extension_list_index);
@@ -320,15 +320,15 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	
 	constexpr size_t
 		ICCP_CHUNK_NAME_INDEX 	= 0x04,
-		ICCP_CHUNK_INDEX 		= 0x21;
+		ICCP_CHUNK_INDEX 	= 0x21;
 		
 	constexpr uint8_t	
-		ICCP_CHUNK_NAME_FIELD_LENGTH 			= 4,
+		ICCP_CHUNK_NAME_FIELD_LENGTH 		= 4,
 		EXCLUDE_SIZE_FIELD_AND_CRC_FIELD_LENGTH = 8,
-		PNG_END_BYTES_LENGTH 					= 12,
-		ICCP_CHUNK_CRC_INDEX_DIFF 				= 8,
-		LAST_IDAT_CHUNK_NAME_INDEX_DIFF 		= 4,
-		LAST_IDAT_CHUNK_CRC_INDEX_DIFF 			= 16;
+		PNG_END_BYTES_LENGTH 			= 12,
+		ICCP_CHUNK_CRC_INDEX_DIFF 		= 8,
+		LAST_IDAT_CHUNK_NAME_INDEX_DIFF 	= 4,
+		LAST_IDAT_CHUNK_CRC_INDEX_DIFF 		= 16;
 		
 	if (iccp_chunk_script_size > MAX_SCRIPT_SIZE) {
 		std::cerr << "\nScript Size Error: Extraction script exceeds size limit.\n\n";
