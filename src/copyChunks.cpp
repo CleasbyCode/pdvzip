@@ -3,13 +3,10 @@
 #include "getByteValue.h"     
 #include <iterator>     
 #include <stdexcept>    
-#include <cstddef>
 #include <utility>            
 
 void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
-	constexpr size_t 
-		SIG_LENGTH = 4,
-		PNG_COLOR_TYPE_INDEX = 0x19;
+	constexpr uint8_t SIG_LENGTH = 4;
 
 	constexpr std::array<uint8_t, SIG_LENGTH> 
 		PLTE_SIG {0x50, 0x4C, 0x54, 0x45},
@@ -17,17 +14,18 @@ void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
 		IDAT_SIG {0x49, 0x44, 0x41, 0x54};
 
     	constexpr uint8_t
-		PNG_FIRST_BYTES 	= 33,
-		PNG_IEND_BYTES 		= 12,
-		PNG_TRUECOLOR_VAL 	= 2,
-		PNG_INDEXED_COLOR_VAL 	= 3;
+		PNG_FIRST_BYTES = 33,
+		PNG_IEND_BYTES = 12,
+		PNG_COLOR_TYPE_INDEX = 0x19,
+		PNG_TRUECOLOR_VAL = 2,
+		PNG_INDEXED_COLOR_VAL = 3;
 		
-    	const size_t 
-    		IMAGE_VEC_SIZE = image_vec.size(),
+    	const uint32_t 
+    		IMAGE_VEC_SIZE = static_cast<uint32_t>(image_vec.size()),
     		FIRST_IDAT_INDEX = searchFunc(image_vec, 0, 0, IDAT_SIG);
     	
     	if (FIRST_IDAT_INDEX == IMAGE_VEC_SIZE) {
-    		throw std::runtime_error("Image Error: Invalid or corrupt image file. IDAT chunk not found.");
+    		throw std::runtime_error("Image Error: Invalid or corrupt image file. Expected IDAT chunk not found!");
     	}
     	
     	std::vector<uint8_t> copied_image_vec;
@@ -41,31 +39,31 @@ void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
 			PNG_CHUNK_LENGTH_FIELD_SIZE = 4,
 			INCREMENT_NEXT_SEARCH_POS = 5;
 
-		size_t 
-			chunk_search_index = 0,
-			chunk_length_index = 0;
-			
         	uint32_t 
+			chunk_search_pos = 0,
+			chunk_length_pos = 0,
 			chunk_count = 0,
 			chunk_length = 0;
 			
 		bool isBigEndian = true;
 		
         	while (true) {
-            		chunk_search_index = searchFunc(image_vec, chunk_search_index, INCREMENT_NEXT_SEARCH_POS, chunk_signature);
-			if (chunk_signature != IDAT_SIG && chunk_search_index > FIRST_IDAT_INDEX) {
+            		chunk_search_pos = searchFunc(image_vec, chunk_search_pos, INCREMENT_NEXT_SEARCH_POS, chunk_signature);
+            		
+			if (chunk_signature != IDAT_SIG && chunk_search_pos > FIRST_IDAT_INDEX) {
 				if (chunk_signature == PLTE_SIG && !chunk_count) {
-					throw std::runtime_error("Image Error: Invalid or corrupt image file. PLTE chunk not found.");
+					throw std::runtime_error("Image Error: Invalid or corrupt image file. Expected PLTE chunk not found!");
 				} else {
 					break;
 				}
-			} else if (chunk_search_index == IMAGE_VEC_SIZE) {
+			} else if (chunk_search_pos == IMAGE_VEC_SIZE) {
 				break;
 			}
+			
 			++chunk_count;
-			chunk_length_index = chunk_search_index - PNG_CHUNK_LENGTH_FIELD_SIZE;
-            		chunk_length = getByteValue(image_vec, chunk_length_index, PNG_CHUNK_LENGTH_FIELD_SIZE, isBigEndian) + PNG_CHUNK_FIELDS_COMBINED_LENGTH;
-	    		std::copy_n(image_vec.begin() + chunk_length_index, chunk_length, std::back_inserter(copied_image_vec));
+			chunk_length_pos = chunk_search_pos - PNG_CHUNK_LENGTH_FIELD_SIZE;
+            		chunk_length = getByteValue(image_vec, chunk_length_pos, PNG_CHUNK_LENGTH_FIELD_SIZE, isBigEndian) + PNG_CHUNK_FIELDS_COMBINED_LENGTH;
+	    		std::copy_n(image_vec.begin() + chunk_length_pos, chunk_length, std::back_inserter(copied_image_vec));
         	}
     	};
 

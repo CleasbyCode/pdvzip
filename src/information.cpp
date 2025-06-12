@@ -1,5 +1,3 @@
-
-
 #include "information.h"
 #include <iostream>
 
@@ -71,7 +69,7 @@ iCCP, (Only 10KB max. with X/Twitter).
 IDAT, (Use as last IDAT chunk, after the final image IDAT chunk).
 PLTE, (Use only with PNG-32 & PNG-24 for arbitrary data).
 pHYs, sBIT, sPLT, sRGB,
-tRNS. (PNG-32 Only).
+tRNS. (PNG-32 only).
 
 This program uses the iCCP (extraction script) and IDAT (zip file) chunk names for storing arbitrary data.
 
