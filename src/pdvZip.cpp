@@ -36,7 +36,6 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 		return 1;
 	}
 
-
 	const uintmax_t 
 		IMAGE_FILE_SIZE = std::filesystem::file_size(IMAGE_FILENAME),
 		ARCHIVE_FILE_SIZE = std::filesystem::file_size(ARCHIVE_FILENAME);
@@ -83,19 +82,19 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 
 	// Check cover image for valid image dimensions and color type values.
 	constexpr uint8_t
-		IMAGE_WIDTH_INDEX 	= 0x12,
-		IMAGE_HEIGHT_INDEX 	= 0x16,
 		IMAGE_COLOR_TYPE_INDEX 	= 0x19,
+		IMAGE_HEIGHT_INDEX 	= 0x16,
+		IMAGE_WIDTH_INDEX 	= 0x12,
 		MIN_DIMS 		= 68,
-		INDEXED_COLOR 		= 3,
 		TRUECOLOR_ALPHA		= 6,
+		INDEXED_COLOR 		= 3,
 		TRUECOLOR 		= 2,
 		BYTE_LENGTH 		= 2;
 
 	constexpr uint16_t
-		MAX_TRUECOLOR_DIMS 	= 900,
-		MAX_INDEXED_COLOR_DIMS 	= 4096;
-
+		MAX_INDEXED_COLOR_DIMS 	= 4096,
+		MAX_TRUECOLOR_DIMS 	= 900;
+	
 	bool isBigEndian = true;
 
 	const uint16_t
@@ -320,14 +319,14 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	}
 	
 	constexpr uint8_t
-		ICCP_CHUNK_NAME_INDEX 			= 0x04,
 		ICCP_CHUNK_INDEX 			= 0x21,
-		ICCP_CHUNK_NAME_FIELD_LENGTH 		= 4,
-		ICCP_CHUNK_CRC_INDEX_DIFF 		= 0x08,
-		LAST_IDAT_CHUNK_NAME_INDEX_DIFF 	= 0x04,
-		LAST_IDAT_CHUNK_CRC_INDEX_DIFF 		= 0x10,
+		ICCP_CHUNK_NAME_INDEX 			= 0x04,
+		LAST_IDAT_CHUNK_CRC_INDEX_DIFF 		= 16,
+		PNG_END_BYTES_LENGTH 			= 12,
+		ICCP_CHUNK_CRC_INDEX_DIFF 		= 8,
 		EXCLUDE_SIZE_FIELD_AND_CRC_FIELD_LENGTH = 8,
-		PNG_END_BYTES_LENGTH 			= 12;
+		LAST_IDAT_CHUNK_NAME_INDEX_DIFF 	= 4,
+		ICCP_CHUNK_NAME_FIELD_LENGTH 		= 4;
 
 	if (iccp_chunk_script_size > MAX_SCRIPT_SIZE) {
 		std::cerr << "\nScript Size Error: Extraction script exceeds size limit.\n\n";
