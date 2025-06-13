@@ -67,13 +67,11 @@ void copyEssentialChunks(std::vector<uint8_t>& image_vec) {
         	}
     	};
 
-	if (image_vec[PNG_COLOR_TYPE_INDEX] == PNG_INDEXED_COLOR_VAL) {
-    		copy_chunk_type(PLTE_SIG);
+	if (image_vec[PNG_COLOR_TYPE_INDEX] == PNG_INDEXED_COLOR_VAL || image_vec[PNG_COLOR_TYPE_INDEX] == PNG_TRUECOLOR_VAL) {
+    		if (image_vec[PNG_COLOR_TYPE_INDEX] == PNG_INDEXED_COLOR_VAL) {
+    			copy_chunk_type(PLTE_SIG); 
+    		}
     		copy_chunk_type(TRNS_SIG);
-	}
-	
-	if (image_vec[PNG_COLOR_TYPE_INDEX] == PNG_TRUECOLOR_VAL) {
-		copy_chunk_type(TRNS_SIG);
 	}
 	
     	copy_chunk_type(IDAT_SIG);
