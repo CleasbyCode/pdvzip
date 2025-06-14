@@ -63,7 +63,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	constexpr uint8_t 
 		TOTAL_BAD_CHARS  = 7,
 		IHDR_START_INDEX = 0x12,
-		IHDR_STOP_INDEX  = 0x20;
+		IHDR_STOP_INDEX  = 0x21;
 
 	constexpr std::array<uint8_t, TOTAL_BAD_CHARS> LINUX_PROBLEM_CHARACTERS { 0x22, 0x27, 0x28, 0x29, 0x3B, 0x3E, 0x60 }; // This list could grow.
 	
@@ -71,7 +71,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 
 	while (isBadImage) {
     		isBadImage = false;
-    		for (uint8_t index = IHDR_START_INDEX; IHDR_STOP_INDEX >= index; ++index) { // Check IHDR chunk section where problem characters may occur.
+    		for (uint8_t index = IHDR_START_INDEX; IHDR_STOP_INDEX > index; ++index) { // Check IHDR chunk section where problem characters may occur.
         		if (std::find(LINUX_PROBLEM_CHARACTERS.begin(), LINUX_PROBLEM_CHARACTERS.end(), image_vec[index]) != LINUX_PROBLEM_CHARACTERS.end()) {
             			resizeImage(image_vec);
             			isBadImage = true;
