@@ -1,13 +1,13 @@
 # pdvzip  
 
 Embed a ***ZIP*** or ***JAR*** file within a ***PNG*** image, to create a ***tweetable*** and "[***executable***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" ***PNG*** polyglot file.  
-Share the image on ***X/Twitter*** and a few other hosting sites, which will retain the embedded archive.  
+Share the image on ***X-Twitter*** and a few other hosting sites, which will retain the embedded archive.  
 
 With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of ***2GB** (cover image + archive file).
 
 *Compatible sites, ***listed below***, have their own ***much smaller*** size limits:-
 
-***X/Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**32MB**), ***ImgPile*** (**8MB**).
+***X-Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**32MB**), ***ImgPile*** (**8MB**).
   
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/GrfkF1uWQAAgu7o.png)  
 ***Image credit:*** [***@obeca***](https://x.com/obeca)
@@ -46,7 +46,7 @@ Complete!
 
 ``` 
 ## Extracting Your Embedded File(s)  
-**Important:** When saving images from ***X/Twitter***, click the image in the post to ***fully expand it***, before saving.  
+**Important:** When saving images from ***X-Twitter***, click the image in the post to ***fully expand it***, before saving.  
 
 The following section covers the extraction of embedded ***ZIP*** files. ***JAR*** files are covered later.
 
@@ -69,7 +69,7 @@ mx% bash ./pzip_55183.png
 
 ``` 
 Alternative extraction (***Linux***).  Using ***wget*** to download and run the image directly from the hosting site.  
-***X/Twitter*** ***wget*** example: **Image with embedded ***python*** script**.
+***X-Twitter*** ***wget*** example: **Image with embedded ***python*** script**.
 ```console
 
 wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png";chmod +x Fibo.png;bash ./Fibo.png
@@ -167,7 +167,7 @@ https://github.com/user-attachments/assets/9451ad50-4c7c-4fa3-a1be-3854189bde00
 ## PNG Image Requirements for Arbitrary Data Preservation
 
 ***PNG*** file size (image + archive file) must not exceed the hosting site's size limits.  
-The site will either refuse to upload your image or it will convert your image to ***jpg***, such as ***X/Twitter***.
+The site will either refuse to upload your image or it will convert your image to ***jpg***, such as ***X-Twitter***.
 
 ***Dimensions:***
 
@@ -179,10 +179,10 @@ These dimension size limits are for compatibility reasons, allowing it to work w
 Image dimensions can be set between a minimum of **68 x 68** and a maximum of **900 x 900**.
 
 *Note: Images that are created & saved within your image editor as ***PNG-32/24*** that are either
-black & white/grayscale, images with 256 colors or less, will be converted by ***X/Twitter*** to
+black & white/grayscale, images with 256 colors or less, will be converted by ***X-Twitter*** to
 ***PNG-8*** and you will lose the embedded content. If you want to use a simple "single" color
 ***PNG-32/24*** image, then fill an area with a gradient color instead of a single solid color. 
-***X/Twitter*** should then keep the image as ***PNG-32/24***. [***(Example).***](https://twitter.com/CleasbyCode/status/1694992647121965554)*
+***X-Twitter*** should then keep the image as ***PNG-32/24***. [***(Example).***](https://twitter.com/CleasbyCode/status/1694992647121965554)*
     
 ***PNG-8 (Indexed-color)***
 
@@ -190,11 +190,11 @@ Image dimensions can be set between a minimum of **68 x 68** and a maximum of **
         
 ***PNG Chunks:***  
 
-With ***X/Twitter***, for example, you can ***overfill*** the following ***PNG*** chunks with arbitrary data,  
+For example, with ***X-Twitter***, you can ***overfill*** the following ***PNG*** chunks with arbitrary data,  
 in which the platform will preserve as long as you keep within the image dimension & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,***  
-***iCCP,*** (Limited size chunk. Only **10KB** Max. with ***X/Twitter***).  
+***iCCP,*** (Limited size chunk. Only **10KB** Max. with ***X-Twitter***).  
 ***IDAT,*** (Use as last ***IDAT*** chunk, after the final image ***IDAT*** chunk).  
 ***PLTE,*** (Use only with ***PNG-32/24*** images).  
 ***pHYs, sBIT, sPLT, sRGB,***   
@@ -208,7 +208,7 @@ pdvzip uses the chunks ***iCCP*** (stores extraction script) and ***IDAT*** (sto
 
 To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minus the image size, minus ***1500*** bytes (extraction script size).  
   
-***X/Twitter*** example: (**5MB** limit) **5,242,880** - (**307,200** [image] + **1500** [extraction script]) = **4,934,180 bytes** available for your ***ZIP/JAR*** file.  
+***X-Twitter*** example: (**5MB** limit) **5,242,880** - (**307,200** [image] + **1500** [extraction script]) = **4,934,180 bytes** available for your ***ZIP/JAR*** file.  
 
 * Make sure your ***ZIP/JAR*** file is a standard ***ZIP/JAR*** archive, compatible with ***Linux*** unzip & ***Windows*** Explorer.
 * Do not include more than one ***.zip*** file within the main ***ZIP*** archive. (***.rar*** files are ok).
