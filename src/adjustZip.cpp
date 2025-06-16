@@ -32,11 +32,11 @@ void adjustZipOffsets(std::vector<uint8_t>& vec, const uint32_t VEC_SIZE, const 
 		start_central_dir_index  = 0; 
 
 	uint16_t 
-		total_zip_records = (vec[total_zip_records_index] << 8) | vec[--total_zip_records_index],
-		zip_comment_length = ((vec[zip_comment_length_index] << 8) | vec[--zip_comment_length_index]) + PNG_IEND_LENGTH, // Extend comment length. Includes end bytes of PNG. Required for JAR.
+		total_zip_records = (vec[total_zip_records_index] << 8) | vec[total_zip_records_index - 1],
+		zip_comment_length = ((vec[zip_comment_length_index] << 8) | vec[zip_comment_length_index - 1]) + PNG_IEND_LENGTH, // Extend comment length. Includes end bytes of PNG. Required for JAR.
 		record_count = 0;
 
-	std::memcpy(&vec[zip_comment_length_index], &zip_comment_length, sizeof(uint16_t));
+	std::memcpy(&vec[--zip_comment_length_index], &zip_comment_length, sizeof(uint16_t));
 
 	// Find the first, top "start_central directory" index location by searching the vector, working backwards from the vector's content.
 	// By starting the search from the end of the vector, we know we are already within the record section data of the archive and this helps
