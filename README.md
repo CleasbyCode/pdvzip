@@ -120,7 +120,7 @@ For this file type you can provide command-line arguments here, if required.
 Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 
 ```
-Also, be aware when using arguments for the compressed ZIP file types (not JAR), you are always working from within the subdirectory "***pdvzip_extracted***".  
+Also, be aware when using arguments for the compressed ***ZIP*** file types (not ***JAR***), you are always working from within the subdirectory "***pdvzip_extracted***".  
 
 https://github.com/user-attachments/assets/9125d4e5-f94b-4d27-987e-fb2d76a90e8f
 
@@ -159,7 +159,7 @@ Note: If you use this method to run your embedded Java program, you will have to
 ```console
 PS C:\Users\Nick\Desktop\jar_demo> ren .\pjar_19662.png .\pjar_19662.cmd
 PS C:\Users\Nick\Desktop\jar_demo> .\pjar_19662.cmd
-Note: This method will execute the embedded Java program and also use any
+Note: This method will execute the embedded Java program and will also use any
       embedded command-line arguments with the Java program.
 ```
 https://github.com/user-attachments/assets/9451ad50-4c7c-4fa3-a1be-3854189bde00
@@ -202,7 +202,7 @@ in which the platform will preserve as long as you keep within the image dimensi
 
 *Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
-pdvzip uses the chunks ***iCCP*** (stores extraction script) and ***IDAT*** (stores the ***ZIP/JAR*** file) for your arbitrary data.
+***pdvzip*** uses the chunks ***iCCP*** (stores extraction script) and ***IDAT*** (stores the ***ZIP/JAR*** file) for your arbitrary data.
 
 ## ***ZIP/JAR*** File Size & Other Important Information
 
