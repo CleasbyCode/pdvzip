@@ -38,7 +38,7 @@ void adjustZipOffsets(std::vector<uint8_t>& vec, const uint32_t VEC_SIZE, const 
 
 	std::memcpy(&vec[--zip_comment_length_index], &zip_comment_length, sizeof(uint16_t));
 
-	// Find the first, top "start_central directory" index location by searching the vector, working backwards from the vector's content.
+	// Find the first, top-level "start_central directory" index location by searching the vector, working backwards from the vector's content.
 	// By starting the search from the end of the vector, we know we are already within the record section data of the archive and this helps
 	// in avoiding the increased probability of a "false-positive" signature match if we were to search the vector from the beginning, 
 	// having to read through image & compressed file data first.
