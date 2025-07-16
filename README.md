@@ -128,7 +128,7 @@ Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 ```
 Also, be aware when using arguments for the compressed ***ZIP*** file types (not ***JAR***), you are always working from within the subdirectory "***pdvzip_extracted***".  
 
-https://github.com/user-attachments/assets/9125d4e5-f94b-4d27-987e-fb2d76a90e8f
+https://github.com/user-attachments/assets/dbff15e2-87b0-4fe5-a640-3420d356020e
 
 To just get access to the file(s) within the ***ZIP*** archive, rename the '***.png***' file extension to '***.zip***'.  
 Treat the ***ZIP*** archive as read-only, do not add or remove files from the ***PNG-ZIP*** polyglot file.  
