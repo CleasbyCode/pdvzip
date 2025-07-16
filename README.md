@@ -18,6 +18,11 @@ With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **
 
 ***X-Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**32MB**), ***ImgPile*** (**8MB**).  
 
+*Image dimension size limits*  
+
+* ****PNG-32/24*** (*Truecolor*) **68x68** Min. - **900x900** Max.
+* ***PNG-8*** (*Indexed-color*) **68x68** Min. - **4096x4096** Max.
+
 *Try the ***pdvzip*** Web App [***here***](https://cleasbycode.co.uk/pdvzip/index/) for a convenient alternative to downloading and compiling the CLI source code. Web file uploads are limited to 20MB.* 
 
 ## Usage (Linux)
