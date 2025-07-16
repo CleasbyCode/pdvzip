@@ -2,12 +2,12 @@
 
 Embed a ***ZIP*** or ***JAR*** file within a ***PNG*** image, to create a ***tweetable*** and "[***executable***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" ***PNG*** polyglot file.  
 Share the image on ***X-Twitter*** and a few other platforms, which will retain the embedded archive.  
-  
-![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/GrfkF1uWQAAgu7o.png)  
-***Image credit:*** [***@obeca***](https://x.com/obeca)
- 
+
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original ***Python*** program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
 ***pdvzip*** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a ***PNG*** image.  
+  
+![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/GrfkF1uWQAAgu7o.png)  
+***Image credit:*** [***@obeca***](https://x.com/obeca)  
 
 The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk of the ***PNG*** image. The embedded ***ZIP/JAR*** file is stored within its own ***IDAT*** chunk, which will be the last ***IDAT*** chunk of the image file.  
 With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of ***2GB** (cover image + archive file).
