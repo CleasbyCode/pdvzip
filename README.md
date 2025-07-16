@@ -14,11 +14,11 @@ The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk 
 With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of ***2GB** (cover image + archive file). Compatible sites, ***listed below***, have their own ***much smaller*** size limits.
 
 ## Compatible Platforms
-*Posting size limit measured by the combined size of the cover image + compressed data file* 
+*Posting size limit measured by the combined size of the cover image + compressed data file.* 
 
-***X-Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**32MB**), ***ImgPile*** (**8MB**).  
+* ***X-Twitter*** (**5MB**), ***Flickr*** (**200MB**), ***ImgBB*** (**32MB**), ***PostImage*** (**32MB**), ***ImgPile*** (**8MB**).  
 
-*Image dimension size limits*  
+*Image dimension size limits:*  
 
 * ****PNG-32/24*** (*Truecolor*) **68x68** Min. - **900x900** Max.
 * ***PNG-8*** (*Indexed-color*) **68x68** Min. - **4096x4096** Max.
