@@ -173,7 +173,8 @@ https://github.com/user-attachments/assets/9451ad50-4c7c-4fa3-a1be-3854189bde00
 ## PNG Image Requirements for Arbitrary Data Preservation
 
 ***PNG*** file size (image + archive file) must not exceed the platform's size limits.  
-The site will either refuse to upload your image or it will convert your image to ***jpg***, such as ***X-Twitter***.
+The site will either refuse to upload your image or it will convert your image to ***jpg***, such as ***X-Twitter***,
+and you will lose the embedded content.
 
 ***Dimensions:***
 
@@ -188,8 +189,8 @@ Image dimensions can be set between a minimum of **68 x 68** and a maximum of **
 that are just black, white, grayscale or images with 256 colors or less, will be converted by
 ***X-Twitter*** to ***PNG-8*** and you will lose the embedded content.
 If you want to use a small, simple "single" color ***PNG-32/24 (Truecolor)*** image, then you must fill
-an area with a gradient color instead of a single solid color. 
-***X-Twitter*** should then keep the image as ***PNG-32/24***. [***(Example).***](https://twitter.com/CleasbyCode/status/1694992647121965554). Alternatively, just use a ***PNG-8 (Indexed-color)*** image.*
+an area of the image with a gradient color instead of a single solid color. 
+***X-Twitter*** should then keep the image as ***PNG-32/24***. [***(Example).***](https://twitter.com/CleasbyCode/status/1694992647121965554) Alternatively, just use a ***PNG-8 (Indexed-color)*** image.*
     
 ***PNG-8 (Indexed-color)***
 
