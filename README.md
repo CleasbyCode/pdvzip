@@ -172,7 +172,8 @@ https://github.com/user-attachments/assets/9451ad50-4c7c-4fa3-a1be-3854189bde00
 
 ## PNG Image Requirements for Arbitrary Data Preservation
 
-***PNG*** file size (image + archive file) must not exceed the platform's size limits.  
+***PNG*** file size (image + archive file) must not exceed the platform's size limits. 
+
 The site will either refuse to upload your image or it will convert your image to ***jpg***, such as ***X-Twitter***,
 and you will lose the embedded content.
 
