@@ -187,9 +187,9 @@ Image dimensions can be set between a minimum of **68 x 68** and a maximum of **
 ***Important:*** *Images that are created & saved within your image editor as ***PNG-32/24 (Truecolor)***
 that are just black, white, grayscale or images with 256 colors or less, will be converted by
 ***X-Twitter*** to ***PNG-8*** and you will lose the embedded content.
-If you want to use a small, simple "single" color ***PNG-32/24 (Truecolor)*** image, then your must fill
+If you want to use a small, simple "single" color ***PNG-32/24 (Truecolor)*** image, then you must fill
 an area with a gradient color instead of a single solid color. 
-***X-Twitter*** should then keep the image as ***PNG-32/24***. [***(Example).***](https://twitter.com/CleasbyCode/status/1694992647121965554)*
+***X-Twitter*** should then keep the image as ***PNG-32/24***. [***(Example).***](https://twitter.com/CleasbyCode/status/1694992647121965554). Alternatively, just use a ***PNG-8 (Indexed-color)*** image.*
     
 ***PNG-8 (Indexed-color)***
 
