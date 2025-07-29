@@ -186,7 +186,7 @@ These dimension size limits are for compatibility reasons, allowing it to work w
 Image dimensions can be set between a minimum of **68 x 68** and a maximum of **900 x 900**.
 
 ***Important:*** *Images that are created & saved within your image editor as ***PNG-32/24 (Truecolor)***
-that are just black, white, grayscale or images with 256 colors or less, will be converted by
+that are just black, white, grayscale - images with 256 colors or less, will be converted by
 ***X-Twitter*** to ***PNG-8*** and you will lose the embedded content.
 If you want to use a small, simple "single" color ***PNG-32/24 (Truecolor)*** image, then you must fill
 an area of the image with a gradient color instead of a single solid color. 
