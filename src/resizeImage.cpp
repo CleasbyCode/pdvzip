@@ -1,6 +1,7 @@
 // Using lodepng to resize the cover image within the vector, by reducing it's width & height by 1 pixel. 
 // https://github.com/lvandeve/lodepng  (Copyright (c) 2005-2024 Lode Vandevenne).
 
+#include "resizeImage.h"
 #include "lodepng/lodepng.h"
 #include <stdexcept>
 #include <vector>
