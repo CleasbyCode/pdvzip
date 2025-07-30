@@ -30,7 +30,7 @@ bool checkTruecolor(std::vector<uint8_t>& image_vec, unsigned& width, unsigned& 
     // Check if the image has 256 or fewer unique colors
     if (stats.numcolors <= 256) {
     
-   	std::cout << "\nWarning: Your cover image (PNG-24/32 Truecolor) has fewer than 257 unique colors.\nFor compatibility reasons, the cover image will be converted to PNG-8 Indexed-Color." << std::endl;
+   	std::cout << "\nWarning: Your cover image (PNG-32/24 Truecolor) has fewer than 257 unique colors.\nFor compatibility reasons, the cover image will be converted to PNG-8 Indexed-Color." << std::endl;
         // Convert raw pixel data to indexed format (palette indices)
         std::vector<unsigned char> indexed_image(width * height);
         std::vector<unsigned char> palette;
