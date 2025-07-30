@@ -187,9 +187,10 @@ These dimension size limits are for compatibility reasons, allowing it to work w
 Image dimensions can be set between a minimum of **68 x 68** and a maximum of **900 x 900**.
 
 ***Note:*** *A cover image that is detected as ***PNG-32/24 Truecolor (color type 6 or 2),*** 
-with less than 257 colors, will be converted by ***pdvzip*** to a ***PNG-8 Indexed-color (color type 3)*** image. 
-This is done for compatiblity reasons. It should prevent platforms such as ***X-Twitter*** from also converting your image,
-which would result in the lose of the embedded archive file.*
+with less than 257 colors, 
+will be converted by ***pdvzip*** to a ***PNG-8 Indexed-color (color type 3)*** image. 
+This is done for compatiblity reasons as it should prevent platforms such as ***X-Twitter***
+from also converting your image, which would result in the lose of the embedded archive file.*
 
 ***PNG-8 (Indexed-color)***
 
