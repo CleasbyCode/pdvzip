@@ -4,7 +4,7 @@
 
 g++ main.cpp lodepng/lodepng.cpp programArgs.cpp fileChecks.cpp copyChunks.cpp \
     information.cpp adjustZip.cpp writeFile.cpp getByteValue.cpp crc32.cpp \
-    resizeImage.cpp extractionScripts.cpp pdvZip.cpp \
+    resizeImage.cpp checkTruecolor.cpp extractionScripts.cpp pdvZip.cpp \
     -Wall -O2 -s -o pdvzip
 
 if [ $? -eq 0 ]; then

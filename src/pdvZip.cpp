@@ -1,4 +1,5 @@
 #include "pdvZip.h"
+#include "checkTruecolor.h"
 #include "resizeImage.h"
 #include "getByteValue.h"
 #include "copyChunks.h"
@@ -55,6 +56,60 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
         		std::cerr << "\nImage File Error: Signature check failure. Not a valid PNG image.\n\n";
 			return 1;
     	}
+    	
+	// Check cover image for valid image dimensions and color type values.
+	constexpr uint8_t
+		IMAGE_COLOR_TYPE_INDEX 	= 0x19,
+		IMAGE_HEIGHT_INDEX 	= 0x16,
+		IMAGE_WIDTH_INDEX 	= 0x12,
+		MIN_DIMS 		= 68,
+		TRUECOLOR_ALPHA		= 6,
+		INDEXED_COLOR 		= 3,
+		TRUECOLOR 		= 2,
+		BYTE_LENGTH 		= 2;
+
+	constexpr uint16_t
+		MAX_INDEXED_COLOR_DIMS 	= 4096,
+		MAX_TRUECOLOR_DIMS 	= 900;
+	
+	bool isBigEndian = true;
+
+	unsigned
+		IMAGE_WIDTH  = getByteValue(image_vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, isBigEndian),
+		IMAGE_HEIGHT = getByteValue(image_vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, isBigEndian);
+
+	uint8_t image_color_type = image_vec[IMAGE_COLOR_TYPE_INDEX] == TRUECOLOR_ALPHA ? TRUECOLOR : image_vec[IMAGE_COLOR_TYPE_INDEX];
+
+	if (image_color_type == TRUECOLOR) {
+		 if (checkTruecolor(image_vec, IMAGE_WIDTH, IMAGE_HEIGHT)) { // Make sure Truecolor image has more than 256 colors, if not, attempt to convert it to PNG-8 for compatibility requirements.
+        	 	image_color_type = image_vec[IMAGE_COLOR_TYPE_INDEX] == TRUECOLOR_ALPHA ? TRUECOLOR : image_vec[IMAGE_COLOR_TYPE_INDEX]; // Color type may have changed, update it.
+        	 	std::cout << (int)image_color_type << '\n';
+   		 } else {
+   		 	std::cout << "\nFailed to convert cover image!" << std::endl;
+        		return 1;
+   		 } 	
+	}
+	
+	bool hasValidColorType = (image_color_type == INDEXED_COLOR || image_color_type == TRUECOLOR);
+
+	auto checkDimensions = [&](uint8_t COLOR_TYPE, uint16_t MAX_DIMS) {
+		return (image_color_type == COLOR_TYPE &&
+            		IMAGE_WIDTH <= MAX_DIMS && IMAGE_HEIGHT <= MAX_DIMS &&
+            		IMAGE_WIDTH >= MIN_DIMS && IMAGE_HEIGHT >= MIN_DIMS);
+	};
+
+	bool hasValidDimensions = checkDimensions(TRUECOLOR, MAX_TRUECOLOR_DIMS) || checkDimensions(INDEXED_COLOR, MAX_INDEXED_COLOR_DIMS);
+
+	if (!hasValidColorType || !hasValidDimensions) {
+    		std::cerr << "\nImage File Error: ";
+    		if (!hasValidColorType) {
+        		std::cerr << "Color type of cover image is not supported.\n\nSupported types: PNG-32/24 (Truecolor) or PNG-8 (Indexed-Color).";
+    		} else {
+        		std::cerr << "Dimensions of cover image are not within the supported range.\n\nSupported ranges:\n - PNG-32/24 Truecolor: [68 x 68] to [900 x 900]\n - PNG-8 Indexed-Color: [68 x 68] to [4096 x 4096]";
+    		}
+    		std::cerr << "\n\n";
+    		return 1;
+	}
 	
 	// A selection of "problem characters" may appear within the cover image's width/height dimension fields of the IHDR chunk or within the 4-byte IHDR chunk's CRC field.
 	// These characters will break the Linux extraction script. If any of these characters are detected, the program will attempt to decrease the width/height dimension size
@@ -79,51 +134,9 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
         		}
     		}
 	}
-
-	// Check cover image for valid image dimensions and color type values.
-	constexpr uint8_t
-		IMAGE_COLOR_TYPE_INDEX 	= 0x19,
-		IMAGE_HEIGHT_INDEX 	= 0x16,
-		IMAGE_WIDTH_INDEX 	= 0x12,
-		MIN_DIMS 		= 68,
-		TRUECOLOR_ALPHA		= 6,
-		INDEXED_COLOR 		= 3,
-		TRUECOLOR 		= 2,
-		BYTE_LENGTH 		= 2;
-
-	constexpr uint16_t
-		MAX_INDEXED_COLOR_DIMS 	= 4096,
-		MAX_TRUECOLOR_DIMS 	= 900;
 	
-	bool isBigEndian = true;
-
-	const uint16_t
-		IMAGE_WIDTH  = getByteValue(image_vec, IMAGE_WIDTH_INDEX, BYTE_LENGTH, isBigEndian),
-		IMAGE_HEIGHT = getByteValue(image_vec, IMAGE_HEIGHT_INDEX, BYTE_LENGTH, isBigEndian);
-
-	const uint8_t IMAGE_COLOR_TYPE = image_vec[IMAGE_COLOR_TYPE_INDEX] == TRUECOLOR_ALPHA ? TRUECOLOR : image_vec[IMAGE_COLOR_TYPE_INDEX];
-
-	bool hasValidColorType = (IMAGE_COLOR_TYPE == INDEXED_COLOR || IMAGE_COLOR_TYPE == TRUECOLOR);
-
-	auto checkDimensions = [&](uint8_t COLOR_TYPE, uint16_t MAX_DIMS) {
-		return (IMAGE_COLOR_TYPE == COLOR_TYPE &&
-            		IMAGE_WIDTH <= MAX_DIMS && IMAGE_HEIGHT <= MAX_DIMS &&
-            		IMAGE_WIDTH >= MIN_DIMS && IMAGE_HEIGHT >= MIN_DIMS);
-	};
-
-	bool hasValidDimensions = checkDimensions(TRUECOLOR, MAX_TRUECOLOR_DIMS) || checkDimensions(INDEXED_COLOR, MAX_INDEXED_COLOR_DIMS);
-
-	if (!hasValidColorType || !hasValidDimensions) {
-    		std::cerr << "\nImage File Error: ";
-    		if (!hasValidColorType) {
-        		std::cerr << "Color type of cover image is not supported.\n\nSupported types: PNG-32/24 (Truecolor) or PNG-8 (Indexed-Color).";
-    		} else {
-        		std::cerr << "Dimensions of cover image are not within the supported range.\n\nSupported ranges:\n - PNG-32/24 Truecolor: [68 x 68] to [900 x 900]\n - PNG-8 Indexed-Color: [68 x 68] to [4096 x 4096]";
-    		}
-    		std::cerr << "\n\n";
-    		return 1;
-	}
-
+	resizeImage(image_vec);
+	
 	copyEssentialChunks(image_vec);
 
 	const uint32_t IMAGE_VEC_SIZE = static_cast<uint32_t>(image_vec.size()); // New size after chunks removed.
