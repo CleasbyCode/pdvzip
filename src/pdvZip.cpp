@@ -133,9 +133,7 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
         		}
     		}
 	}
-	
-	resizeImage(image_vec);
-	
+
 	copyEssentialChunks(image_vec);
 
 	const uint32_t IMAGE_VEC_SIZE = static_cast<uint32_t>(image_vec.size()); // New size after chunks removed.
