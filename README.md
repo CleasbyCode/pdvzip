@@ -186,13 +186,11 @@ These dimension size limits are for compatibility reasons, allowing it to work w
 
 Image dimensions can be set between a minimum of **68 x 68** and a maximum of **900 x 900**.
 
-***Important:*** *Images that are created & saved within your image editor as ***PNG-32/24 (Truecolor)***
-that are just black, white, grayscale - images with 256 colors or less, will be converted by
-***X-Twitter*** to ***PNG-8*** and you will lose the embedded content.
-If you want to use a small, simple "single" color ***PNG-32/24 (Truecolor)*** image, then you must fill
-an area of the image with a gradient color instead of a single solid color. 
-***X-Twitter*** should then keep the image as ***PNG-32/24***. [***(Example).***](https://twitter.com/CleasbyCode/status/1694992647121965554) Alternatively, just use a ***PNG-8 (Indexed-color)*** for these simple images.*
-    
+***Note:*** *A cover image that is detected as ***PNG-32/24 Truecolor (color type 6 or 2),*** 
+with less than 257 colors, will be converted by ***pdvzip*** to a ***PNG-8 Indexed-color (color type 3)*** image. 
+This is done for compatiblity reasons. It should prevent platforms such as ***X-Twitter*** from also converting your image,
+which would result in the lose of the embedded archive file.*
+
 ***PNG-8 (Indexed-color)***
 
 Image dimensions can be set between a minimum of **68 x 68** and a maximum of **4096 x 4096**.
