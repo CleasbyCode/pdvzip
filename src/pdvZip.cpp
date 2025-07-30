@@ -83,7 +83,6 @@ int pdvZip(const std::string& IMAGE_FILENAME, const std::string& ARCHIVE_FILENAM
 	if (image_color_type == TRUECOLOR) {
 		 if (checkTruecolor(image_vec, IMAGE_WIDTH, IMAGE_HEIGHT)) { // Make sure Truecolor image has more than 256 colors, if not, attempt to convert it to PNG-8 for compatibility requirements.
         	 	image_color_type = image_vec[IMAGE_COLOR_TYPE_INDEX] == TRUECOLOR_ALPHA ? TRUECOLOR : image_vec[IMAGE_COLOR_TYPE_INDEX]; // Color type may have changed, update it.
-        	 	std::cout << (int)image_color_type << '\n';
    		 } else {
    		 	std::cout << "\nFailed to convert cover image!" << std::endl;
         		return 1;
