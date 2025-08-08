@@ -1,5 +1,4 @@
-// Using lodepng to resize the cover image within the vector, by reducing it's width & height by 1 pixel. 
-// https://github.com/lvandeve/lodepng  (Copyright (c) 2005-2024 Lode Vandevenne).
+// Using lodepng. https://github.com/lvandeve/lodepng  (Copyright (c) 2005-2024 Lode Vandevenne).
 
 #include "resizeImage.h"
 #include "lodepng/lodepng.h"
@@ -118,3 +117,4 @@ void resizeImage(std::vector<uint8_t>& image_vec) {
     // Move the output to the input vector
     image_vec = std::move(output_image_vec);
 }
+
