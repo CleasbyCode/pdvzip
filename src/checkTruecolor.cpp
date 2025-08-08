@@ -1,3 +1,5 @@
+// Using lodepng. https://github.com/lvandeve/lodepng  (Copyright (c) 2005-2024 Lode Vandevenne).
+
 #include "checkTruecolor.h"
 #include "lodepng/lodepng.h"
 #include <vector>
