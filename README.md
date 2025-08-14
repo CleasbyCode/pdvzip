@@ -201,7 +201,7 @@ in which the platform will preserve as long as you keep within the image dimensi
 ***bKGD, cHRM, gAMA, hIST,*** *iCCP (Limited size chunk. 10KB Max. with X-Twitter)*,  
 ***IDAT (Use as last IDAT chunk, after the final image IDAT chunk),  
 PLTE (Use only with ***PNG-32/24*** images),  
-pHYs, sBIT, sPLT, sRGB,*** *tRNS (Use only with PNG-32 images).*  
+pHYs, sBIT, sPLT, sRGB,*** *tRNS (Use only with PNG-32 images).* 
 
 *Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
@@ -218,6 +218,51 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
 * Do not include other ***pdvzip*** created ***PNG*** image files within the main ***ZIP*** archive, as they are essentially ***.zip*** files.
 * Always use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ****my_program.py****, etc.
   A file without an extension within a ***ZIP*** archive will be considered a ***Linux*** executable.      
+
+## An 8 File Tweetable PNG Polyglot
+
+![Polyglot Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/GrfkF1uWQAAgu7o.png)  
+
+A while ago I put together an 8 file (tweetable) PNG polyglot file. I recently found it again, so thought I would share it here. 
+I have made some changes to the polyglot, such as improving the PowerShell script and using a different MP4 video file that is embedded
+within the image (this is extracted and played by the PowerShell script).  
+
+The PNG polyglot file consists of the image itself, PNG, a HTML web page, ZIP archive, MP3 audo file, JAR (executable Java script),
+RAR archive, PDF and a PS1 (PowerShell) script.  
+
+To open and view the PDF document within the PNG image, just change the file extension to .pdf, under Windows you should be able to 
+view the PDF using most Web browsers, such as Brave, Chrome & Firefox. It is the same with Linux, include most Linux PDF viewers 
+will display the pdf in the image.  
+
+To play the audio file, change the extension to .mp3, and open the file under Windows with the VLC media player or the Windows
+legacy media player. With Linux, use the VLC media player.  
+
+To run the Java program, change the extension to .jar. From the Desktop in both Windows and Linux, you should be able to just double-click
+the icon to run. It should open and display the Calculator app on your Desktop.  
+
+To access the ZIP archive under Windows, change the extension to .zip and open it with Windows Explorer. You can also
+use the Expand-Archive command from a Windows terminal. With linux use the CLI tool ***unzip***.  
+
+To access the RAR archive under Windows, change the extension to .rar and use the WinRAR application. With Linux use
+the ***unrar*** CLI tool (e.g. $ unrar e image_file.rar).  
+
+To view the embedded Web page, just change the extension to .htm and view it with any browser.  
+
+To run the embedded PowerShell script on Windows, change the file extension to .ps1 and from the terminal run the following command:  
+
+```console
+PS C:\Users\Nick\Desktop> powershell -ExecutionPolicy Bypass -File .\image_file_name.ps1
+```
+
+To run the PowerShell script on Linux, first make sure you have PowerShell installed as it is not installed on Linux by default.
+Again, change the file extension to .ps1. From the Linux terminal, run the following command:  
+
+```console
+$ pwsh ./image_file_name.ps1
+```
+The PowerShell script will extract and play an MP4 video file embedded within the image.  
+
+Video credit: The video file embedded in the image and used in the PowerShell example is the work of [***@doopiidoop***](https://x.com/doopiidoop)
 
 ## Third-Party Libraries
 
