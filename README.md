@@ -261,7 +261,7 @@ $ pwsh ./image_file.ps1
 ```
 The PowerShell script will extract and play an MP4 video file embedded within the image.  
 
-Video credit: The video file embedded in the image and used in the PowerShell example is the work of [***@doopiidoop***](https://x.com/doopiidoop)
+Video credit: The video file used in the PowerShell example is the work of [***@doopiidoop***](https://x.com/doopiidoop)
 
 ## Third-Party Libraries
 
