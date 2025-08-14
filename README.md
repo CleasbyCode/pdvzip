@@ -221,7 +221,7 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
 
 ## An 8 File Tweetable PNG Polyglot
 
-![Polyglot Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/GrfkF1uWQAAgu7o.png)  
+![Polyglot Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/Png_P0wershell_Z1p.png)  
 
 A while ago I put together an 8 file (tweetable) PNG polyglot file. I recently found it again, so thought I would share it here. 
 I have made some changes to the polyglot, such as improving the PowerShell script and using a different MP4 video file that is embedded
