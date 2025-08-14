@@ -179,9 +179,6 @@ and you will lose the embedded content.
 
 ***Dimensions:***
 
-The following dimension size limits are specific to ***pdvzip*** and not necessarily the extact hosting site's size limits.
-These dimension size limits are for compatibility reasons, allowing it to work with all the above listed platforms.
-
 ***PNG-32/24 (Truecolor)***
 
 Image dimensions can be set between a minimum of **68 x 68** and a maximum of **900 x 900**.
@@ -201,12 +198,10 @@ Image dimensions can be set between a minimum of **68 x 68** and a maximum of **
 For example, with ***X-Twitter*** you can ***overfill*** the following ***PNG*** chunks with arbitrary data,  
 in which the platform will preserve as long as you keep within the image dimension & file size limits.  
 
-***bKGD, cHRM, gAMA, hIST,***  
-***iCCP,*** (Limited size chunk. Only **10KB** Max. with ***X-Twitter***).  
-***IDAT,*** (Use as last ***IDAT*** chunk, after the final image ***IDAT*** chunk).  
-***PLTE,*** (Use only with ***PNG-32/24*** images).  
-***pHYs, sBIT, sPLT, sRGB,***   
-***tRNS. (Use only with ***PNG-32*** images).***  
+***bKGD, cHRM, gAMA, hIST, iCCP (Limited size chunk. 10KB Max. with X-Twitter),
+IDAT (Use as last IDAT chunk, after the final image IDAT chunk),
+PLTE (Use only with ***PNG-32/24*** images),
+pHYs, sBIT, sPLT, sRGB, tRNS (Use only with PNG-32 images).***  
 
 *Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
@@ -221,10 +216,8 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
 * Make sure your ***ZIP/JAR*** file is a standard ***ZIP/JAR*** archive, compatible with ***Linux*** unzip & ***Windows*** Explorer.
 * Do not include more than one ***.zip*** file within the main ***ZIP*** archive. (***.rar*** files are ok).
 * Do not include other ***pdvzip*** created ***PNG*** image files within the main ***ZIP*** archive, as they are essentially ***.zip*** files.
-* Use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ****my_program.py****, etc.
-  
+* Always use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ****my_program.py****, etc.
   A file without an extension within a ***ZIP*** archive will be considered a ***Linux*** executable.      
-* ***Paint.net*** application is recommended for easily creating compatible ***PNG*** image files.  
 
 ## Third-Party Libraries
 
