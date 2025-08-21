@@ -66,14 +66,15 @@ int main(int argc, char** argv) {
 			constexpr uint16_t
 				MAX_INDEXED_PLTE_DIMS 	= 4096,
 				MAX_TRUECOLOR_RGB_DIMS 	= 900;
-			
+
+			std::vector<uint8_t> image; 
+   			lodepng::State state;
+
 			unsigned
 				width = 0,
-				height = 0;
-					
-			std::vector<unsigned char> image; 
-   			lodepng::State state;
-    		unsigned error = lodepng::decode(image, width, height, state, image_vec);
+				height = 0,
+				error = lodepng::decode(image, width, height, state, image_vec);
+
     		if (error) {
     			throw std::runtime_error("Lodepng decoder error: " + std::to_string(error));
     		}
@@ -94,8 +95,8 @@ int main(int argc, char** argv) {
 
     			// Check if the image has 256 or fewer unique colors
     			if (stats.numcolors <= 256) {
-        			std::vector<unsigned char> indexed_image(width * height);
-        			std::vector<unsigned char> palette;
+        			std::vector<uint8_t> indexed_image(width * height);
+        			std::vector<uint8_t> palette;
         			size_t palette_size = stats.numcolors > 0 ? stats.numcolors : 1;
 
         			if (stats.numcolors > 0) {
@@ -146,7 +147,7 @@ int main(int argc, char** argv) {
             			lodepng_palette_add(&encodeState.info_png.color, palette[i * 4], palette[i * 4 + 1], palette[i * 4 + 2], palette[i * 4 + 3]);
             			lodepng_palette_add(&encodeState.info_raw, palette[i * 4], palette[i * 4 + 1], palette[i * 4 + 2], palette[i * 4 + 3]);
         			}
-        			std::vector<unsigned char> output;
+        			std::vector<uint8_t> output;
         			error = lodepng::encode(output, indexed_image.data(), width, height, encodeState);
         			if (error) {
             			throw std::runtime_error("Lodepng encode error: " + std::to_string(error));
