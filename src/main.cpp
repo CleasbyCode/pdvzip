@@ -742,9 +742,9 @@ int main(int argc, char** argv) {
 			#endif
 
 			return 0;		
-     	}
-     	catch (const std::runtime_error& e) {
-     		std::cerr << "\n" << e.what() << "\n\n";
-     		return 1;
-     	}
- }
+    }
+    catch (const std::runtime_error& e) {
+    	std::cerr << "\n" << e.what() << "\n\n";
+     	return 1;
+	}
+}	
