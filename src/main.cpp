@@ -68,8 +68,8 @@ int main(int argc, char** argv) {
 				MAX_TRUECOLOR_RGB_DIMS 	= 900;
 			
 			unsigned
-				width,
-				height;
+				width = 0,
+				height = 0;
 					
 			std::vector<unsigned char> image; 
    			lodepng::State state;
