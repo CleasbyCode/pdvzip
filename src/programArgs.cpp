@@ -12,16 +12,15 @@ ProgramArgs ProgramArgs::parse(int argc, char** argv) {
 	}
 
 	if (argc != 3) {
-        	throw std::runtime_error("Usage: pdvzip <cover_image> <zip/jar>\n\t\bpdvzip --info");
-    	}
+    	throw std::runtime_error("Usage: pdvzip <cover_image> <zip/jar>\n\t\bpdvzip --info");
+    }
 	
-    	args.cover_image = argv[1];
-    	args.archive_file = argv[2];
+    args.cover_image = argv[1];
+    args.archive_file = argv[2];
 
 	std::filesystem::path archive_path(args.archive_file);
 	if (archive_path.extension().string() == ".jar") {
 		args.thisArchiveType = ArchiveType::JAR;
 	}
-
-    	return args;
+    return args;
 }
