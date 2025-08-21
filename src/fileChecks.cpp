@@ -9,12 +9,11 @@
 #include <iostream>
 
 bool hasValidFilename(const std::string& filename) {
-	return std::all_of(filename.begin(), filename.end(), 
-        	[](char c) { return std::isalnum(c) || c == '.' || c == '/' || c == '\\' || c == '-' || c == '_' || c == '@' || c == '%'; });
+	return std::all_of(filename.begin(), filename.end(), [](char c) { return std::isalnum(c) || c == '.' || c == '/' || c == '\\' || c == '-' || c == '_' || c == '@' || c == '%'; });
 }
 
 bool hasValidArchiveExtension(const std::string& ext) {
-    	return ext == ".zip" || ext == ".jar";
+	return ext == ".zip" || ext == ".jar";
 }
 
 bool hasValidImageExtension(const std::string& ext) {
@@ -25,35 +24,35 @@ void validateFiles(std::string& image, std::string& archive, uintmax_t& image_si
 	std::filesystem::path image_path(image);
 	std::filesystem::path archive_path(archive);
 
-    	std::string 
-    		image_ext = image_path.extension().string(),
-    		archive_ext = archive_path.extension().string();
+    std::string 
+    	image_ext = image_path.extension().string(),
+    	archive_ext = archive_path.extension().string();
 
 	if (!hasValidImageExtension(image_ext)) {
-        	throw std::runtime_error("File Type Error: Invalid image extension. Only expecting \".png\".");
-    	}
+    	throw std::runtime_error("File Type Error: Invalid image extension. Only expecting \".png\".");
+    }
     	
-    	if (!hasValidArchiveExtension(archive_ext)) {
-        	throw std::runtime_error("Archive File Error: Invalid file extension. Only expecting \".zip or .jar\" archive extensions.");
-    	}
+    if (!hasValidArchiveExtension(archive_ext)) {
+    	throw std::runtime_error("Archive File Error: Invalid file extension. Only expecting \".zip or .jar\" archive extensions.");
+    }
 
 	if (!std::filesystem::exists(image_path)) {
-        	throw std::runtime_error("Image File Error: File not found.");
-    	}
+    	throw std::runtime_error("Image File Error: File not found.");
+    }
     	
-    	if (!std::filesystem::exists(archive_path) || !std::filesystem::is_regular_file(archive_path)) {
-        	throw std::runtime_error("Archive File Error: File not found or not a regular file.");
-    	}
+    if (!std::filesystem::exists(archive_path) || !std::filesystem::is_regular_file(archive_path)) {
+    	throw std::runtime_error("Archive File Error: File not found or not a regular file.");
+    }
     	
 	if (!hasValidFilename(image_path.string()) || !hasValidFilename(archive_path.string())) {
-            	throw std::runtime_error("Invalid Input Error: Unsupported characters in filename arguments.");
-        }
+    	throw std::runtime_error("Invalid Input Error: Unsupported characters in filename arguments.");
+    }
 	
 	std::ifstream image_ifs(image_path, std::ios::binary);	
 	std::ifstream archive_ifs(archive_path, std::ios::binary);	
 	
-        if (!image_ifs) {
-        	throw std::runtime_error("Read File Error: Unable to read image file. Check the filename and try again.");
+    if (!image_ifs) {
+        throw std::runtime_error("Read File Error: Unable to read image file. Check the filename and try again.");
 	}
 	
 	if(!archive_ifs) {
@@ -65,15 +64,15 @@ void validateFiles(std::string& image, std::string& archive, uintmax_t& image_si
 	
 	constexpr uintmax_t MAX_SIZE = 2ULL * 1024 * 1024 * 1024;   // 2GB (cover image + data file)
     	
-    	const uintmax_t COMBINED_FILE_SIZE = image_size + archive_size;
+    const uintmax_t COMBINED_FILE_SIZE = image_size + archive_size;
     	
-    	constexpr uint8_t 
-    		MINIMUM_IMAGE_SIZE = 87,
-    		MINIMUM_ARCHIVE_SIZE = 30;
+    constexpr uint8_t 
+    	MINIMUM_IMAGE_SIZE = 87,
+    	MINIMUM_ARCHIVE_SIZE = 30;
 
-    	if (MINIMUM_IMAGE_SIZE > image_size) {
-        	throw std::runtime_error("Image File Error: Invalid size.");
-    	}
+    if (MINIMUM_IMAGE_SIZE > image_size) {
+    	throw std::runtime_error("Image File Error: Invalid size.");
+    }
 	
 	if (MINIMUM_ARCHIVE_SIZE > archive_size) {
 		throw std::runtime_error("Archive File Error: Invalid file size.");
@@ -92,22 +91,22 @@ void validateFiles(std::string& image, std::string& archive, uintmax_t& image_si
 	std::vector<uint8_t>().swap(tmp_vec);
 	
 	constexpr std::array<uint8_t, 8>
-		PNG_SIG 	{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
+		PNG_SIG 		{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
 		PNG_IEND_SIG	{ 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
 
 	if (!std::equal(PNG_SIG.begin(), PNG_SIG.end(), image_vec.begin()) || !std::equal(PNG_IEND_SIG.begin(), PNG_IEND_SIG.end(), image_vec.end() - 8)) {
         	throw std::runtime_error("\nImage File Error: Signature check failure. Not a valid PNG image.\n\n");
-    	}
+    }
     	
-    	tmp_vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
+    tmp_vec = { 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54, 0x00, 0x00, 0x00, 0x00 };
     	
-    	tmp_vec.resize(tmp_vec.size() + archive_size);
+    tmp_vec.resize(tmp_vec.size() + archive_size);
     	
-    	constexpr uint8_t 
+    constexpr uint8_t 
 		INSERT_INDEX = 0x08,
 		INDEX_DIFF = 8;
     	
-    	archive_ifs.read(reinterpret_cast<char*>(tmp_vec.data() + INSERT_INDEX), archive_size);
+    archive_ifs.read(reinterpret_cast<char*>(tmp_vec.data() + INSERT_INDEX), archive_size);
 	archive_ifs.close();
 	
 	archive_vec.swap(tmp_vec);
