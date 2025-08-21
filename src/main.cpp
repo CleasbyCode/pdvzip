@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
             			}
         			} else {
             				// Handle edge case: single color or empty palette
-            				unsigned char r = 0, g = 0, b = 0, a = 255; // Default: black, opaque
+            				uint8_t r = 0, g = 0, b = 0, a = 255; // Default: black, opaque
             				if (!image.empty()) {
                 				r = image[0];
                 				g = image[1];
@@ -122,10 +122,11 @@ int main(int argc, char** argv) {
         			}
         			size_t channels = (state.info_raw.colortype == LCT_RGBA) ? 4 : 3;
         			for (size_t i = 0; i < width * height; ++i) {
-            			unsigned char r = image[i * channels];
-            			unsigned char g = image[i * channels + 1];
-            			unsigned char b = image[i * channels + 2];
-            			unsigned char a = (channels == 4) ? image[i * channels + 3] : 255;
+            			uint8_t 
+							r = image[i * channels],
+            				g = image[i * channels + 1],
+            				b = image[i * channels + 2],
+            				a = (channels == 4) ? image[i * channels + 3] : 255;
 
             			size_t index = 0;
             			for (size_t j = 0; j < palette_size; ++j) {
@@ -134,7 +135,7 @@ int main(int argc, char** argv) {
                     			break;
                 			}
             			}
-            			indexed_image[i] = static_cast<unsigned char>(index);
+            			indexed_image[i] = static_cast<uint8_t>(index);
         			}
         			lodepng::State encodeState;
         			encodeState.info_raw.colortype = LCT_PALETTE; 
@@ -185,13 +186,16 @@ int main(int argc, char** argv) {
 			// These characters will break the Linux extraction script. If any of these characters are detected, the program will attempt to decrease the width/height dimension size
 			// of the image by 1 pixel value, repeated if necessary, until no problem characters are found within the dimension size fields or the IHDR chunk's CRC field.
 			auto resizeImage = [](std::vector<uint8_t>& image_vec) {
-    			std::vector<unsigned char> temp_vec;
-    			unsigned width, height;
+    			std::vector<uint8_t> temp_vec;
+				
     			lodepng::State decodeState;
-
-    			decodeState.decoder.color_convert = 0; 
-
-    			unsigned error = lodepng::decode(temp_vec, width, height, decodeState, image_vec);
+    			decodeState.decoder.color_convert = 0;
+				
+				unsigned 
+					width = 0, 
+					height = 0,
+					error = lodepng::decode(temp_vec, width, height, decodeState, image_vec);
+				
     			if (error) {
         			throw std::runtime_error("LodePNG decoder error: " + std::to_string(error));
     			}
@@ -206,7 +210,8 @@ int main(int argc, char** argv) {
 
     			unsigned channels = lodepng_get_channels(&decodeState.info_raw);
 
-    			std::vector<unsigned char> resized_vec(new_width * new_height * channels);
+    			std::vector<uint8_t> resized_vec(new_width * new_height * channels);
+				
     			float x_ratio = static_cast<float>(width) / new_width;
     			float y_ratio = static_cast<float>(height) / new_height;
 
@@ -242,7 +247,7 @@ int main(int argc, char** argv) {
                     						  wx * dy * temp_vec[channels * (y1 * width + x0) + c] +
                                   			  dx * wy * temp_vec[channels * (y0 * width + x1) + c] +
                                   			  dx * dy * temp_vec[channels * (y1 * width + x1) + c];
-                    			resized_vec[channels * (y * new_width + x) + c] = static_cast<unsigned char>(std::round(value));
+                    			resized_vec[channels * (y * new_width + x) + c] = static_cast<uint8_t>(std::round(value));
                 			}	
             			}
         			}
@@ -269,7 +274,7 @@ int main(int argc, char** argv) {
                             decodeState.info_png.color.palette[i * 4 + 3]);
         			}
     			}
-    			std::vector<unsigned char> output_image_vec;
+    			std::vector<uint8_t> output_image_vec;
     			error = lodepng::encode(output_image_vec, resized_vec, new_width, new_height, encodeState);
     			if (error) {
         			throw std::runtime_error("Lodepng encoder error: " + std::to_string(error));
