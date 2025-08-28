@@ -1,4 +1,4 @@
-// 	PNG Data Vehicle, ZIP/JAR Edition (PDVZIP v3.5)
+// 	PNG Data Vehicle, ZIP/JAR Edition (PDVZIP v3.6)
 //	Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022
 
 //	To compile program (Linux), from the extracted repo :~/Downloads/pdvzip-main/src
