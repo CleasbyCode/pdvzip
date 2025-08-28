@@ -14,7 +14,9 @@
 #include "programArgs.h"    
 #include "fileChecks.h" 
 #include "extractionScripts.h"
+
 #include "lodepng/lodepng.h"
+// Using lodepng. https://github.com/lvandeve/lodepng  (Copyright (c) 2005-2024 Lode Vandevenne).
 
 #include <iostream>
 #include <fstream>
@@ -92,6 +94,7 @@ static inline uint32_t crcUpdate(uint8_t* buf, uint32_t buf_length) {
     return crc_value ^ 0xFFFFFFFF;
 }
 
+// Using lodepng. https://github.com/lvandeve/lodepng  (Copyright (c) 2005-2024 Lode Vandevenne).
 static inline void resizeImage(std::vector<uint8_t>& image_vec) {
 	std::vector<uint8_t> temp_vec;
 				
@@ -233,6 +236,7 @@ int main(int argc, char** argv) {
    		uint8_t color_type = static_cast<uint8_t>(state.info_png.color.colortype);
    		
    		// Make sure Truecolor image has more than 256 colors, if not, attempt to convert it to PNG-8 for compatibility requirements. 
+		// Using lodepng. https://github.com/lvandeve/lodepng  (Copyright (c) 2005-2024 Lode Vandevenne).
    		if (color_type == TRUECOLOR_RGB || color_type == TRUECOLOR_RGBA) {
 	    	LodePNGColorStats stats;
     		lodepng_color_stats_init(&stats);
