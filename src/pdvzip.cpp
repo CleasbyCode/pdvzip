@@ -256,9 +256,9 @@ static inline void resizeImage(std::vector<uint8_t>& image_file_vec) {
     decodeState.decoder.color_convert = 0;
 				
 	unsigned 
-		width = 0, 
-		height = 0,
-		error = lodepng::decode(temp_vec, width, height, decodeState, image_file_vec);
+		width 	= 0, 
+		height 	= 0,
+		error 	= lodepng::decode(temp_vec, width, height, decodeState, image_file_vec);
 				
     if (error) {
     	throw std::runtime_error("LodePNG decoder error: " + std::to_string(error));
@@ -316,6 +316,7 @@ static inline void resizeImage(std::vector<uint8_t>& image_file_vec) {
             }
         }
     }
+	
     lodepng::State encodeState;
     encodeState.info_raw.colortype = decodeState.info_png.color.colortype;
     encodeState.info_raw.bitdepth = decodeState.info_png.color.bitdepth;
@@ -410,8 +411,8 @@ int main(int argc, char** argv) {
 			image_file_ifs.close();
 	
 			constexpr std::array<uint8_t, 8>
-				PNG_SIG 			{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
-				PNG_IEND_SIG		{ 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
+				PNG_SIG 		{ 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A },
+				PNG_IEND_SIG	{ 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
 
 			if (!std::equal(PNG_SIG.begin(), PNG_SIG.end(), image_file_vec.begin()) || !std::equal(PNG_IEND_SIG.begin(), PNG_IEND_SIG.end(), image_file_vec.end() - 8)) {
         		throw std::runtime_error("\nImage File Error: Signature check failure. Not a valid PNG image.\n\n");
@@ -423,7 +424,7 @@ int main(int argc, char** argv) {
     	
     		constexpr uint8_t 
 				INSERT_INDEX = 0x08,
-				INDEX_DIFF = 8;
+				INDEX_DIFF 	 = 8;
     	
     		archive_file_ifs.read(reinterpret_cast<char*>(archive_file_vec.data() + INSERT_INDEX), archive_file_size);
 			archive_file_ifs.close();
@@ -585,9 +586,9 @@ int main(int argc, char** argv) {
 			}
 			
 			constexpr std::array<uint8_t, 4> 
-				PLTE_SIG {0x50, 0x4C, 0x54, 0x45},
-				TRNS_SIG {0x74, 0x52, 0x4E, 0x53},
-				IDAT_SIG {0x49, 0x44, 0x41, 0x54};
+				PLTE_SIG { 0x50, 0x4C, 0x54, 0x45 },
+				TRNS_SIG { 0x74, 0x52, 0x4E, 0x53 },
+				IDAT_SIG { 0x49, 0x44, 0x41, 0x54 };
 
     		constexpr uint8_t
 				PNG_FIRST_BYTES 				= 33,
