@@ -12,6 +12,9 @@
 // 	$ pdvzip
 
 #include "lodepng/lodepng.h"
+// LodePNG version 20250506
+// Copyright (c) 2005-2025 Lode Vandevenne
+// https://github.com/lvandeve/lodepng
 
 #include <algorithm>
 #include <array>
