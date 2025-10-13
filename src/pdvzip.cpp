@@ -166,18 +166,18 @@ struct ProgramArgs {
 
 // Return vector index location for relevant signature search.
 template <typename T, size_t N>
-static inline uint32_t searchSig(std::vector<uint8_t>& vec, uint32_t start_index, const uint8_t INCREMENT_SEARCH_INDEX, const std::array<T, N>& SIG) {
+static uint32_t searchSig(std::vector<uint8_t>& vec, uint32_t start_index, const uint8_t INCREMENT_SEARCH_INDEX, const std::array<T, N>& SIG) {
 	return static_cast<uint32_t>(std::search(vec.begin() + start_index + INCREMENT_SEARCH_INDEX, vec.end(), SIG.begin(), SIG.end()) - vec.begin());
 }
 
 // Writes updated values, such as chunk lengths, crc32, etc. into the relevant vector index location.	
-static inline void updateValue(std::vector<uint8_t>& vec, uint32_t insert_index, const uint32_t NEW_VALUE, uint8_t bits, bool isBigEndian) {
+static void updateValue(std::vector<uint8_t>& vec, uint32_t insert_index, const uint32_t NEW_VALUE, uint8_t bits, bool isBigEndian) {
 	while (bits) {
 		static_cast<uint32_t>(vec[isBigEndian ? insert_index++ : insert_index--] = (NEW_VALUE >> (bits -= 8)) & 0xff);
 	}
 }
 
-static inline bool hasValidFilename(const fs::path& p) {
+static bool hasValidFilename(const fs::path& p) {
 	if (p.empty()) {
     	return false;
     }
@@ -194,7 +194,7 @@ static inline bool hasValidFilename(const fs::path& p) {
     return std::all_of(filename.begin(), filename.end(), validChar);
 }
 
-static inline bool hasFileExtension(const fs::path& p, std::initializer_list<const char*> exts) {
+static bool hasFileExtension(const fs::path& p, std::initializer_list<const char*> exts) {
 	auto e = p.extension().string();
     std::transform(e.begin(), e.end(), e.begin(), [](unsigned char c){ return static_cast<char>(std::tolower(c)); });
     for (const char* cand : exts) {
@@ -206,7 +206,7 @@ static inline bool hasFileExtension(const fs::path& p, std::initializer_list<con
 }
 
 // Return calculated crc32 value for PNG chunks.
-static inline uint32_t crcUpdate(uint8_t* buf, uint32_t buf_length) {
+static uint32_t crcUpdate(uint8_t* buf, uint32_t buf_length) {
 	static constexpr std::array<uint32_t, 256> CRC_TABLE = {
 		0x00000000, 0x77073096, 0xEE0E612C, 0x990951BA, 0x076DC419, 0x706AF48F, 0xE963A535, 0x9E6495A3,
         0x0EDB8832, 0x79DCB8A4, 0xE0D5E91E, 0x97D2D988, 0x09B64C2B, 0x7EB17CBD, 0xE7B82D07, 0x90BF1D91,
@@ -252,7 +252,7 @@ static inline uint32_t crcUpdate(uint8_t* buf, uint32_t buf_length) {
     return crc_value ^ 0xFFFFFFFF;
 }
 
-static inline void resizeImage(std::vector<uint8_t>& image_file_vec) {
+static void resizeImage(std::vector<uint8_t>& image_file_vec) {
 	std::vector<uint8_t> temp_vec;
 				
     lodepng::State decodeState;
