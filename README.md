@@ -5,7 +5,7 @@ Share the image on ***X-Twitter*** and a few other compatible platforms, which r
 
 *Note: For compatibility reasons, please do not use encrypted / password protected ZIP files.*
 
-Any issues with configuring ***pdvzip*** with your file types, then please just ask: @cleasbycode
+Any issues with configuring ***pdvzip*** with your file types, then please just ask: [***@cleasbycode***](https://x.com/CleasbyCode)
 
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original ***Python*** program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
 ***pdvzip*** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a ***PNG*** image.  
