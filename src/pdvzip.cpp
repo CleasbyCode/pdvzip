@@ -148,37 +148,36 @@ Paint.net application is recommended for easily creating compatible PNG image fi
 }
 
 struct ProgramArgs {
-    std::string image_file_path;
-    std::string archive_file_path;
+    std::optional<std::string> image_file_path;
+    std::optional<std::string> archive_file_path;
+    bool info_mode = false;
 
     static ProgramArgs parse(int argc, char** argv) {
         if (argc < 1 || argv[0] == nullptr) {
             throw std::runtime_error("Invalid program invocation: missing program name");
         }
-
-		constexpr std::string_view PREFIX = "Usage: ";
+        constexpr std::string_view PREFIX = "Usage: ";
         const std::string
-			PROG = fs::path(argv[0]).filename().string(),
-			INDENT(PREFIX.size(), ' '),
-			USAGE = std::format("{}{} <cover_image> <zip/jar>\n""{}{} --info",PREFIX, PROG, INDENT, PROG);
-
+            PROG = fs::path(argv[0]).filename().string(),
+            INDENT(PREFIX.size(), ' '),
+            USAGE = std::format("{}{} <cover_image> <zip/jar>\n""{}{} --info",
+                               PREFIX, PROG, INDENT, PROG);
         auto die = [&USAGE]() -> void {
-			throw std::runtime_error(USAGE);
-			std::unreachable();
-		};
-
-        if (argc < 2) die();
-
+            throw std::runtime_error(USAGE);
+            std::unreachable();
+        };
         if (argc == 2 && std::string_view(argv[1]) == "--info") {
-            displayInfo();
-            std::exit(0);
+            return ProgramArgs{
+                .image_file_path = std::nullopt,     
+                .archive_file_path = std::nullopt,   
+                .info_mode = true
+            };
         }
-
         if (argc != 3) die();
-
         return ProgramArgs{
-			.image_file_path   = argv[1],
-			.archive_file_path = argv[2]
+            .image_file_path   = argv[1],
+            .archive_file_path = argv[2],
+            .info_mode = false  
         };
     }
 };
@@ -692,11 +691,16 @@ static void imageCheck(vBytes& image_file_vec) {
 
 int main(int argc, char** argv) {
 	try { 
-			ProgramArgs args = ProgramArgs::parse(argc, argv);
+			auto args = ProgramArgs::parse(argc, argv);
 
-			vBytes image_file_vec = readFile(args.image_file_path, FileTypeCheck::cover_image);
+			if (args.info_mode) {
+				displayInfo();
+				return 0; 
+			}
 
-			vBytes archive_file_vec = readFile(args.archive_file_path);
+			vBytes image_file_vec = readFile(*args.image_file_path, FileTypeCheck::cover_image);
+
+			vBytes archive_file_vec = readFile(*args.archive_file_path);
 
 			imageCheck(image_file_vec);
 
@@ -741,7 +745,7 @@ int main(int argc, char** argv) {
 				JAR 
 			};
 
-			bool isZipFile = hasFileExtension(args.archive_file_path, {".zip"});
+			bool isZipFile = hasFileExtension(*args.archive_file_path, {".zip"});
 
 			std::size_t extension_list_index = (isZipFile) ? 0 : JAR;
 
