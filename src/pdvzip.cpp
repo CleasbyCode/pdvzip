@@ -29,6 +29,7 @@
 #include <fstream>
 #include <iostream>
 #include <initializer_list>
+#include <optional>
 #include <print>
 #include <ranges>
 #include <span>
