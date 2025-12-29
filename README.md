@@ -108,7 +108,7 @@ To avoid security warnings, run the file from a ***Windows console***, as shown 
 
 ***The file (or folder) within the ZIP archive that appears first within the ZIP file record, determines what extraction script, based on file type, is used.***
 
-For common ***video & audio*** files, ***Linux*** will use the ***vlc*** or ***mpv*** media player. ***Windows*** uses the default media player.  
+For common ***video & audio*** files, ***Linux*** will first attempt to use the media player ***mpv*** or ***vlc*** if no ***mpv***. ***Firefox*** is used as a last resort. ***Windows*** uses the default media player.  
 
 ***PDF*** - ***Linux*** will use ***evince*** or ***firefox***. ***Windows*** uses the default ***PDF*** viewer.  
 ***Python*** - ***Linux*** & ***Windows*** use ***python3*** to run these programs.  
