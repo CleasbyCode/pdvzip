@@ -853,7 +853,7 @@ int main(int argc, char** argv) {
 				constexpr std::array<std::pair<std::string_view, std::string_view>, 10> SCRIPTS = {{
 					// VIDEO_AUDIO
 					{
-						R"(ITEM="";DIR="pdvzip_extracted";NUL="/dev/null";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v vlc >$NUL 2>&1;then clear;vlc --play-and-exit --no-video-title-show "$ITEM" &> $NUL;elif command -v mpv >$NUL 2>&1;then clear;mpv --quiet "$ITEM" &> $NUL;else clear;fi;exit;)"sv,
+						R"(ITEM="";DIR="pdvzip_extracted";NUL="/dev/null";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v mpv >$NUL 2>&1;then clear;mpv --quiet --geometry=50%:50% "$ITEM" &> $NUL;elif command -v vlc >$NUL 2>&1;then clear;vlc --play-and-exit --no-video-title-show "$ITEM" &> $NUL;elif command -v firefox >$NUL 2>&1;then clear;firefox "$ITEM" &> $NUL;else clear;fi;exit;)"sv,
 						R"(#&cls&setlocal EnableDelayedExpansion&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&""&exit)"sv
 					},
 					// PDF
