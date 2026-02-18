@@ -110,8 +110,8 @@ void writePolyglotFile(const vBytes& image_vec, bool isZipFile);
 
 // binary_utils.cpp
 [[nodiscard]] std::optional<std::size_t> searchSig(std::span<const Byte> data, std::span<const Byte> sig, std::size_t start = 0);
-void updateValue(std::span<Byte> data, std::size_t index, std::size_t value, std::size_t length, bool isBigEndian = true);
-[[nodiscard]] std::size_t getValue(std::span<const Byte> data, std::size_t index, std::size_t length, bool isBigEndian = true);
+void updateValue(std::span<Byte> data, std::size_t index, std::size_t value, std::size_t length, std::endian byte_order = std::endian::big);
+[[nodiscard]] std::size_t getValue(std::span<const Byte> data, std::size_t index, std::size_t length, std::endian byte_order = std::endian::big);
 
 // image_processing.cpp
 void optimizeImage(vBytes& image_file_vec);
