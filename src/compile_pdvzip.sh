@@ -5,7 +5,6 @@
 set -e
 
 CXX="${CXX:-g++}"
-# CXXFLAGS="-std=c++23 -O3 -march=native -pipe -Wall -Wextra -Wpedantic -Wshadow -DNDEBUG -s -flto=auto -fuse-linker-plugin -fstack-protector-strong"
 CXXFLAGS="-std=c++23 -O3 -march=native -pipe -Wall -Wextra -Wpedantic -Wshadow -DNDEBUG -DLODEPNG_NO_COMPILE_DISK -DLODEPNG_NO_COMPILE_ANCILLARY_CHUNKS -s -flto=auto -fuse-linker-plugin -fstack-protector-strong"
 TARGET="pdvzip"
 SRCDIR="."
