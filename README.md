@@ -34,6 +34,7 @@ With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **
 ```console
 user1@mx:~/Downloads/pdvzip-main/src$ chmod +x compile_pdvzip.sh
 user1@mx:~/Downloads/pdvzip-main/src$ ./compile_pdvzip.sh
+user1@mx:~/Downloads/pdvzip-main/src$ Compiling pdvzip...
 user1@mx:~/Downloads/pdvzip-main/src$ Compilation successful. Executable 'pdvzip' created.
 user1@mx:~/Downloads/pdvzip-main/src$ sudo cp pdvzip /usr/bin
 
