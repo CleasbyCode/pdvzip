@@ -125,7 +125,7 @@ The ***command-line arguments*** will be added to the ***Linux/Windows*** extrac
 
 Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.
 ```console
-user1@mx:~/Desktop$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
+$ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
 For this file type you can provide command-line arguments here, if required.
 
@@ -143,7 +143,7 @@ Treat the ***ZIP*** archive as read-only, do not add or remove files from the **
 
 ***Linux Option 1:***
 ```console
-user1@mx:~/Desktop$ java -jar pjar_19662.png
+$ java -jar pjar_19662.png
 Note: If you use this method to run your embedded Java program, you will have to manually add command-line
       arguments (if required) to the end of the command, as your embedded arguments will not work with
       this method. e.g.
@@ -151,7 +151,7 @@ Note: If you use this method to run your embedded Java program, you will have to
 ```
 ***Linux Option 2a, using bash (or sh) shell environment:***
 ```console
-user1@mx:~/Desktop$ ./pjar_19662.png
+$ ./pjar_19662.png
 Note: This method will execute the embedded Java program and also use any embedded
       command-line arguments with the Java program.
 ```
