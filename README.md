@@ -27,7 +27,7 @@ With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **
 * ***PNG-32/24*** (*Truecolor*) **68x68** Min. - **900x900** Max.
 * ***PNG-8*** (*Indexed-color*) **68x68** Min. - **4096x4096** Max.
 
-*Try the ***pdvzip*** Web App [***here***](https://cleasbycode.co.uk/pdvzip/app/) for a convenient alternative to downloading and compiling the CLI source code. Web file uploads are limited to 20MB.* 
+There is also a [***Web edition***](https://cleasbycode.co.uk/pdvzip/app/), which you can use immediately, as a convenient alternative to downloading and compiling the CLI source code. Web file uploads are limited to **20MB**. 
 
 ## Usage (Linux)
 
