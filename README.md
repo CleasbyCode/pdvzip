@@ -35,8 +35,8 @@ With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **
 $ chmod +x compile_pdvzip.sh
 $ ./compile_pdvzip.sh
 
- Compiling pdvzip...
- Compilation successful. Executable 'pdvzip' created.
+Compiling pdvzip...
+Compilation successful. Executable 'pdvzip' created.
 
 $ sudo cp pdvzip /usr/bin
 $ pdvzip
@@ -44,13 +44,13 @@ $ pdvzip
 Usage: pdvzip <cover_image> <zip/jar>
        pdvzip --info
 
-user1@mx:~/Desktop$ pdvzip my_cover_image.png document_pdf.zip
+$ pdvzip my_cover_image.png document_pdf.zip
 
 Created PNG-ZIP polyglot image file: pzip_55183.png (4038367 bytes).
 
 Complete!
 
-user1@mx:~/Desktop$ pdvzip my_cover_image.png hello_world.jar
+$ pdvzip my_cover_image.png hello_world.jar
 
 Created PNG-JAR polyglot image file: pjar_19662.png (1016336 bytes).
 
@@ -71,7 +71,7 @@ https://github.com/user-attachments/assets/2c545745-279b-4e07-83aa-2ce5d0b78c90
 ***Linux - using bash (or sh) shell environment.***
 ```console
 
-user1@mx:~/Desktop$ ./pzip_55183.png
+$ ./pzip_55183.png
 
 ```
 **For any other Linux shell environment, you will probably need to invoke bash (or sh) to run the image file.**
@@ -84,7 +84,7 @@ Alternative extraction (***Linux***).  Using ***wget*** to download and run the 
 ***X-Twitter*** ***wget*** example: **Image with embedded ***python*** script**.
 ```console
 
-wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png";chmod +x Fibo.png;bash ./Fibo.png
+$ wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png";chmod +x Fibo.png;bash ./Fibo.png
 
 ```   
 
