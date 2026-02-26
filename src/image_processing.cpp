@@ -2,6 +2,44 @@
 
 namespace {
 
+struct PngIhdr {
+	std::size_t width;
+	std::size_t height;
+	Byte color_type;
+};
+
+[[nodiscard]] PngIhdr readPngIhdr(std::span<const Byte> png_data) {
+	constexpr auto PNG_SIG = std::to_array<Byte>({
+		0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
+	});
+	constexpr auto IHDR_SIG = std::to_array<Byte>({ 0x49, 0x48, 0x44, 0x52 });
+
+	constexpr std::size_t
+		MIN_IHDR_TOTAL_SIZE = 33,
+		IHDR_NAME_INDEX     = 12,
+		WIDTH_INDEX         = 16,
+		HEIGHT_INDEX        = 20,
+		COLOR_TYPE_INDEX    = 25;
+
+	if (png_data.size() < MIN_IHDR_TOTAL_SIZE) {
+		throw std::runtime_error("PNG Error: File too small to contain a valid IHDR chunk.");
+	}
+
+	if (!std::equal(PNG_SIG.begin(), PNG_SIG.end(), png_data.begin())) {
+		throw std::runtime_error("PNG Error: Invalid signature.");
+	}
+
+	if (!std::equal(IHDR_SIG.begin(), IHDR_SIG.end(), png_data.begin() + IHDR_NAME_INDEX)) {
+		throw std::runtime_error("PNG Error: First chunk is not IHDR.");
+	}
+
+	return PngIhdr{
+		.width      = getValue(png_data, WIDTH_INDEX, 4),
+		.height     = getValue(png_data, HEIGHT_INDEX, 4),
+		.color_type = png_data[COLOR_TYPE_INDEX]
+	};
+}
+
 // ============================================================================
 // Internal: Resize image by 1 pixel in each dimension
 // ============================================================================
@@ -43,6 +81,9 @@ void resizeImage(vBytes& image_file_vec) {
 	if (channels == 0) {
 		throw std::runtime_error("Image Error: Decoded image reports 0 channels.");
 	}
+	if (!is_palette && bitdepth != 8) {
+		throw std::runtime_error("Image Error: Only 8-bit truecolor/grayscale PNGs are supported.");
+	}
 
 	// Sub-byte palette images (1/2/4-bit) pack multiple indices per byte.
 	// Bilinear interpolation doesn't apply to palette indices, and handling
@@ -59,7 +100,10 @@ void resizeImage(vBytes& image_file_vec) {
 		constexpr std::size_t RGBA_COMPONENTS = 4;
 		for (std::size_t i = 0; i < src_color.palettesize; ++i) {
 			const Byte* p = &src_color.palette[i * RGBA_COMPONENTS];
-			lodepng_palette_add(&redecode_state.info_raw, p[0], p[1], p[2], p[3]);
+			const unsigned palette_error = lodepng_palette_add(&redecode_state.info_raw, p[0], p[1], p[2], p[3]);
+			if (palette_error) {
+				throw std::runtime_error(std::format("LodePNG palette setup error: {}", palette_error));
+			}
 		}
 
 		pixels.clear();
@@ -141,8 +185,14 @@ void resizeImage(vBytes& image_file_vec) {
 		constexpr std::size_t RGBA_COMPONENTS = 4;
 		for (std::size_t i = 0; i < png_color.palettesize; ++i) {
 			const Byte* p = &png_color.palette[i * RGBA_COMPONENTS];
-			lodepng_palette_add(&encode_state.info_png.color, p[0], p[1], p[2], p[3]);
-			lodepng_palette_add(&encode_state.info_raw, p[0], p[1], p[2], p[3]);
+			const unsigned png_error = lodepng_palette_add(&encode_state.info_png.color, p[0], p[1], p[2], p[3]);
+			if (png_error) {
+				throw std::runtime_error(std::format("LodePNG palette setup error: {}", png_error));
+			}
+			const unsigned raw_error = lodepng_palette_add(&encode_state.info_raw, p[0], p[1], p[2], p[3]);
+			if (raw_error) {
+				throw std::runtime_error(std::format("LodePNG palette setup error: {}", raw_error));
+			}
 		}
 	}
 
@@ -238,8 +288,14 @@ void convertToPalette(vBytes& image_file_vec, const vBytes& image, unsigned widt
 
 	for (std::size_t i = 0; i < palette_size; ++i) {
 		const Byte* p = &stats.palette[i * RGBA_COMPONENTS];
-		lodepng_palette_add(&encode_state.info_png.color, p[0], p[1], p[2], p[3]);
-		lodepng_palette_add(&encode_state.info_raw, p[0], p[1], p[2], p[3]);
+		const unsigned png_error = lodepng_palette_add(&encode_state.info_png.color, p[0], p[1], p[2], p[3]);
+		if (png_error) {
+			throw std::runtime_error(std::format("LodePNG palette setup error: {}", png_error));
+		}
+		const unsigned raw_error = lodepng_palette_add(&encode_state.info_raw, p[0], p[1], p[2], p[3]);
+		if (raw_error) {
+			throw std::runtime_error(std::format("LodePNG palette setup error: {}", raw_error));
+		}
 	}
 
 	vBytes output;
@@ -257,83 +313,77 @@ void convertToPalette(vBytes& image_file_vec, const vBytes& image, unsigned widt
 void stripAndCopyChunks(vBytes& image_file_vec, Byte color_type) {
 
 	constexpr auto
+		IHDR_SIG = std::to_array<Byte>({ 0x49, 0x48, 0x44, 0x52 }),
 		PLTE_SIG = std::to_array<Byte>({ 0x50, 0x4C, 0x54, 0x45 }),
 		TRNS_SIG = std::to_array<Byte>({ 0x74, 0x52, 0x4E, 0x53 }),
-		IDAT_SIG = std::to_array<Byte>({ 0x49, 0x44, 0x41, 0x54 });
-
-	constexpr auto IEND_SIG = std::to_array<Byte>({ 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 });
+		IDAT_SIG = std::to_array<Byte>({ 0x49, 0x44, 0x41, 0x54 }),
+		IEND_SIG = std::to_array<Byte>({ 0x49, 0x45, 0x4E, 0x44 });
 
 	constexpr std::size_t
-		PNG_HEADER_AND_IHDR_SIZE = 33,
+		PNG_SIGNATURE_SIZE       = 8,
 		CHUNK_OVERHEAD           = 12,  // length(4) + name(4) + crc(4)
 		LENGTH_FIELD_SIZE        = 4,
-		IEND_CHUNK_SIZE          = 12;
+		TYPE_FIELD_SIZE          = 4;
 
-	const std::size_t file_size = image_file_vec.size();
-
-	if (file_size < PNG_HEADER_AND_IHDR_SIZE + IEND_CHUNK_SIZE) {
-		throw std::runtime_error("PNG Error: File too small to contain valid PNG structure.");
-	}
-
-	// Truncate any trailing data after IEND.
-	if (auto pos_opt = searchSig(image_file_vec, IEND_SIG)) {
-		const std::size_t end_index = *pos_opt + IEND_SIG.size();
-		if (end_index <= file_size) {
-			image_file_vec.resize(end_index);
-		}
-	}
+	[[maybe_unused]] const PngIhdr ihdr = readPngIhdr(image_file_vec);
 
 	vBytes cleaned_png;
 	cleaned_png.reserve(image_file_vec.size());
-
-	// Copy PNG signature + IHDR chunk.
 	cleaned_png.insert(
 		cleaned_png.end(),
 		image_file_vec.begin(),
-		image_file_vec.begin() + PNG_HEADER_AND_IHDR_SIZE);
+		image_file_vec.begin() + PNG_SIGNATURE_SIZE);
 
-	// Copy all chunks of a given type.
-	auto copy_chunks_of_type = [&](std::span<const Byte> chunk_sig) {
-		std::size_t search_pos = PNG_HEADER_AND_IHDR_SIZE;
+	std::size_t chunk_start = PNG_SIGNATURE_SIZE;
+	bool saw_idat = false;
+	bool saw_iend = false;
 
-		while (auto chunk_opt = searchSig(image_file_vec, chunk_sig, search_pos)) {
-			const std::size_t name_index = *chunk_opt;
+	while (chunk_start < image_file_vec.size()) {
+		if (chunk_start > image_file_vec.size() || CHUNK_OVERHEAD > image_file_vec.size() - chunk_start) {
+			throw std::runtime_error("PNG Error: Truncated chunk header.");
+		}
 
-			if (name_index < LENGTH_FIELD_SIZE) {
-				throw std::runtime_error("PNG Error: Chunk found before valid length field.");
-			}
+		const std::size_t data_length = getValue(image_file_vec, chunk_start, LENGTH_FIELD_SIZE);
+		if (data_length > image_file_vec.size() - chunk_start - CHUNK_OVERHEAD) {
+			throw std::runtime_error(std::format(
+				"PNG Error: Chunk at offset 0x{:X} exceeds file size.",
+				chunk_start));
+		}
 
-			const std::size_t
-				chunk_start      = name_index - LENGTH_FIELD_SIZE,
-				data_length      = getValue(image_file_vec, chunk_start, 4),
-				total_chunk_size = data_length + CHUNK_OVERHEAD;
+		const std::size_t name_index = chunk_start + LENGTH_FIELD_SIZE;
+		const auto chunk_type = std::span<const Byte>(image_file_vec).subspan(name_index, TYPE_FIELD_SIZE);
 
-			if (chunk_start + total_chunk_size > image_file_vec.size()) {
-				throw std::runtime_error(std::format(
-					"PNG Error: Chunk at offset 0x{:X} claims length {} but exceeds file size.",
-					chunk_start, data_length));
-			}
+		const bool is_ihdr = std::equal(chunk_type.begin(), chunk_type.end(), IHDR_SIG.begin());
+		const bool is_plte = std::equal(chunk_type.begin(), chunk_type.end(), PLTE_SIG.begin());
+		const bool is_trns = std::equal(chunk_type.begin(), chunk_type.end(), TRNS_SIG.begin());
+		const bool is_idat = std::equal(chunk_type.begin(), chunk_type.end(), IDAT_SIG.begin());
+		const bool is_iend = std::equal(chunk_type.begin(), chunk_type.end(), IEND_SIG.begin());
 
+		const bool keep_chunk = is_ihdr || is_idat || is_iend || is_trns || (color_type == INDEXED_PLTE && is_plte);
+		const std::size_t total_chunk_size = CHUNK_OVERHEAD + data_length;
+
+		if (keep_chunk) {
 			cleaned_png.insert(
 				cleaned_png.end(),
 				image_file_vec.begin() + chunk_start,
 				image_file_vec.begin() + chunk_start + total_chunk_size);
-
-			search_pos = chunk_start + total_chunk_size;
 		}
-	};
 
-	if (color_type == INDEXED_PLTE) {
-		copy_chunks_of_type(PLTE_SIG);
+		saw_idat = saw_idat || is_idat;
+		chunk_start += total_chunk_size;
+
+		if (is_iend) {
+			saw_iend = true;
+			break;
+		}
 	}
-	copy_chunks_of_type(TRNS_SIG);
-	copy_chunks_of_type(IDAT_SIG);
 
-	// Append IEND chunk.
-	cleaned_png.insert(
-		cleaned_png.end(),
-		image_file_vec.end() - IEND_CHUNK_SIZE,
-		image_file_vec.end());
+	if (!saw_idat) {
+		throw std::runtime_error("PNG Error: No IDAT chunk found.");
+	}
+	if (!saw_iend) {
+		throw std::runtime_error("PNG Error: Missing IEND chunk.");
+	}
 
 	image_file_vec = std::move(cleaned_png);
 }
@@ -367,15 +417,14 @@ void optimizeImage(vBytes& image_file_vec) {
 		throw std::runtime_error(std::format("LodePNG stats error: {}", error));
 	}
 
-	Byte color_type = static_cast<Byte>(state.info_png.color.colortype);
-	const bool is_truecolor = (color_type == TRUECOLOR_RGB || color_type == TRUECOLOR_RGBA);
+	const Byte input_color_type = static_cast<Byte>(state.info_png.color.colortype);
+	const bool is_truecolor = (input_color_type == TRUECOLOR_RGB || input_color_type == TRUECOLOR_RGBA);
 	const bool can_palettize = is_truecolor && (stats.numcolors < MIN_RGB_COLORS);
 
 	if (can_palettize) {
 		convertToPalette(image_file_vec, image, width, height, stats, state.info_raw.colortype);
-		color_type = INDEXED_PLTE;
 	} else {
-		stripAndCopyChunks(image_file_vec, color_type);
+		stripAndCopyChunks(image_file_vec, input_color_type);
 	}
 
 	// A selection of problem metacharacters may appear within the cover image's
@@ -406,12 +455,19 @@ void optimizeImage(vBytes& image_file_vec) {
 		MAX_RESIZE_ITERATIONS = 200;
 
 	auto hasProblemCharacter = [&]() {
-		auto check = [&](std::size_t start, std::size_t length) {
-			return std::ranges::any_of(
-				image_file_vec | std::views::drop(start) | std::views::take(length),
-				[&](Byte b) { return std::ranges::contains(LINUX_PROBLEM_METACHARACTERS, b); });
+		if (image_file_vec.size() < CRC_END) {
+			throw std::runtime_error("PNG Error: IHDR chunk is truncated after optimization.");
+		}
+
+		auto check = [&](std::size_t start, std::size_t end) {
+			for (std::size_t i = start; i < end; ++i) {
+				if (std::ranges::contains(LINUX_PROBLEM_METACHARACTERS, image_file_vec[i])) {
+					return true;
+				}
+			}
+			return false;
 		};
-		return check(WIDTH_START, HEIGHT_END - WIDTH_START) || check(CRC_START, CRC_END - CRC_START);
+		return check(WIDTH_START, HEIGHT_END) || check(CRC_START, CRC_END);
 	};
 
 	unsigned iterations = 0;
@@ -424,18 +480,26 @@ void optimizeImage(vBytes& image_file_vec) {
 		resizeImage(image_file_vec);
 	}
 
-	// After potential resizing, RGBA may have been re-encoded as RGB by lodepng.
-	color_type = (color_type == TRUECOLOR_RGBA) ? TRUECOLOR_RGB : color_type;
+	const PngIhdr final_ihdr = readPngIhdr(image_file_vec);
+	const Byte final_color_type = final_ihdr.color_type;
+	const std::size_t final_width = final_ihdr.width;
+	const std::size_t final_height = final_ihdr.height;
 
-	const bool hasValidColorType = (color_type == INDEXED_PLTE || color_type == TRUECOLOR_RGB);
+	const bool hasValidColorType =
+		(final_color_type == INDEXED_PLTE)
+		|| (final_color_type == TRUECOLOR_RGB)
+		|| (final_color_type == TRUECOLOR_RGBA);
 
-	auto checkDimensions = [&](Byte target_color, uint16_t max_dims) {
-		return color_type == target_color
-			&& width  >= MIN_DIMS && width  <= max_dims
-			&& height >= MIN_DIMS && height <= max_dims;
+	auto checkDimensions = [&](Byte target_color, std::size_t max_dims) {
+		return final_color_type == target_color
+			&& final_width  >= MIN_DIMS && final_width  <= max_dims
+			&& final_height >= MIN_DIMS && final_height <= max_dims;
 	};
 
-	const bool hasValidDimensions = checkDimensions(TRUECOLOR_RGB, MAX_RGB_DIMS) || checkDimensions(INDEXED_PLTE, MAX_PLTE_DIMS);
+	const bool hasValidDimensions =
+		checkDimensions(TRUECOLOR_RGB, MAX_RGB_DIMS)
+		|| checkDimensions(TRUECOLOR_RGBA, MAX_RGB_DIMS)
+		|| checkDimensions(INDEXED_PLTE, MAX_PLTE_DIMS);
 
 	if (!hasValidColorType || !hasValidDimensions) {
 		if (!hasValidColorType) {

@@ -120,6 +120,7 @@ void optimizeImage(vBytes& image_file_vec);
 std::string toLowerCase(std::string str);
 FileType determineFileType(std::span<const Byte> archive_data, bool isZipFile);
 std::string getArchiveFirstFilename(std::span<const Byte> archive_data);
+void validateArchiveEntryPaths(std::span<const Byte> archive_data);
 
 // user_input.cpp
 bool hasBalancedQuotes(std::string_view str);

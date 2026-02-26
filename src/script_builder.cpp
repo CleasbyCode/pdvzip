@@ -6,91 +6,452 @@ namespace {
 // Internal: Script templates (Linux + Windows pairs per file type)
 // ============================================================================
 
-const std::vector<std::vector<Byte>>& getExtractionScripts() {
-	static const std::vector<std::vector<Byte>> SCRIPTS = [] {
-		constexpr auto CRLF = "\r\n"sv;
-		constexpr std::array<std::pair<std::string_view, std::string_view>, 10> TEMPLATES = {{
-			// VIDEO_AUDIO
+constexpr auto CRLF = "\r\n"sv;
+
+constexpr auto TOKEN_LINUX_FILENAME_ARG   = "{{LINUX_FILENAME_ARG}}"sv;
+constexpr auto TOKEN_WINDOWS_FILENAME_ARG = "{{WINDOWS_FILENAME_ARG}}"sv;
+constexpr auto TOKEN_LINUX_ARGS           = "{{LINUX_ARGS}}"sv;
+constexpr auto TOKEN_WINDOWS_ARGS         = "{{WINDOWS_ARGS}}"sv;
+constexpr auto TOKEN_LINUX_ARGS_COMBINED  = "{{LINUX_ARGS_COMBINED}}"sv;
+constexpr auto TOKEN_WINDOWS_ARGS_COMBINED = "{{WINDOWS_ARGS_COMBINED}}"sv;
+
+struct ScriptTemplate {
+	std::string_view linux_part;
+	std::string_view windows_part;
+};
+
+const ScriptTemplate& getScriptTemplate(FileType file_type) {
+	static const std::unordered_map<FileType, ScriptTemplate> TEMPLATES = {
+		{
+			FileType::VIDEO_AUDIO,
 			{
-				R"(ITEM="";DIR="pdvzip_extracted";NUL="/dev/null";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v mpv >$NUL 2>&1;then clear;mpv --quiet --geometry=50%:50% "$ITEM" &> $NUL;elif command -v vlc >$NUL 2>&1;then clear;vlc --play-and-exit --no-video-title-show "$ITEM" &> $NUL;elif command -v firefox >$NUL 2>&1;then clear;firefox "$ITEM" &> $NUL;else clear;fi;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&""&exit)"sv
-			},
-			// PDF
+				R"(ITEM={{LINUX_FILENAME_ARG}};DIR="pdvzip_extracted";NUL="/dev/null";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v mpv >$NUL 2>&1;then clear;mpv --quiet --geometry=50%:50% "$ITEM" &> $NUL;elif command -v vlc >$NUL 2>&1;then clear;vlc --play-and-exit --no-video-title-show "$ITEM" &> $NUL;elif command -v firefox >$NUL 2>&1;then clear;firefox "$ITEM" &> $NUL;else clear;fi;exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&start "" {{WINDOWS_FILENAME_ARG}}&exit)"sv
+			}
+		},
+		{
+			FileType::PDF,
 			{
-				R"(ITEM="";DIR="pdvzip_extracted";NUL="/dev/null";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v evince >$NUL 2>&1;then clear;evince "$ITEM" &> $NUL;else firefox "$ITEM" &> $NUL;clear;fi;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&""&exit)"sv
-			},
-			// PYTHON
+				R"(ITEM={{LINUX_FILENAME_ARG}};DIR="pdvzip_extracted";NUL="/dev/null";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v evince >$NUL 2>&1;then clear;evince "$ITEM" &> $NUL;else firefox "$ITEM" &> $NUL;clear;fi;exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&start "" {{WINDOWS_FILENAME_ARG}}&exit)"sv
+			}
+		},
+		{
+			FileType::PYTHON,
 			{
-				R"(ITEM="";DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v python3 >/dev/null 2>&1;then clear;python3 "$ITEM" ;else clear;fi;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set ITEM=&set ARGS=&set APP=python3&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&where !APP! >nul 2>&1 && (!APP! "!ITEM!" !ARGS! ) || (cls&exit)&echo.&exit)"sv
-			},
-			// POWERSHELL
+				R"(ITEM={{LINUX_FILENAME_ARG}};DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v python3 >/dev/null 2>&1;then clear;python3 "$ITEM" {{LINUX_ARGS}};else clear;fi;exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "APP=python3"&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&where "!APP!" >nul 2>&1 && ("!APP!" {{WINDOWS_FILENAME_ARG}} {{WINDOWS_ARGS}} ) || (cls&exit)&echo.&exit)"sv
+			}
+		},
+		{
+			FileType::POWERSHELL,
 			{
-				R"(DIR="pdvzip_extracted";ITEM="";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v pwsh >/dev/null 2>&1;then clear;pwsh "$ITEM" ;else clear;fi;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set ITEM=&set ARGS=&set DIR=pdvzip_extracted&set PDIR="%SystemDrive%\Program Files\PowerShell\"&cls&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&IF EXIST !PDIR! (pwsh -ExecutionPolicy Bypass -File "!ITEM!" !ARGS!&echo.&exit) ELSE (powershell -ExecutionPolicy Bypass -File "!ITEM!" !ARGS!&echo.&exit))"sv
-			},
-			// BASH_SHELL
+				R"(DIR="pdvzip_extracted";ITEM={{LINUX_FILENAME_ARG}};clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";hash -r;if command -v pwsh >/dev/null 2>&1;then clear;pwsh "$ITEM" {{LINUX_ARGS}};else clear;fi;exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "PDIR=%SystemDrive%\Program Files\PowerShell\"&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&IF EXIST "!PDIR!" (pwsh -ExecutionPolicy Bypass -File {{WINDOWS_FILENAME_ARG}} {{WINDOWS_ARGS}}&echo.&exit) ELSE (powershell -ExecutionPolicy Bypass -File {{WINDOWS_FILENAME_ARG}} {{WINDOWS_ARGS}}&echo.&exit))"sv
+			}
+		},
+		{
+			FileType::BASH_SHELL,
 			{
-				R"(ITEM="";DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";chmod +x "$ITEM";./"$ITEM" ;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&"" &cls&exit)"sv
-			},
-			// WINDOWS_EXECUTABLE
+				R"(ITEM={{LINUX_FILENAME_ARG}};DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";chmod +x "$ITEM";./"$ITEM" {{LINUX_ARGS}};exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&{{WINDOWS_FILENAME_ARG}} {{WINDOWS_ARGS}}&cls&exit)"sv
+			}
+		},
+		{
+			FileType::WINDOWS_EXECUTABLE,
 			{
 				R"(DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";clear;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&"" &echo.&exit)"sv
-			},
-			// FOLDER
-			{
-				R"(ITEM="";DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";xdg-open "$ITEM" &> /dev/null;clear;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&powershell "II ''"&cls&exit)"sv
-			},
-			// LINUX_EXECUTABLE
-			{
-				R"(ITEM="";DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";chmod +x "$ITEM";./"$ITEM" ;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&cls&exit)"sv
-			},
-			// JAR
-			{
-				R"(clear;hash -r;if command -v java >/dev/null 2>&1;then clear;java -jar "$0" ;else clear;fi;exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set ARGS=&set APP=java&cls&where !APP! >nul 2>&1 && (!APP! -jar "%~dpnx0" !ARGS! ) || (cls)&ren "%~dpnx0" *.png&echo.&exit)"sv
-			},
-			// UNKNOWN_FILE_TYPE
-			{
-				R"(ITEM="";DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";xdg-open "$ITEM";exit;)"sv,
-				R"(#&cls&setlocal EnableDelayedExpansion&set DIR=pdvzip_extracted&mkdir .\!DIR!&move "%~dpnx0" .\!DIR!&cd .\!DIR!&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&""&echo.&exit)"sv
+				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&{{WINDOWS_FILENAME_ARG}} {{WINDOWS_ARGS_COMBINED}}&echo.&exit)"sv
 			}
-		}};
+		},
+		{
+			FileType::FOLDER,
+			{
+				R"(ITEM={{LINUX_FILENAME_ARG}};DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";xdg-open "$ITEM" &> /dev/null;clear;exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&powershell "II '{{WINDOWS_FILENAME_ARG}}'"&cls&exit)"sv
+			}
+		},
+		{
+			FileType::LINUX_EXECUTABLE,
+			{
+				R"(ITEM={{LINUX_FILENAME_ARG}};DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";chmod +x "$ITEM";./"$ITEM" {{LINUX_ARGS_COMBINED}};exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&cls&exit)"sv
+			}
+		},
+		{
+			FileType::JAR,
+			{
+				R"(clear;hash -r;if command -v java >/dev/null 2>&1;then clear;java -jar "$0" {{LINUX_ARGS}};else clear;fi;exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "APP=java"&cls&where "!APP!" >nul 2>&1 && ("!APP!" -jar "%~dpnx0" {{WINDOWS_ARGS}} ) || (cls)&ren "%~dpnx0" *.png&echo.&exit)"sv
+			}
+		},
+		{
+			FileType::UNKNOWN_FILE_TYPE,
+			{
+				R"(ITEM={{LINUX_FILENAME_ARG}};DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv "$0" "$DIR";cd "$DIR";unzip -qo "$0";xdg-open "$ITEM";exit;)"sv,
+				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&start "" {{WINDOWS_FILENAME_ARG}}&echo.&exit)"sv
+			}
+		},
+	};
 
-		std::vector<std::vector<Byte>> result;
-		result.reserve(TEMPLATES.size());
-		for (const auto& [linux_part, windows_part] : TEMPLATES) {
-			vBytes combined;
-			combined.reserve(linux_part.size() + CRLF.size() + windows_part.size());
-			combined.insert(combined.end(), linux_part.begin(), linux_part.end());
-			combined.insert(combined.end(), CRLF.begin(), CRLF.end());
-			combined.insert(combined.end(), windows_part.begin(), windows_part.end());
-			result.emplace_back(std::move(combined));
-		}
-		return result;
-	}();
-	return SCRIPTS;
+	if (const auto it = TEMPLATES.find(file_type); it != TEMPLATES.end()) {
+		return it->second;
+	}
+	return TEMPLATES.at(FileType::UNKNOWN_FILE_TYPE);
 }
 
-// Script insertion offset map: { script_id, offset1, offset2, ... }
-// Offsets are insertion points within the script vector for filenames, arguments, etc.
-const std::unordered_map<FileType, std::vector<uint16_t>> SCRIPT_OFFSET_MAP = {
-	{FileType::VIDEO_AUDIO,          { 0, 0x1E4, 0x1C }},
-	{FileType::PDF,                  { 1, 0x196, 0x1C }},
-	{FileType::PYTHON,               { 2, 0x10B, 0x101, 0xBC, 0x1C }},
-	{FileType::POWERSHELL,           { 3, 0x105, 0xFB,  0xB6, 0x33 }},
-	{FileType::BASH_SHELL,           { 4, 0x134, 0x132, 0x8E, 0x1C }},
-	{FileType::WINDOWS_EXECUTABLE,   { 5, 0x116, 0x114 }},
-	{FileType::FOLDER,               { 6, 0x149, 0x1C }},
-	{FileType::LINUX_EXECUTABLE,     { 7, 0x8E,  0x1C }},
-	{FileType::JAR,                  { 8, 0xA6,  0x61 }},
-	{FileType::UNKNOWN_FILE_TYPE,    { 9, 0x127, 0x1C }},
-};
+void replaceAllInPlace(std::string& target, std::string_view from, std::string_view to) {
+	if (from.empty()) {
+		return;
+	}
+
+	std::size_t position = 0;
+	while ((position = target.find(from, position)) != std::string::npos) {
+		target.replace(position, from.size(), to);
+		position += to.size();
+	}
+}
+
+void validateScriptInput(std::string_view value, std::string_view field_name) {
+	const bool has_control_char = std::ranges::any_of(value, [](unsigned char c) {
+		return c == '\0' || c == '\n' || c == '\r';
+	});
+	if (has_control_char) {
+		throw std::runtime_error(std::format(
+			"Arguments Error: {} contains unsupported control characters.", field_name));
+	}
+}
+
+std::vector<std::string> splitPosixArguments(std::string_view input, std::string_view field_name) {
+	enum class QuoteState : Byte {
+		none,
+		single,
+		double_quote
+	};
+
+	auto syntaxError = [&](std::string_view reason) {
+		throw std::runtime_error(std::format(
+			"Arguments Error: {} {}",
+			field_name, reason));
+	};
+
+	std::vector<std::string> args;
+	std::string current;
+	QuoteState state = QuoteState::none;
+	bool escaped = false;
+	bool token_started = false;
+
+	for (char ch : input) {
+		if (state == QuoteState::single) {
+			if (ch == '\'') {
+				state = QuoteState::none;
+			} else {
+				current.push_back(ch);
+			}
+			token_started = true;
+			continue;
+		}
+
+		if (escaped) {
+			current.push_back(ch);
+			escaped = false;
+			token_started = true;
+			continue;
+		}
+
+		if (state == QuoteState::double_quote) {
+			if (ch == '"') {
+				state = QuoteState::none;
+			} else if (ch == '\\') {
+				escaped = true;
+			} else {
+				current.push_back(ch);
+			}
+			token_started = true;
+			continue;
+		}
+
+		if (std::isspace(static_cast<unsigned char>(ch))) {
+			if (token_started) {
+				args.push_back(current);
+				current.clear();
+				token_started = false;
+			}
+			continue;
+		}
+
+		switch (ch) {
+			case '\\':
+				escaped = true;
+				token_started = true;
+				break;
+			case '\'':
+				state = QuoteState::single;
+				token_started = true;
+				break;
+			case '"':
+				state = QuoteState::double_quote;
+				token_started = true;
+				break;
+			default:
+				current.push_back(ch);
+				token_started = true;
+				break;
+		}
+	}
+
+	if (escaped) {
+		syntaxError("end with an unfinished escape sequence.");
+	}
+	if (state != QuoteState::none) {
+		syntaxError("contain unmatched quotes.");
+	}
+	if (token_started) {
+		args.push_back(current);
+	}
+
+	return args;
+}
+
+std::vector<std::string> splitWindowsArguments(std::string_view input, std::string_view field_name) {
+	auto syntaxError = [&](std::string_view reason) {
+		throw std::runtime_error(std::format(
+			"Arguments Error: {} {}",
+			field_name, reason));
+	};
+
+	std::vector<std::string> args;
+	std::size_t i = 0;
+
+	while (i < input.size()) {
+		while (i < input.size() && std::isspace(static_cast<unsigned char>(input[i]))) {
+			++i;
+		}
+		if (i >= input.size()) {
+			break;
+		}
+
+		std::string current;
+		bool in_quotes = false;
+		std::size_t backslashes = 0;
+
+		while (i < input.size()) {
+			const char ch = input[i];
+
+			if (ch == '\\') {
+				++backslashes;
+				++i;
+				continue;
+			}
+
+			if (ch == '"') {
+				if ((backslashes % 2) == 0) {
+					current.append(backslashes / 2, '\\');
+					backslashes = 0;
+
+					if (in_quotes && (i + 1) < input.size() && input[i + 1] == '"') {
+						current.push_back('"');
+						i += 2;
+						continue;
+					}
+
+					in_quotes = !in_quotes;
+					++i;
+					continue;
+				}
+
+				current.append(backslashes / 2, '\\');
+				current.push_back('"');
+				backslashes = 0;
+				++i;
+				continue;
+			}
+
+			if (backslashes > 0) {
+				current.append(backslashes, '\\');
+				backslashes = 0;
+			}
+
+			if (!in_quotes && std::isspace(static_cast<unsigned char>(ch))) {
+				break;
+			}
+
+			current.push_back(ch);
+			++i;
+		}
+
+		if (backslashes > 0) {
+			current.append(backslashes, '\\');
+		}
+		if (in_quotes) {
+			syntaxError("contain unmatched double quotes.");
+		}
+
+		args.push_back(std::move(current));
+
+		while (i < input.size() && std::isspace(static_cast<unsigned char>(input[i]))) {
+			++i;
+		}
+	}
+
+	return args;
+}
+
+std::string quotePosixArgument(std::string_view arg) {
+	std::string out;
+	out.reserve(arg.size() + 2);
+	out.push_back('\'');
+
+	for (char ch : arg) {
+		if (ch == '\'') {
+			out.append("'\\''");
+		} else {
+			out.push_back(ch);
+		}
+	}
+
+	out.push_back('\'');
+	return out;
+}
+
+std::string quoteWindowsArgumentForCmd(std::string_view arg) {
+	std::string out;
+	out.reserve(arg.size() * 2 + 2);
+	out.push_back('"');
+
+	std::size_t backslashes = 0;
+	for (char ch : arg) {
+		if (ch == '\\') {
+			++backslashes;
+			continue;
+		}
+
+		if (ch == '"') {
+			out.append(backslashes * 2 + 1, '\\');
+			out.push_back('"');
+			backslashes = 0;
+			continue;
+		}
+
+		if (backslashes > 0) {
+			out.append(backslashes, '\\');
+			backslashes = 0;
+		}
+
+		// Prevent percent-expansion in CMD (including inside quoted args).
+		if (ch == '%') {
+			out.append("%%");
+		} else {
+			out.push_back(ch);
+		}
+	}
+
+	if (backslashes > 0) {
+		out.append(backslashes * 2, '\\');
+	}
+
+	out.push_back('"');
+	return out;
+}
+
+std::string renderPosixArguments(std::string_view raw_args, std::string_view field_name) {
+	const auto args = splitPosixArguments(raw_args, field_name);
+	if (args.empty()) {
+		return {};
+	}
+
+	std::string rendered;
+	for (std::size_t i = 0; i < args.size(); ++i) {
+		if (i > 0) {
+			rendered.push_back(' ');
+		}
+		rendered.append(quotePosixArgument(args[i]));
+	}
+	return rendered;
+}
+
+std::string renderWindowsArguments(std::string_view raw_args, std::string_view field_name) {
+	const auto args = splitWindowsArguments(raw_args, field_name);
+	if (args.empty()) {
+		return {};
+	}
+
+	std::string rendered;
+	for (std::size_t i = 0; i < args.size(); ++i) {
+		if (i > 0) {
+			rendered.push_back(' ');
+		}
+		rendered.append(quoteWindowsArgumentForCmd(args[i]));
+	}
+	return rendered;
+}
+
+void ensureNoUnresolvedPlaceholders(std::string_view script_text) {
+	constexpr auto TOKENS = std::to_array<std::string_view>({
+		TOKEN_LINUX_FILENAME_ARG,
+		TOKEN_WINDOWS_FILENAME_ARG,
+		TOKEN_LINUX_ARGS,
+		TOKEN_WINDOWS_ARGS,
+		TOKEN_LINUX_ARGS_COMBINED,
+		TOKEN_WINDOWS_ARGS_COMBINED
+	});
+
+	for (const std::string_view token : TOKENS) {
+		if (script_text.find(token) != std::string::npos) {
+			throw std::runtime_error("Script Error: Unresolved placeholder token in extraction script template.");
+		}
+	}
+}
+
+std::string buildScriptText(FileType file_type, const std::string& first_filename, const UserArguments& user_args) {
+	const ScriptTemplate& script_template = getScriptTemplate(file_type);
+
+	std::string script_text;
+	script_text.reserve(script_template.linux_part.size() + CRLF.size() + script_template.windows_part.size() + 256);
+	script_text.append(script_template.linux_part);
+	script_text.append(CRLF);
+	script_text.append(script_template.windows_part);
+
+	if (script_text.find(TOKEN_LINUX_FILENAME_ARG) != std::string::npos) {
+		replaceAllInPlace(script_text, TOKEN_LINUX_FILENAME_ARG, quotePosixArgument(first_filename));
+	}
+	if (script_text.find(TOKEN_WINDOWS_FILENAME_ARG) != std::string::npos) {
+		replaceAllInPlace(script_text, TOKEN_WINDOWS_FILENAME_ARG, quoteWindowsArgumentForCmd(first_filename));
+	}
+
+	if (script_text.find(TOKEN_LINUX_ARGS) != std::string::npos) {
+		replaceAllInPlace(
+			script_text,
+			TOKEN_LINUX_ARGS,
+			renderPosixArguments(user_args.linux_args, "Linux arguments"));
+	}
+	if (script_text.find(TOKEN_WINDOWS_ARGS) != std::string::npos) {
+		replaceAllInPlace(
+			script_text,
+			TOKEN_WINDOWS_ARGS,
+			renderWindowsArguments(user_args.windows_args, "Windows arguments"));
+	}
+
+	const std::string_view args_combined_raw = user_args.linux_args.empty()
+		? std::string_view(user_args.windows_args)
+		: std::string_view(user_args.linux_args);
+
+	if (script_text.find(TOKEN_LINUX_ARGS_COMBINED) != std::string::npos) {
+		replaceAllInPlace(
+			script_text,
+			TOKEN_LINUX_ARGS_COMBINED,
+			renderPosixArguments(args_combined_raw, "Combined Linux arguments"));
+	}
+	if (script_text.find(TOKEN_WINDOWS_ARGS_COMBINED) != std::string::npos) {
+		replaceAllInPlace(
+			script_text,
+			TOKEN_WINDOWS_ARGS_COMBINED,
+			renderWindowsArguments(args_combined_raw, "Combined Windows arguments"));
+	}
+
+	ensureNoUnresolvedPlaceholders(script_text);
+	return script_text;
+}
 
 } // anonymous namespace
 
@@ -103,11 +464,14 @@ vBytes buildExtractionScript(FileType file_type, const std::string& first_filena
 
 	constexpr std::size_t
 		SCRIPT_INDEX            = 0x16,
-		SCRIPT_ELEMENT_INDEX    = 0,
 		ICCP_CHUNK_NAME_INDEX   = 0x04,
 		ICCP_CHUNK_NAME_LENGTH  = 4,
 		ICCP_CRC_INDEX_DIFF     = 8,
 		LENGTH_FIRST_BYTE_INDEX = 3;
+
+	validateScriptInput(first_filename, "Archive filename");
+	validateScriptInput(user_args.linux_args, "Linux arguments");
+	validateScriptInput(user_args.windows_args, "Windows arguments");
 
 	// iCCP chunk header skeleton.
 	vBytes script_vec {
@@ -118,57 +482,11 @@ vBytes buildExtractionScript(FileType file_type, const std::string& first_filena
 	};
 	script_vec.reserve(script_vec.size() + MAX_SCRIPT_SIZE);
 
-	// Look up the offsets for this file type.
-	FileType lookup_type = SCRIPT_OFFSET_MAP.contains(file_type) ? file_type : FileType::UNKNOWN_FILE_TYPE;
-	const auto& offsets = SCRIPT_OFFSET_MAP.at(lookup_type);
-
-	const uint16_t script_id = offsets[SCRIPT_ELEMENT_INDEX];
-	const auto& extraction_scripts = getExtractionScripts();
-
-	// Insert the base script template.
+	const std::string script_text = buildScriptText(file_type, first_filename, user_args);
 	script_vec.insert(
 		script_vec.begin() + SCRIPT_INDEX,
-		extraction_scripts[script_id].begin(),
-		extraction_scripts[script_id].end());
-
-	// Helper to insert a string at a given offset within the script vector.
-	auto insertAt = [&script_vec](uint16_t offset, const std::string& str) {
-		script_vec.insert(script_vec.begin() + offset, str.begin(), str.end());
-	};
-
-	// Patch the script with filenames and user arguments.
-	// The offsets in the map are ordered largest-first so that earlier
-	// insertions don't invalidate later offsets.
-	const std::string& args_combined = user_args.linux_args.empty()
-		? user_args.windows_args : user_args.linux_args;
-
-	switch (file_type) {
-		case FileType::WINDOWS_EXECUTABLE:
-		case FileType::LINUX_EXECUTABLE:
-			insertAt(offsets[1], args_combined);
-			insertAt(offsets[2], first_filename);
-			break;
-
-		case FileType::JAR:
-			insertAt(offsets[1], user_args.windows_args);
-			insertAt(offsets[2], user_args.linux_args);
-			break;
-
-		case FileType::PYTHON:
-		case FileType::POWERSHELL:
-		case FileType::BASH_SHELL:
-			insertAt(offsets[1], user_args.windows_args);
-			insertAt(offsets[2], first_filename);
-			insertAt(offsets[3], user_args.linux_args);
-			insertAt(offsets[4], first_filename);
-			break;
-
-		default:
-			// VIDEO_AUDIO, PDF, FOLDER, UNKNOWN — just patch the filename.
-			insertAt(offsets[1], first_filename);
-			insertAt(offsets[2], first_filename);
-			break;
-	}
+		script_text.begin(),
+		script_text.end());
 
 	// Update the iCCP chunk length field.
 	constexpr std::size_t
@@ -176,7 +494,6 @@ vBytes buildExtractionScript(FileType file_type, const std::string& first_filena
 		VALUE_LENGTH = 4;
 
 	std::size_t chunk_data_size = script_vec.size() - CHUNK_FIELDS_COMBINED_LENGTH;
-
 	updateValue(script_vec, LENGTH_INDEX, static_cast<uint32_t>(chunk_data_size), VALUE_LENGTH);
 
 	// If the first byte of the chunk length is a problematic metacharacter for
@@ -201,6 +518,5 @@ vBytes buildExtractionScript(FileType file_type, const std::string& first_filena
 	const std::size_t crc_index = chunk_data_size + ICCP_CRC_INDEX_DIFF;
 
 	updateValue(script_vec, crc_index, crc, VALUE_LENGTH);
-
 	return script_vec;
 }

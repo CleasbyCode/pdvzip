@@ -1,7 +1,7 @@
 #include "pdvzip.h"
 
 std::optional<std::size_t> searchSig(std::span<const Byte> data, std::span<const Byte> sig, std::size_t start) {
-	if (start >= data.size()) {
+	if (sig.empty() || start >= data.size()) {
 		return std::nullopt;
 	}
 
@@ -15,52 +15,62 @@ std::optional<std::size_t> searchSig(std::span<const Byte> data, std::span<const
 }
 
 void updateValue(std::span<Byte> data, std::size_t index, std::size_t value, std::size_t length, std::endian byte_order) {
-	static_assert(std::endian::native == std::endian::little, "byteswap logic assumes little-endian host");
+	if (length != 2 && length != 4) {
+		throw std::invalid_argument(std::format("updateValue: unsupported length {}", length));
+	}
 
-	std::size_t write_index = (byte_order == std::endian::big) ? index : index - (length - 1);
+	const std::size_t write_index = [&] {
+		if (byte_order == std::endian::big) {
+			return index;
+		}
+		if (index + 1 < length) {
+			throw std::out_of_range("updateValue: little-endian index underflow.");
+		}
+		return index - (length - 1);
+	}();
 
-	if (write_index + length > data.size()) {
+	if (write_index > data.size() || length > (data.size() - write_index)) {
 		throw std::out_of_range("updateValue: Index out of bounds.");
 	}
 
-	auto write = [&]<typename T>(T val) {
-		if (byte_order == std::endian::big) {
-			val = std::byteswap(val);
-		}
-		std::memcpy(data.data() + write_index, &val, sizeof(T));
-	};
+	const std::size_t max_value = (length == 2) ? static_cast<std::size_t>(UINT16_MAX) : static_cast<std::size_t>(UINT32_MAX);
+	if (value > max_value) {
+		throw std::out_of_range(std::format("updateValue: value {} exceeds {}-byte field", value, length));
+	}
 
-	switch (length) {
-		case 2: write(static_cast<uint16_t>(value)); break;
-		case 4: write(static_cast<uint32_t>(value)); break;
-		default:
-			throw std::invalid_argument(std::format("updateValue: unsupported length {}", length));
+	for (std::size_t i = 0; i < length; ++i) {
+		const std::size_t shift = (byte_order == std::endian::big)
+			? ((length - 1 - i) * 8)
+			: (i * 8);
+		data[write_index + i] = static_cast<Byte>((value >> shift) & 0xFF);
 	}
 }
 
 std::size_t getValue(std::span<const Byte> data, std::size_t index, std::size_t length, std::endian byte_order) {
-	static_assert(std::endian::native == std::endian::little, "byteswap logic assumes little-endian host");
+	if (length != 2 && length != 4) {
+		throw std::invalid_argument(std::format("getValue: unsupported length {}", length));
+	}
 
-	const std::size_t read_index = (byte_order == std::endian::big) ? index : index - (length - 1);
+	const std::size_t read_index = [&] {
+		if (byte_order == std::endian::big) {
+			return index;
+		}
+		if (index + 1 < length) {
+			throw std::out_of_range("getValue: little-endian index underflow.");
+		}
+		return index - (length - 1);
+	}();
 
-	if (read_index + length > data.size()) {
+	if (read_index > data.size() || length > (data.size() - read_index)) {
 		throw std::out_of_range("getValue: index out of bounds");
 	}
 
-	auto read = [&]<typename T>() -> T {
-		T val;
-		std::memcpy(&val, data.data() + read_index, sizeof(T));
-		if (byte_order == std::endian::big) {
-			val = std::byteswap(val);
-		}
-		return val;
-	};
-
-	switch (length) {
-		case 2: return read.operator()<uint16_t>();
-		case 4: return read.operator()<uint32_t>();
-		default:
-			throw std::invalid_argument(
-				std::format("getValue: unsupported length {}", length));
+	std::size_t value = 0;
+	for (std::size_t i = 0; i < length; ++i) {
+		const std::size_t shift = (byte_order == std::endian::big)
+			? ((length - 1 - i) * 8)
+			: (i * 8);
+		value |= static_cast<std::size_t>(data[read_index + i]) << shift;
 	}
+	return value;
 }

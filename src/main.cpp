@@ -24,6 +24,9 @@ int main(int argc, char** argv) {
 		// Update the IDAT chunk length to include the archive.
 		updateValue(archive_vec, 0, static_cast<uint32_t>(archive_file_size - CHUNK_FIELDS_COMBINED_LENGTH), 4);
 
+		// Reject unsafe archive entry paths (zip-slip style traversal/absolute paths).
+		validateArchiveEntryPaths(archive_vec);
+
 		// Determine what kind of file is embedded.
 		const FileType file_type = determineFileType(archive_vec, isZipFile);
 		const std::string first_filename = getArchiveFirstFilename(archive_vec);

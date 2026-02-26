@@ -85,24 +85,26 @@ vBytes readFile(const fs::path& path, FileTypeCheck FileType) {
 	}
 
 	vBytes vec(file_size);
-	file.read(reinterpret_cast<char*>(vec.data()), static_cast<std::streamsize>(file_size));
-
-	if (file.gcount() != static_cast<std::streamsize>(file_size)) {
+	if (!file.read(reinterpret_cast<char*>(vec.data()), static_cast<std::streamsize>(file_size))
+		|| file.gcount() != static_cast<std::streamsize>(file_size)) {
 		throw std::runtime_error("Failed to read full file: partial read");
 	}
 
 	if (FileType == FileTypeCheck::archive_file) {
 		constexpr auto IDAT_MARKER_BYTES = std::to_array<Byte>({ 0x00, 0x00, 0x00, 0x00, 0x49, 0x44, 0x41, 0x54 });
 		constexpr auto IDAT_CRC_BYTES    = std::to_array<Byte>({ 0x00, 0x00, 0x00, 0x00 });
-
-		vec.insert(vec.begin(), IDAT_MARKER_BYTES.begin(), IDAT_MARKER_BYTES.end());
-		vec.insert(vec.end(),   IDAT_CRC_BYTES.begin(),    IDAT_CRC_BYTES.end());
-
+		constexpr auto ARCHIVE_SIG       = std::to_array<Byte>({ 0x50, 0x4B, 0x03, 0x04 });
 		constexpr std::size_t INDEX_DIFF = 8;
 
-		constexpr auto ARCHIVE_SIG = std::to_array<Byte>({ 0x50, 0x4B, 0x03, 0x04 });
+		vBytes wrapped_archive;
+		wrapped_archive.reserve(vec.size() + CHUNK_FIELDS_COMBINED_LENGTH);
+		wrapped_archive.insert(wrapped_archive.end(), IDAT_MARKER_BYTES.begin(), IDAT_MARKER_BYTES.end());
+		wrapped_archive.insert(wrapped_archive.end(), vec.begin(), vec.end());
+		wrapped_archive.insert(wrapped_archive.end(), IDAT_CRC_BYTES.begin(), IDAT_CRC_BYTES.end());
+		vec = std::move(wrapped_archive);
 
-		if (!std::equal(ARCHIVE_SIG.begin(), ARCHIVE_SIG.end(), std::begin(vec) + INDEX_DIFF)) {
+		if (vec.size() < INDEX_DIFF + ARCHIVE_SIG.size()
+			|| !std::equal(ARCHIVE_SIG.begin(), ARCHIVE_SIG.end(), vec.begin() + INDEX_DIFF)) {
 			throw std::runtime_error("Archive File Error: Signature check failure. Not a valid archive file.");
 		}
 	}
@@ -115,14 +117,35 @@ void writePolyglotFile(const vBytes& image_vec, bool isZipFile) {
 	std::uniform_int_distribution<> dist(10000, 99999);
 
 	const std::string_view prefix = isZipFile ? "pzip_" : "pjar_";
-	const std::string filename = std::format("{}{}.png", prefix, dist(gen));
 
-	std::ofstream ofs(filename, std::ios::binary);
+	constexpr std::size_t MAX_NAME_ATTEMPTS = 256;
+	std::string filename;
+	std::ofstream ofs;
+
+	for (std::size_t i = 0; i < MAX_NAME_ATTEMPTS; ++i) {
+		filename = std::format("{}{}.png", prefix, dist(gen));
+		if (fs::exists(filename)) {
+			continue;
+		}
+
+		ofs.open(filename, std::ios::binary | std::ios::out | std::ios::trunc);
+		if (ofs) {
+			break;
+		}
+	}
+
 	if (!ofs) {
-		throw std::runtime_error("Write File Error: Unable to write to file.");
+		throw std::runtime_error("Write File Error: Unable to create a unique output file.");
 	}
 
 	ofs.write(reinterpret_cast<const char*>(image_vec.data()), image_vec.size());
+	if (!ofs) {
+		throw std::runtime_error("Write File Error: Failed while writing output file.");
+	}
+	ofs.close();
+	if (!ofs) {
+		throw std::runtime_error("Write File Error: Failed while finalizing output file.");
+	}
 
 	std::print("\nCreated {} polyglot image file: {} ({} bytes).\n\nComplete!\n\n",
 		isZipFile ? "PNG-ZIP" : "PNG-JAR", filename, image_vec.size());
