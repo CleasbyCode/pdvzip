@@ -2,24 +2,22 @@
 
 namespace {
 
-[[nodiscard]] uint16_t readLe16(std::span<const Byte> data, std::size_t index) {
-	if (index > data.size() || 2 > (data.size() - index)) {
-		throw std::runtime_error("Archive File Error: Truncated ZIP local header.");
+[[nodiscard]] uint16_t readLe16(std::span<const Byte> data, std::size_t offset, std::string_view context) {
+	try {
+		return static_cast<uint16_t>(readValueAt(data, offset, 2, std::endian::little));
 	}
-
-	return static_cast<uint16_t>(data[index])
-	     | (static_cast<uint16_t>(data[index + 1]) << 8);
+	catch (const std::exception&) {
+		throw std::runtime_error(std::format("{}: Truncated ZIP record.", context));
+	}
 }
 
-[[nodiscard]] uint32_t readLe32(std::span<const Byte> data, std::size_t index) {
-	if (index > data.size() || 4 > (data.size() - index)) {
-		throw std::runtime_error("Archive File Error: Truncated ZIP record.");
+[[nodiscard]] uint32_t readLe32(std::span<const Byte> data, std::size_t offset, std::string_view context) {
+	try {
+		return static_cast<uint32_t>(readValueAt(data, offset, 4, std::endian::little));
 	}
-
-	return static_cast<uint32_t>(data[index])
-	     | (static_cast<uint32_t>(data[index + 1]) << 8)
-	     | (static_cast<uint32_t>(data[index + 2]) << 16)
-	     | (static_cast<uint32_t>(data[index + 3]) << 24);
+	catch (const std::exception&) {
+		throw std::runtime_error(std::format("{}: Truncated ZIP record.", context));
+	}
 }
 
 [[nodiscard]] std::string parseFirstZipFilename(std::span<const Byte> archive_data) {
@@ -44,8 +42,8 @@ namespace {
 		throw std::runtime_error("Archive File Error: Missing ZIP local file header signature.");
 	}
 
-	const std::size_t filename_length = readLe16(archive_data, FILENAME_LENGTH_INDEX);
-	const std::size_t extra_length    = readLe16(archive_data, EXTRA_LENGTH_INDEX);
+	const std::size_t filename_length = readLe16(archive_data, FILENAME_LENGTH_INDEX, "Archive File Error");
+	const std::size_t extra_length    = readLe16(archive_data, EXTRA_LENGTH_INDEX, "Archive File Error");
 
 	if (filename_length < FIRST_FILENAME_MIN_LENGTH) {
 		throw std::runtime_error(
@@ -135,7 +133,7 @@ namespace {
 			continue;
 		}
 
-		const std::size_t comment_length = readLe16(archive_data, pos + 20);
+		const std::size_t comment_length = readLe16(archive_data, pos + 20, "Archive File Error");
 		const std::size_t eocd_end = pos + EOCD_MIN_SIZE + comment_length;
 		if (eocd_end > search_end) {
 			continue;
@@ -156,10 +154,10 @@ std::string toLowerCase(std::string str) {
 	return str;
 }
 
-FileType determineFileType(std::span<const Byte> archive_data, bool isZipFile) {
+FileType determineFileType(std::span<const Byte> archive_data, bool is_zip_file) {
 	const std::string filename = parseFirstZipFilename(archive_data);
 
-	if (!isZipFile) {
+	if (!is_zip_file) {
 		if (filename != "META-INF/MANIFEST.MF" && filename != "META-INF/") {
 			throw std::runtime_error("File Type Error: Archive does not appear to be a valid JAR file.");
 		}
@@ -214,9 +212,9 @@ void validateArchiveEntryPaths(std::span<const Byte> archive_data) {
 
 	const std::size_t eocd_index = findEndOfCentralDirectory(archive_data);
 
-	const uint16_t total_records = readLe16(archive_data, eocd_index + 10);
-	const uint32_t central_size = readLe32(archive_data, eocd_index + 12);
-	const uint32_t central_offset = readLe32(archive_data, eocd_index + 16);
+	const uint16_t total_records = readLe16(archive_data, eocd_index + 10, "Archive File Error");
+	const uint32_t central_size = readLe32(archive_data, eocd_index + 12, "Archive File Error");
+	const uint32_t central_offset = readLe32(archive_data, eocd_index + 16, "Archive File Error");
 
 	if (total_records == 0) {
 		throw std::runtime_error("Archive File Error: Archive contains no central directory entries.");
@@ -243,9 +241,9 @@ void validateArchiveEntryPaths(std::span<const Byte> archive_data) {
 			throw std::runtime_error("Archive File Error: Invalid central directory file header signature.");
 		}
 
-		const std::size_t name_length = readLe16(archive_data, cursor + 28);
-		const std::size_t extra_length = readLe16(archive_data, cursor + 30);
-		const std::size_t comment_length = readLe16(archive_data, cursor + 32);
+		const std::size_t name_length = readLe16(archive_data, cursor + 28, "Archive File Error");
+		const std::size_t extra_length = readLe16(archive_data, cursor + 30, "Archive File Error");
+		const std::size_t comment_length = readLe16(archive_data, cursor + 32, "Archive File Error");
 
 		const std::size_t name_start = cursor + CENTRAL_RECORD_NAME_INDEX;
 		const std::size_t name_end = name_start + name_length;
@@ -272,5 +270,9 @@ void validateArchiveEntryPaths(std::span<const Byte> archive_data) {
 		}
 
 		cursor += record_size;
+	}
+
+	if (cursor != central_end) {
+		throw std::runtime_error("Archive File Error: Central directory size does not match parsed records.");
 	}
 }

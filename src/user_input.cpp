@@ -1,19 +1,8 @@
 #include "pdvzip.h"
 
-bool hasBalancedQuotes(std::string_view str) {
-	std::size_t single_count = 0, double_count = 0;
-
-	for (std::size_t i = 0; i < str.size(); ++i) {
-		const char c = str[i];
-		const bool escaped = (i > 0 && str[i - 1] == '\\');
-
-		if (c == '\'' && !escaped) ++single_count;
-		else if (c == '"' && !escaped) ++double_count;
-	}
-	return (single_count % 2 == 0) && (double_count % 2 == 0);
-}
-
 UserArguments promptForArguments(FileType file_type) {
+	constexpr std::size_t MAX_ARG_LENGTH = 1024;
+
 	UserArguments args;
 
 	const bool needs_args =
@@ -30,14 +19,16 @@ UserArguments promptForArguments(FileType file_type) {
 	if (file_type != FileType::WINDOWS_EXECUTABLE) {
 		std::print("\nLinux: ");
 		std::getline(std::cin, args.linux_args);
+		if (args.linux_args.size() > MAX_ARG_LENGTH) {
+			throw std::runtime_error("Input Error: Linux arguments exceed maximum length.");
+		}
 	}
 	if (file_type != FileType::LINUX_EXECUTABLE) {
 		std::print("\nWindows: ");
 		std::getline(std::cin, args.windows_args);
-	}
-
-	if (!hasBalancedQuotes(args.linux_args) || !hasBalancedQuotes(args.windows_args)) {
-		throw std::runtime_error("Arguments Error: Quotes mismatch. Check arguments and try again.");
+		if (args.windows_args.size() > MAX_ARG_LENGTH) {
+			throw std::runtime_error("Input Error: Windows arguments exceed maximum length.");
+		}
 	}
 	return args;
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# compile_pdvzip.sh — Build script for jdvrif (multi-file layout)
+# compile_pdvzip.sh — Build script for pdvzip (multi-file layout)
 
 set -e
 

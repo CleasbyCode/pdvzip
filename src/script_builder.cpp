@@ -361,6 +361,7 @@ std::string renderPosixArguments(std::string_view raw_args, std::string_view fie
 	}
 
 	std::string rendered;
+	rendered.reserve(raw_args.size() + args.size());
 	for (std::size_t i = 0; i < args.size(); ++i) {
 		if (i > 0) {
 			rendered.push_back(' ');
@@ -377,6 +378,7 @@ std::string renderWindowsArguments(std::string_view raw_args, std::string_view f
 	}
 
 	std::string rendered;
+	rendered.reserve(raw_args.size() * 2 + args.size());
 	for (std::size_t i = 0; i < args.size(); ++i) {
 		if (i > 0) {
 			rendered.push_back(' ');
@@ -412,42 +414,30 @@ std::string buildScriptText(FileType file_type, const std::string& first_filenam
 	script_text.append(CRLF);
 	script_text.append(script_template.windows_part);
 
-	if (script_text.find(TOKEN_LINUX_FILENAME_ARG) != std::string::npos) {
-		replaceAllInPlace(script_text, TOKEN_LINUX_FILENAME_ARG, quotePosixArgument(first_filename));
-	}
-	if (script_text.find(TOKEN_WINDOWS_FILENAME_ARG) != std::string::npos) {
-		replaceAllInPlace(script_text, TOKEN_WINDOWS_FILENAME_ARG, quoteWindowsArgumentForCmd(first_filename));
-	}
+	replaceAllInPlace(script_text, TOKEN_LINUX_FILENAME_ARG, quotePosixArgument(first_filename));
+	replaceAllInPlace(script_text, TOKEN_WINDOWS_FILENAME_ARG, quoteWindowsArgumentForCmd(first_filename));
 
-	if (script_text.find(TOKEN_LINUX_ARGS) != std::string::npos) {
-		replaceAllInPlace(
-			script_text,
-			TOKEN_LINUX_ARGS,
-			renderPosixArguments(user_args.linux_args, "Linux arguments"));
-	}
-	if (script_text.find(TOKEN_WINDOWS_ARGS) != std::string::npos) {
-		replaceAllInPlace(
-			script_text,
-			TOKEN_WINDOWS_ARGS,
-			renderWindowsArguments(user_args.windows_args, "Windows arguments"));
-	}
+	replaceAllInPlace(
+		script_text,
+		TOKEN_LINUX_ARGS,
+		renderPosixArguments(user_args.linux_args, "Linux arguments"));
+	replaceAllInPlace(
+		script_text,
+		TOKEN_WINDOWS_ARGS,
+		renderWindowsArguments(user_args.windows_args, "Windows arguments"));
 
 	const std::string_view args_combined_raw = user_args.linux_args.empty()
 		? std::string_view(user_args.windows_args)
 		: std::string_view(user_args.linux_args);
 
-	if (script_text.find(TOKEN_LINUX_ARGS_COMBINED) != std::string::npos) {
-		replaceAllInPlace(
-			script_text,
-			TOKEN_LINUX_ARGS_COMBINED,
-			renderPosixArguments(args_combined_raw, "Combined Linux arguments"));
-	}
-	if (script_text.find(TOKEN_WINDOWS_ARGS_COMBINED) != std::string::npos) {
-		replaceAllInPlace(
-			script_text,
-			TOKEN_WINDOWS_ARGS_COMBINED,
-			renderWindowsArguments(args_combined_raw, "Combined Windows arguments"));
-	}
+	replaceAllInPlace(
+		script_text,
+		TOKEN_LINUX_ARGS_COMBINED,
+		renderPosixArguments(args_combined_raw, "Combined Linux arguments"));
+	replaceAllInPlace(
+		script_text,
+		TOKEN_WINDOWS_ARGS_COMBINED,
+		renderWindowsArguments(args_combined_raw, "Combined Windows arguments"));
 
 	ensureNoUnresolvedPlaceholders(script_text);
 	return script_text;
@@ -497,10 +487,17 @@ vBytes buildExtractionScript(FileType file_type, const std::string& first_filena
 	updateValue(script_vec, LENGTH_INDEX, static_cast<uint32_t>(chunk_data_size), VALUE_LENGTH);
 
 	// If the first byte of the chunk length is a problematic metacharacter for
-	// the Linux extraction script, pad the chunk to shift past it.
-	if (std::ranges::contains(LINUX_PROBLEM_METACHARACTERS, script_vec[LENGTH_FIRST_BYTE_INDEX])) {
-		constexpr std::string_view PAD = "........";
-		constexpr std::size_t PAD_OFFSET = 8;
+	// the Linux extraction script, pad the chunk until it lands on a safe byte.
+	constexpr std::string_view PAD = "........";
+	constexpr std::size_t PAD_OFFSET = 8;
+	constexpr std::size_t MAX_PAD_ATTEMPTS = 32;
+
+	std::size_t pad_attempts = 0;
+	while (std::ranges::contains(LINUX_PROBLEM_METACHARACTERS, script_vec[LENGTH_FIRST_BYTE_INDEX])) {
+		if (++pad_attempts > MAX_PAD_ATTEMPTS) {
+			throw std::runtime_error("Script Error: Could not make iCCP chunk length Linux-safe.");
+		}
+
 		script_vec.insert(
 			script_vec.begin() + chunk_data_size + PAD_OFFSET,
 			PAD.begin(), PAD.end());

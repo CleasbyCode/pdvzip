@@ -8,31 +8,27 @@
 #include <algorithm>
 #include <array>
 #include <bit>
-#include <cstdint>
 #include <cctype>
 #include <cmath>
 #include <cstddef>
-#include <cstring>
+#include <cstdint>
 #include <filesystem>
 #include <format>
 #include <fstream>
-#include <iostream>
 #include <initializer_list>
+#include <iostream>
+#include <limits>
 #include <optional>
 #include <print>
+#include <random>
 #include <ranges>
 #include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <vector>
-#include <random>
-#include <unordered_map>
-
-#ifdef __unix__
-	#include <sys/stat.h>
-#endif
 
 namespace fs = std::filesystem;
 
@@ -105,25 +101,40 @@ void displayInfo();
 // file_io.cpp
 [[nodiscard]] bool hasValidFilename(const fs::path& p);
 [[nodiscard]] bool hasFileExtension(const fs::path& p, std::initializer_list<std::string_view> exts);
-[[nodiscard]] vBytes readFile(const fs::path& path, FileTypeCheck FileType = FileTypeCheck::archive_file);
-void writePolyglotFile(const vBytes& image_vec, bool isZipFile);
+[[nodiscard]] vBytes readFile(const fs::path& path, FileTypeCheck check_type = FileTypeCheck::archive_file);
+void writePolyglotFile(const vBytes& image_vec, bool is_zip_file);
 
 // binary_utils.cpp
 [[nodiscard]] std::optional<std::size_t> searchSig(std::span<const Byte> data, std::span<const Byte> sig, std::size_t start = 0);
+void writeValueAt(std::span<Byte> data, std::size_t offset, std::size_t value, std::size_t length, std::endian byte_order = std::endian::big);
+[[nodiscard]] std::size_t readValueAt(std::span<const Byte> data, std::size_t offset, std::size_t length, std::endian byte_order = std::endian::big);
 void updateValue(std::span<Byte> data, std::size_t index, std::size_t value, std::size_t length, std::endian byte_order = std::endian::big);
 [[nodiscard]] std::size_t getValue(std::span<const Byte> data, std::size_t index, std::size_t length, std::endian byte_order = std::endian::big);
+[[nodiscard]] std::size_t checkedAdd(std::size_t lhs, std::size_t rhs, std::string_view context);
+
+[[nodiscard]] inline uint16_t readLe16(std::span<const Byte> data, std::size_t offset) {
+	return static_cast<uint16_t>(readValueAt(data, offset, 2, std::endian::little));
+}
+[[nodiscard]] inline uint32_t readLe32(std::span<const Byte> data, std::size_t offset) {
+	return static_cast<uint32_t>(readValueAt(data, offset, 4, std::endian::little));
+}
+inline void writeLe16(std::span<Byte> data, std::size_t offset, uint16_t value) {
+	writeValueAt(data, offset, value, 2, std::endian::little);
+}
+inline void writeLe32(std::span<Byte> data, std::size_t offset, uint32_t value) {
+	writeValueAt(data, offset, value, 4, std::endian::little);
+}
 
 // image_processing.cpp
 void optimizeImage(vBytes& image_file_vec);
 
 // archive_analysis.cpp
 std::string toLowerCase(std::string str);
-FileType determineFileType(std::span<const Byte> archive_data, bool isZipFile);
+FileType determineFileType(std::span<const Byte> archive_data, bool is_zip_file);
 std::string getArchiveFirstFilename(std::span<const Byte> archive_data);
 void validateArchiveEntryPaths(std::span<const Byte> archive_data);
 
 // user_input.cpp
-bool hasBalancedQuotes(std::string_view str);
 UserArguments promptForArguments(FileType file_type);
 
 // script_builder.cpp

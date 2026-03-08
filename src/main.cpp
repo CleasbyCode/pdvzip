@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 			original_image_size = image_vec.size(),
 			archive_file_size   = archive_vec.size();
 
-		const bool isZipFile = hasFileExtension(*args.archive_file_path, {".zip"});
+		const bool is_zip_file = hasFileExtension(*args.archive_file_path, {".zip"});
 
 		// Update the IDAT chunk length to include the archive.
 		updateValue(archive_vec, 0, static_cast<uint32_t>(archive_file_size - CHUNK_FIELDS_COMBINED_LENGTH), 4);
@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
 		validateArchiveEntryPaths(archive_vec);
 
 		// Determine what kind of file is embedded.
-		const FileType file_type = determineFileType(archive_vec, isZipFile);
+		const FileType file_type = determineFileType(archive_vec, is_zip_file);
 		const std::string first_filename = getArchiveFirstFilename(archive_vec);
 
 		// Prompt for optional arguments (scripts, executables, JAR).
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 		embedChunks(image_vec, std::move(script_vec), std::move(archive_vec), original_image_size);
 
 		// Write output.
-		writePolyglotFile(image_vec, isZipFile);
+		writePolyglotFile(image_vec, is_zip_file);
 
 		return 0;
 	}
