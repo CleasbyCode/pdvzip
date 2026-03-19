@@ -68,7 +68,9 @@ You will need to manually set executable permissions using ***chmod*** on these 
 
 https://github.com/user-attachments/assets/8feca575-b135-4f58-839a-2159fce09b44  
 
-https://github.com/user-attachments/assets/77472a02-52dd-4a5c-a035-b30dcc842cce
+https://github.com/user-attachments/assets/77472a02-52dd-4a5c-a035-b30dcc842cce  
+
+https://github.com/user-attachments/assets/a143e694-31f5-4235-ace1-30217fe8ab41
 
 ***Linux - using bash (or sh) shell environment.***
 ```console
