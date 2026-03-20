@@ -67,7 +67,7 @@ const ScriptTemplate& getScriptTemplate(FileType file_type) {
 		{
 			FileType::FOLDER,
 			{
-				R"(ITEM={{LINUX_FILENAME_ARG}};SELF=$(basename -- "$0");DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv -- "$0" "$DIR";cd "$DIR";unzip -qo -- "$SELF";xdg-open "$ITEM" &> /dev/null;clear;exit;)"sv,
+				R"(ITEM={{LINUX_FILENAME_ARG}};SELF=$(basename -- "$0");DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv -- "$0" "$DIR";cd "$DIR";unzip -qo -- "$SELF";xdg-open "$ITEM" >/dev/null 2>&1;clear;exit;)"sv,
 				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&start "" {{WINDOWS_FILENAME_ARG}}&cls&exit)"sv
 			}
 		},
@@ -88,7 +88,7 @@ const ScriptTemplate& getScriptTemplate(FileType file_type) {
 		{
 			FileType::UNKNOWN_FILE_TYPE,
 			{
-				R"(ITEM={{LINUX_FILENAME_ARG}};SELF=$(basename -- "$0");DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv -- "$0" "$DIR";cd "$DIR";unzip -qo -- "$SELF";xdg-open "$ITEM";exit;)"sv,
+				R"(ITEM={{LINUX_FILENAME_ARG}};SELF=$(basename -- "$0");DIR="pdvzip_extracted";clear;mkdir -p "$DIR";mv -- "$0" "$DIR";cd "$DIR";unzip -qo -- "$SELF";xdg-open "$ITEM" >/dev/null 2>&1;exit;)"sv,
 				R"(#&cls&setlocal EnableDelayedExpansion&set "DIR=pdvzip_extracted"&mkdir ".\!DIR!"&move "%~dpnx0" ".\!DIR!"&cd ".\!DIR!"&cls&tar -xf "%~n0%~x0"&ren "%~n0%~x0" *.png&start "" {{WINDOWS_FILENAME_ARG}}&echo.&exit)"sv
 			}
 		},
