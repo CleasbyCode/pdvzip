@@ -3,7 +3,7 @@
 Embed a ***ZIP*** or ***JAR*** file within a ***PNG*** image to create a ***tweetable*** and "[***executable***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files)" ***PNG*** polyglot file.  
 Share the image on ***X-Twitter*** and a few other compatible platforms, which retains the embedded archive.  
 
-*Note: For compatibility reasons, please do not use encrypted / password protected ZIP files.*
+*Note: For compatibility reasons, please ***do not*** use encrypted / password protected ZIP files.*
 
 There is also a [***Web edition***](https://cleasbycode.co.uk/pdvzip/app/), which you can use immediately, as a convenient alternative to downloading and compiling the CLI source code. Web file uploads are limited to **20MB**. 
 
