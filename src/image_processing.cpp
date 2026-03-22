@@ -17,7 +17,7 @@ struct PaletteLookup {
 	std::array<Byte, table_size> occupied{};
 
 	[[nodiscard]] static constexpr std::size_t slotFor(std::uint32_t key) {
-		return (static_cast<std::size_t>(key) * 2654435761u) & (table_size - 1);
+		return (static_cast<std::size_t>(key) * 2654435761u) >> (64 - 9);
 	}
 
 	void insert(std::uint32_t key, Byte value) {
