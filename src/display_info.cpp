@@ -2,7 +2,7 @@
 
 void displayInfo() {
 	std::print(R"(
-PNG Data Vehicle ZIP/JAR Edition (PDVZIP v4.3).
+PNG Data Vehicle ZIP/JAR Edition (PDVZIP v4.4).
 Created by Nicholas Cleasby (@CleasbyCode) 6/08/2022.
 
 Use PDVZIP to embed a ZIP/JAR file within a PNG image,
