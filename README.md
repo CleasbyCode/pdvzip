@@ -197,7 +197,7 @@ Image dimensions can be set between a minimum of **68 x 68** and a maximum of **
 with less than 257 colors, 
 will be converted by ***pdvzip*** to a ***PNG-8 Indexed-color (color type 3)*** image. 
 This is done for compatiblity reasons as it should prevent platforms such as ***X-Twitter***
-from also converting your image, which would result in the lose of the embedded archive file.*
+from also converting your image, which would result in the loss of the embedded archive file.*
 
 ***PNG-8 (Indexed-color)***
 
@@ -226,7 +226,7 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
 * Make sure your ***ZIP/JAR*** file is a standard ***ZIP/JAR*** archive, compatible with ***Linux*** unzip & ***Windows*** Explorer.
 * Do not include more than one ***.zip*** file within the main ***ZIP*** archive. (***.rar*** files are ok).
 * Do not include other ***pdvzip*** created ***PNG*** image files within the main ***ZIP*** archive, as they are essentially ***.zip*** files.
-* Always use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ****my_program.py****, etc.
+* Always use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ***my_program.py***, etc.
   A file without an extension within a ***ZIP*** archive will be considered a ***Linux*** executable.      
 
 ## An 8 File Tweetable PNG Polyglot
