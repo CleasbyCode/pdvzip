@@ -134,7 +134,7 @@ For this file type you can provide command-line arguments here, if required.
 Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 
 ```
-Also, be aware when using arguments for the compressed ***ZIP*** file types (not ***JAR***), you are always working from within the subdirectory "***pdvzip_xxxx (e.g. pdvzip_5444)***".  
+Also, be aware when using arguments for the compressed ***ZIP*** file types (not ***JAR***), that you are always working from within a created subdirectory "***pdvzip_xxxx (e.g. pdvzip_5444)***".  
 
 https://github.com/user-attachments/assets/e55e9671-423c-4439-89e6-356c0080b4c1
 
