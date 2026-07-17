@@ -55,7 +55,7 @@ Created PNG-JAR polyglot image file: pjar_19662.png (1016336 bytes).
 Complete!
 
 ``` 
-## Extracting Your Embedded File(s)  
+## Extracting Embedded File(s)  
 **Important:** When saving images from ***X-Twitter***, click the image in the post to ***fully expand it***, before saving.  
 
 The following section covers the extraction of embedded ***ZIP*** files. ***JAR*** files are covered later.
