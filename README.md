@@ -29,7 +29,7 @@ With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **
 * ***PNG-32/24*** (*Truecolor*) **68x68** Min. - **900x900** Max.
 * ***PNG-8*** (*Indexed-color*) **68x68** Min. - **4096x4096** Max.
 
-## Usage (Linux)
+## Compilation & Usage (Linux)
 
 ```console
 $ sudo apt install g++ cmake ninja-build util-linux zlib1g-dev
