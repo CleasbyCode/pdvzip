@@ -32,7 +32,9 @@ With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **
 ## Compilation & Usage (Linux)
 
 ```console
+$ sudo apt update
 $ sudo apt install g++ cmake ninja-build util-linux zlib1g-dev
+
 $ chmod +x compile_pdvzip.sh
 $ ./compile_pdvzip.sh
 
