@@ -277,12 +277,27 @@ The PowerShell script will extract and play an MP4 video file embedded within th
 
 Video credit: The video file used in the PowerShell example is the work of [***@doopiidoop***](https://x.com/doopiidoop)
 
-## Third-Party Libraries
+## Third-Party Software and Assets
 
-This project includes the following third-party library:
+  This project uses the following third-party software and algorithms:
 
-- **LodePNG** by Lode Vandevenne
-  - License: zlib/libpng (see [***LICENSE***](https://github.com/lvandeve/lodepng/blob/master/LICENSE) file)
-  - Copyright (c) 2005-2024 Lode Vandevenne
+  [LodePNG](https://github.com/lvandeve/lodepng) - PNG encoding, decoding, palette conversion and image processing.
+
+  This is a locally modified copy. PDVZIP disables unused disk I/O, ancillary-chunk handling, and
+  LodePNG’s built-in CRC implementation, and adds PDVZIP-specific SSE2 optimizations.
+  
+  License: [zlib](https://github.com/lvandeve/lodepng/blob/master/LICENSE)
+  
+  Copyright © 2005–2026 Lode Vandevenne
+  
+  [zlib](https://github.com/madler/zlib) - Raw DEFLATE decompression and CRC-32 verification when validating ZIP/JAR entries.
+
+  License: [zlib](https://github.com/madler/zlib/blob/develop/LICENSE)
+  
+  Copyright © 1995–2026 Jean-loup Gailly and Mark Adler
+
+  [Hash Prospector lowbias32](https://github.com/skeeto/hash-prospector) - The palette lookup implementation incorporates Chris Wellons’ lowbias32 integer mixer.
+  
+  License: [Unlicense / public domain dedication](https://github.com/skeeto/hash-prospector/blob/master/UNLICENSE)
 
 ##
