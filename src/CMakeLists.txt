@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(pdvzip VERSION 4.7 LANGUAGES CXX)
+project(pdvzip VERSION 4.8 LANGUAGES CXX)
 
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
   message(FATAL_ERROR "pdvzip requires Linux.")
