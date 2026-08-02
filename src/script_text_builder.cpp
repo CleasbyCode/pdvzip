@@ -436,7 +436,7 @@ void ensureNoUnresolvedPlaceholders(std::string_view script_text) {
 void rejectTemplateDelimiters(std::string_view value, std::string_view field_name) {
 	if (value.find("{{") != std::string::npos) {
 		throw std::runtime_error(std::format(
-			"Script Error: {} contains reserved template delimiter '{{}}'.", field_name));
+			"Script Error: {} contains reserved template delimiter '{{{{'.", field_name));
 	}
 }
 
