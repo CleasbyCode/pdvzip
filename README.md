@@ -13,7 +13,7 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 ***pdvzip*** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a ***PNG*** image.  
   
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/demo_image.png)  
-***Credits:*** *Image* - [***@KCP228***](https://x.com/KCP228) *PowerShell Script* - [***@gierrofo***](https://x.com/gierrofo)
+***Credit:*** *PowerShell Script* - [***@gierrofo***](https://x.com/gierrofo)
 
 The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk of the ***PNG*** image. The embedded ***ZIP/JAR*** file is stored within its own ***IDAT*** chunk, which will be the last ***IDAT*** chunk of the image file.  
 
