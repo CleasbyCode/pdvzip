@@ -1,3 +1,0 @@
-/home/nick/Source/repos/pdvzip/pdvzip/src/build/g__-O3/CMakeFiles/pdvzip.dir
-/home/nick/Source/repos/pdvzip/pdvzip/src/build/g__-O3/CMakeFiles/edit_cache.dir
-/home/nick/Source/repos/pdvzip/pdvzip/src/build/g__-O3/CMakeFiles/rebuild_cache.dir
