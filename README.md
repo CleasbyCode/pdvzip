@@ -17,7 +17,7 @@ Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.c
 
 The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk of the ***PNG*** image. The embedded ***ZIP/JAR*** file is stored within its own ***IDAT*** chunk, which will be the last ***IDAT*** chunk of the image file.  
 
-With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of ***2GB** (cover image + archive file). Compatible sites, ***listed below***, have their own ***much smaller*** size limits.
+With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of ***2GB*** (cover image + archive file). Compatible sites, ***listed below***, have their own ***much smaller*** size limits.
 
 ## Compatible Platforms
 *Posting size limit measured by the combined size of the cover image + compressed data file.* 
@@ -118,12 +118,13 @@ For common ***video & audio*** files, ***Linux*** will first attempt to use the 
 
 ***PDF*** - ***Linux*** will use ***evince*** or ***firefox***. ***Windows*** uses the default ***PDF*** viewer.  
 ***Python*** - ***Linux*** & ***Windows*** use ***python3*** to run these programs.  
-***PowerShell*** - ***Linux*** uses ***pwsh*** (if installed), ***Windows*** uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.
-***Folder*** - ***Linux*** uses ***xdg-open***, ***Windows*** uses ***powershell.exe*** with II (***Invoke-Item***) command, to open zipped folders.
+***JavaScript*** - ***Linux*** & ***Windows*** use ***node*** (***Node.js***) to run these scripts.  
+***PowerShell*** - ***Linux*** uses ***pwsh*** (if installed), ***Windows*** uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.  
+***Folder*** - ***Linux*** uses ***xdg-open***, ***Windows*** uses the ***default shell file association*** to open zipped folders.
 
 For any other file type within your ***ZIP*** file, ***Linux*** & ***Windows*** will rely on the operating system's set default method/application. Obviously, the compressed/embedded file needs to be compatible with the operating system you run it on.
 
-If the archive file is ***JAR*** or the compressed file type within the ***ZIP*** archive is ***PowerShell***, ***Python***, ***Shell Script*** or a ***Windows/Linux Executable, pdvzip*** will give you the option to provide command-line arguments for your file, if required. 
+If the archive file is ***JAR*** or the compressed file type within the ***ZIP*** archive is ***PowerShell***, ***Python***, ***JavaScript***, ***Shell Script*** or a ***Windows/Linux Executable, pdvzip*** will give you the option to provide command-line arguments for your file, if required. 
 
 The ***command-line arguments*** will be added to the ***Linux/Windows*** extraction script, embedded within the ***iCCP*** chunk of your ***PNG*** cover image. 
 
@@ -136,7 +137,7 @@ For this file type you can provide command-line arguments here, if required.
 Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 
 ```
-Also, be aware when using arguments for the compressed ***ZIP*** file types (not ***JAR***), that you are always working from within a created subdirectory "***pdvzip_xxxxx (e.g. pdvzip_64214)***".  
+Also, be aware when using arguments for the compressed ***ZIP*** file types (not ***JAR***), that you are always working from within a created subdirectory named after the polyglot image file (for example, extracting ***pzip_55183.png*** creates and works within the subdirectory ***pzip_55183***).  
 
 https://github.com/user-attachments/assets/e55e9671-423c-4439-89e6-356c0080b4c1
 
@@ -228,7 +229,7 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
 * Make sure your ***ZIP/JAR*** file is a standard ***ZIP/JAR*** archive, compatible with ***Linux*** unzip & ***Windows*** Explorer.
 * Do not include more than one ***.zip*** file within the main ***ZIP*** archive. (***.rar*** files are ok).
 * Do not include other ***pdvzip*** created ***PNG*** image files within the main ***ZIP*** archive, as they are essentially ***.zip*** files.
-* Always use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ***my_program.py***, etc.
+* Always use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ***my_program.py***, ***my_script.js***, etc.
   A file without an extension within a ***ZIP*** archive will be considered a ***Linux*** executable.      
 
 ## An 8 File Tweetable PNG Polyglot
