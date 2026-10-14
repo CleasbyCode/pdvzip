@@ -128,7 +128,8 @@ If the archive file is ***JAR*** or the compressed file type within the ***ZIP**
 
 The ***command-line arguments*** will be added to the ***Linux/Windows*** extraction script, embedded within the ***iCCP*** chunk of your ***PNG*** cover image. 
 
-Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.
+Make sure to enclose arguments containing spaces, such as file & directory names, within "quotation" marks. e.g.  
+
 ```console
 $ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
