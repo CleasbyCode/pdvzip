@@ -236,6 +236,8 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
 
 ![Polyglot Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/Png_P0wershell_Z1p.png)  
 
+*Note: This polyglot image was not created by* ***pdvzip***.
+
 https://github.com/user-attachments/assets/d1b5888c-fe91-4a58-8ad6-731d9165a57c
 
 A while ago I put together an 8 file (tweetable) PNG polyglot file. I recently found it again, so thought I would share it here. 
