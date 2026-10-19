@@ -2,7 +2,7 @@
 
 Embed a ***ZIP*** or ***JAR (Java ARchive)*** file within a ***PNG*** image to create a ***tweetable*** and ***"executable"*** ***PNG*** polyglot file.  Share the image on ***X-Twitter*** and a few other compatible platforms, which retains the embedded archive.  
 
-*Note: For compatibility reasons, please ***do not*** use encrypted / password protected ZIP files.*
+*Note: Encrypted / password-protected ZIP files are ***not supported*** and will be rejected.*
 
 There is also a [***Web edition***](https://cleasbycode.co.uk/pdvzip/app/), which you can use immediately, as a convenient alternative to downloading and compiling the CLI source code. Web file uploads are limited to **20MB**. 
 
@@ -227,7 +227,8 @@ To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minu
 ***X-Twitter*** example: (**5MB** limit) **5,242,880** - (**307,200** [image] + **1500** [extraction script]) = **4,934,180 bytes** available for your ***ZIP/JAR*** file.  
 
 * Make sure your ***ZIP/JAR*** file is a standard ***ZIP/JAR*** archive, compatible with ***Linux*** unzip & ***Windows*** Explorer.
-* Do not include more than one ***.zip*** file within the main ***ZIP*** archive. (***.rar*** files are ok).
+* The archive must be unencrypted and must not use ***ZIP64*** or multi-disk entries. Filenames must be ***ASCII*** or ***UTF-8*** (legacy codepage filenames are rejected). Names that collide case-insensitively, or that match a ***Windows*** reserved device name (***CON, PRN, AUX, NUL, COM1***-***COM9, LPT1***-***LPT9***, etc.), are also rejected.
+* Do not include other ***.zip*** files within the main ***ZIP*** archive. (***.rar*** files are ok).
 * Do not include other ***pdvzip*** created ***PNG*** image files within the main ***ZIP*** archive, as they are essentially ***.zip*** files.
 * Always use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ***my_program.py***, ***my_script.js***, etc.
   A file without an extension within a ***ZIP*** archive will be considered a ***Linux*** executable.      
