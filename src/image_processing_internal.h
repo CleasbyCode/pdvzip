@@ -1,0 +1,196 @@
+#pragma once
+
+#include "pdvzip.h"
+#include "lodepng/lodepng.h"
+
+#include <array>
+#include <format>
+#include <ranges>
+#include <span>
+#include <stdexcept>
+
+namespace image_processing_internal {
+
+constexpr std::size_t RGBA_COMPONENTS = 4;
+
+// Route the state's PNG inflate and deflate through the system zlib
+// (png_zlib.cpp). Required for every lodepng::State: LodePNG's own zlib is
+// not compiled in.
+void useSystemZlib(lodepng::State& state);
+
+// Returned by the inflate hook (png_zlib.cpp) when IDAT data continues after
+// the end of its zlib stream, as in a pdvzip output, whose ZIP sits in its last
+// IDAT. Outside LodePNG's own codes, so it gets its own message below.
+constexpr unsigned PNG_ZLIB_TRAILING_DATA_ERROR = 1000;
+
+inline void throwLodepngError(std::string_view context, unsigned error, bool include_error_text = false) {
+	if (!error) return;
+	if (error == PNG_ZLIB_TRAILING_DATA_ERROR) {
+		throw std::runtime_error("PNG Error: IDAT data continues after the end of its zlib stream. The cover image may already be a pdvzip output; use the original PNG instead.");
+	}
+	throw std::runtime_error(include_error_text
+		? std::format("{} {}: {}", context, error, lodepng_error_text(error))
+		: std::format("{}: {}", context, error));
+}
+
+inline void copyPalette(const Byte* palette, std::size_t count, LodePNGColorMode& target) {
+	if (count > 0 && palette == nullptr) {
+		throw std::runtime_error("LodePNG palette setup error: source palette is null");
+	}
+	for (const auto p : std::span(palette, count * RGBA_COMPONENTS) | std::views::chunk(RGBA_COMPONENTS)) {
+		throwLodepngError("LodePNG palette setup error", lodepng_palette_add(&target, p[0], p[1], p[2], p[3]));
+	}
+}
+
+// Return the exact number of bytes represented by the PNG's inflated IDAT
+// stream: one filter byte per scanline plus the scanline's byte-padded pixels.
+// This deliberately uses the encoded PNG color mode rather than info_raw,
+// because color conversion happens only after IDAT has been inflated.
+[[nodiscard]] inline std::size_t pngInflatedScanlineSize(std::span<const Byte> png_data) {
+	constexpr std::size_t
+		MIN_IHDR_SIZE        = 29,
+		WIDTH_OFFSET         = 16,
+		HEIGHT_OFFSET        = 20,
+		BIT_DEPTH_OFFSET     = 24,
+		COLOR_TYPE_OFFSET    = 25,
+		INTERLACE_OFFSET     = 28;
+	constexpr std::string_view OVERFLOW_ERROR =
+		"PNG Error: Inflated scanline size overflows the supported address space.";
+
+	if (png_data.size() < MIN_IHDR_SIZE) {
+		throw std::runtime_error("PNG Error: IHDR is truncated before decoder limit setup.");
+	}
+
+	const std::size_t width = readBe32(png_data, WIDTH_OFFSET);
+	const std::size_t height = readBe32(png_data, HEIGHT_OFFSET);
+	const unsigned bit_depth = png_data[BIT_DEPTH_OFFSET];
+	const auto color_type = static_cast<LodePNGColorType>(png_data[COLOR_TYPE_OFFSET]);
+	const unsigned interlace_method = png_data[INTERLACE_OFFSET];
+
+	if (width == 0 || height == 0) {
+		throw std::runtime_error("PNG Error: Image dimensions must be nonzero.");
+	}
+
+	unsigned channels = 0;
+	bool valid_bit_depth = false;
+	switch (color_type) {
+		case LCT_GREY:
+			channels = 1;
+			valid_bit_depth = bit_depth == 1 || bit_depth == 2 || bit_depth == 4
+				|| bit_depth == 8 || bit_depth == 16;
+			break;
+		case LCT_RGB:
+			channels = 3;
+			valid_bit_depth = bit_depth == 8 || bit_depth == 16;
+			break;
+		case LCT_PALETTE:
+			channels = 1;
+			valid_bit_depth = bit_depth == 1 || bit_depth == 2 || bit_depth == 4
+				|| bit_depth == 8;
+			break;
+		case LCT_GREY_ALPHA:
+			channels = 2;
+			valid_bit_depth = bit_depth == 8 || bit_depth == 16;
+			break;
+		case LCT_RGBA:
+			channels = 4;
+			valid_bit_depth = bit_depth == 8 || bit_depth == 16;
+			break;
+		default:
+			throw std::runtime_error("PNG Error: Unsupported color type during decoder limit setup.");
+	}
+	if (!valid_bit_depth) {
+		throw std::runtime_error("PNG Error: Unsupported bit depth during decoder limit setup.");
+	}
+	if (interlace_method > 1) {
+		throw std::runtime_error("PNG Error: Unsupported interlace method during decoder limit setup.");
+	}
+
+	const std::size_t bits_per_pixel = checkedMultiply(
+		static_cast<std::size_t>(channels), bit_depth, OVERFLOW_ERROR);
+
+	const auto filteredPassSize = [bits_per_pixel, OVERFLOW_ERROR](
+		std::size_t pass_width,
+		std::size_t pass_height) {
+		if (pass_width == 0 || pass_height == 0) {
+			return 0uz;
+		}
+
+		// ceil(pass_width * bits_per_pixel / 8), arranged to avoid the
+		// potentially overflowing pass_width * bits_per_pixel expression.
+		const std::size_t whole_bytes = checkedMultiply(
+			pass_width / 8, bits_per_pixel, OVERFLOW_ERROR);
+		const std::size_t remaining_bits = checkedMultiply(
+			pass_width % 8, bits_per_pixel, OVERFLOW_ERROR);
+		const std::size_t partial_byte_count = checkedAdd(
+			remaining_bits, 7, OVERFLOW_ERROR) / 8;
+		const std::size_t pixel_bytes = checkedAdd(
+			whole_bytes, partial_byte_count, OVERFLOW_ERROR);
+		const std::size_t filtered_row_bytes = checkedAdd(
+			pixel_bytes, 1, OVERFLOW_ERROR);
+		return checkedMultiply(pass_height, filtered_row_bytes, OVERFLOW_ERROR);
+	};
+
+	if (interlace_method == 0) {
+		return filteredPassSize(width, height);
+	}
+
+	// Adam7 start coordinates and strides for its seven reduced images.
+	constexpr std::array<std::size_t, 7> X_START = {0, 4, 0, 2, 0, 1, 0};
+	constexpr std::array<std::size_t, 7> Y_START = {0, 0, 4, 0, 2, 0, 1};
+	constexpr std::array<std::size_t, 7> X_STEP  = {8, 8, 4, 4, 2, 2, 1};
+	constexpr std::array<std::size_t, 7> Y_STEP  = {8, 8, 8, 4, 4, 2, 2};
+	const auto passExtent = [](std::size_t full_size, std::size_t start, std::size_t step) static {
+		return full_size <= start ? 0uz : 1 + (full_size - start - 1) / step;
+	};
+
+	std::size_t total = 0;
+	for (const auto [x_start, y_start, x_step, y_step] :
+			std::views::zip(X_START, Y_START, X_STEP, Y_STEP)) {
+		const std::size_t pass_width = passExtent(width, x_start, x_step);
+		const std::size_t pass_height = passExtent(height, y_start, y_step);
+		total = checkedAdd(total, filteredPassSize(pass_width, pass_height), OVERFLOW_ERROR);
+	}
+	return total;
+}
+
+inline void configurePngInflateLimit(lodepng::State& state, std::span<const Byte> png_data) {
+	state.decoder.zlibsettings.max_output_size = pngInflatedScanlineSize(png_data);
+}
+
+// Visit each palette index in lodepng's raw indexed output. Sub-byte depths
+// are packed MSB first with no padding between scanlines.
+// Returns the pixel count after checking the bit depth and that `packed`
+// holds every index.
+[[nodiscard]] inline std::size_t checkedPaletteIndexCount(
+	std::span<const Byte> packed, unsigned width, unsigned height, unsigned bitdepth) {
+	if (bitdepth != 1 && bitdepth != 2 && bitdepth != 4 && bitdepth != 8) {
+		throw std::runtime_error("Image Error: Unsupported palette bit depth.");
+	}
+	const std::size_t pixel_count = checkedMultiply(width, height, "Image Error: Image dimensions overflow.");
+	const std::size_t packed_bits = checkedMultiply(pixel_count, bitdepth, "Image Error: Image dimensions overflow.");
+	if (packed.size() < packed_bits / 8 + (packed_bits % 8 != 0)) {
+		throw std::runtime_error("Image Error: Decoded image buffer is truncated.");
+	}
+	return pixel_count;
+}
+
+template <typename Visit>
+void forEachPaletteIndex(std::span<const Byte> packed, unsigned width, unsigned height, unsigned bitdepth, Visit visit) {
+	const std::size_t pixel_count = checkedPaletteIndexCount(packed, width, height, bitdepth);
+	const unsigned mask = (1u << bitdepth) - 1;
+	for (std::size_t i = 0, bit = 0; i < pixel_count; ++i, bit += bitdepth) {
+		const unsigned shift = 8 - bitdepth - static_cast<unsigned>(bit % 8);
+		visit(i, static_cast<Byte>((packed[bit / 8] >> shift) & mask));
+	}
+}
+
+// Resample pixels that are already decoded and re-encode them into
+// image_file_vec. pixel_mode describes the buffer (a native decode, or RGBA
+// decoded from an RGB PNG); png_color is the PNG mode to keep, except that an
+// RGB color key becomes RGBA. Spares callers that hold the pixels a decode.
+void resizeDecodedImage(vBytes& image_file_vec, vBytes pixels, unsigned width, unsigned height,
+                        const LodePNGColorMode& pixel_mode, const LodePNGColorMode& png_color,
+                        unsigned new_width, unsigned new_height);
+
+}  // namespace image_processing_internal
