@@ -1,22 +1,22 @@
 # pdvzip  
 
-Embed a ***ZIP*** or ***JAR (Java ARchive)*** file within a ***PNG*** image to create a ***tweetable*** and ***"executable"*** ***PNG*** polyglot file.  Share the image on ***X-Twitter*** and a few other compatible platforms, which retains the embedded archive.  
+Embed a ***ZIP*** or ***JAR (Java ARchive)*** file within a ***PNG*** image to create a ***tweetable*** and ***"executable"*** ***PNG*** polyglot file.  Share the image on ***X-Twitter*** and a few other compatible platforms, which retain the embedded archive.  
 
-*Note: Encrypted / password-protected ZIP files are ***not supported*** and will be rejected.*
+*Note: Encrypted / password-protected ZIP files are **not supported** and will be rejected.*
 
 There is also a [***Web edition***](https://cleasbycode.co.uk/pdvzip/app/), which you can use immediately, as a convenient alternative to downloading and compiling the CLI source code. Web file uploads are limited to **20MB**. 
 
 An experimental ***Rust*** port [***pdvzip-rs***](https://github.com/CleasbyCode/pdvzip-rs) is available for those interested in that language. 
 
 Based on the similar idea by [***David Buchanan***](https://www.da.vidbuchanan.co.uk/), from his original ***Python*** program [***tweetable-polyglot-png***](https://github.com/DavidBuchanan314/tweetable-polyglot-png),  
-***pdvzip*** uses different methods for [***storing***](https://github.com/CleasbyCode/pdvzip#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](https://github.com/CleasbyCode/pdvzip#extracting-your-embedded-files) embedded files within a ***PNG*** image.  
+***pdvzip*** uses different methods for [***storing***](#png-image-requirements-for-arbitrary-data-preservation) and [***extracting***](#extracting-embedded-files) embedded files within a ***PNG*** image.  
   
 ![Demo Image](https://github.com/CleasbyCode/pdvzip/blob/main/demo_image/pzip_63797.png)  
 **Credits:** ***Image*** - "*Pop Art Dragon*" [***Glass Kite***](https://bsky.app/profile/glasskite.bsky.social) / ***PowerShell Script*** - "*text-sine.ps1*" [***Darren Shaw***](https://x.com/gierrofo)
 
 The ***Linux/Windows*** extraction script is stored within the ***iCCP*** chunk of the ***PNG*** image. The embedded ***ZIP/JAR*** file is stored within its own ***IDAT*** chunk, which will be the last ***IDAT*** chunk of the image file.  
 
-With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of ***2GB*** (cover image + archive file). Compatible sites, ***listed below***, have their own ***much smaller*** size limits.
+With ***pdvzip***, you can embed a ***ZIP/JAR*** file of up to ***2GB*** (2 GiB minus 1 byte, the largest PNG chunk) in a cover image of up to ***4MB***. Compatible sites, ***listed below***, have their own ***much smaller*** size limits.
 
 ## Compatible Platforms
 *Posting size limit measured by the combined size of the cover image + compressed data file.* 
@@ -30,14 +30,19 @@ With ***pdvzip***, you can embed a ***ZIP/JAR*** file up to a maximum size of **
 
 ## Compilation & Usage (Linux)
 
+Requires ***GCC 14*** or newer (or ***Clang 18*** or newer with ***libstdc++ 14***) and ***CMake 3.20*** or newer.
+On distributions whose default compiler is older (e.g. ***Ubuntu 24.04*** ships ***GCC 13***), install ***g++-14*** and build with ***CXX=g++-14 ./compile_pdvzip.sh***.
+
 ```console
 $ sudo apt update
-$ sudo apt install g++ cmake ninja-build util-linux zlib1g-dev
+$ sudo apt install git g++ cmake ninja-build util-linux zlib1g-dev
 
+$ git clone https://github.com/CleasbyCode/pdvzip.git
+$ cd pdvzip/src
 $ chmod +x compile_pdvzip.sh
 $ ./compile_pdvzip.sh
 
-$ sudo cp pdvzip /usr/bin
+$ sudo cp pdvzip /usr/local/bin
 $ pdvzip
 
 Usage: pdvzip <cover_image> <zip/jar>
@@ -71,23 +76,23 @@ https://github.com/user-attachments/assets/77472a02-52dd-4a5c-a035-b30dcc842cce
 
 https://github.com/user-attachments/assets/0390a249-6cd4-4b89-8db5-08ca9742c07b
 
-***Linux - using bash (or sh) shell environment.***
+***Linux - using the bash shell.***
 ```console
 
 $ ./pzip_55183.png
 
 ```
-**For any other Linux shell environment, you will probably need to invoke bash (or sh) to run the image file.**
+**From any other shell (including sh/dash, zsh and fish), invoke bash to run the image file. The extraction script needs bash.**
 ```console
 
 mx% bash ./pzip_55183.png 
 
 ``` 
 Alternative extraction (***Linux***).  Using ***wget*** to download and run the image directly from the hosting site.  
-***X-Twitter*** ***wget*** example: **Image with embedded ***python*** script**.
+***X-Twitter*** ***wget*** example: **Image with embedded *python* script**.
 ```console
 
-$ wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png";chmod +x Fibo.png;bash ./Fibo.png
+$ wget -O Fibo.png "https://pbs.twimg.com/media/GLXTYeCWMAAA6B_.png" && bash ./Fibo.png
 
 ```   
 
@@ -98,11 +103,11 @@ G:\demo> ren pzip_55183.png pzip_55183.cmd
 G:\demo> .\pzip_55183.cmd
 
 ```
-Alternative extraction (***Windows***).  Using ***iwr*** to download and run the image directly from the hosting site.  
+Alternative extraction (***Windows***).  Using ***iwr*** in ***PowerShell*** (not ***cmd.exe***) to download and run the image directly from the hosting site.  
 ***Flickr*** ***iwr*** example: **Image with embedded mp4 video file.**
 ```console
 
-iwr -o swing.cmd "https://live.staticflickr.com/65535/54025688614_2f9d474cba_o_d.png";.\swing.cmd
+PS G:\demo> iwr -o swing.cmd "https://live.staticflickr.com/65535/54025688614_2f9d474cba_o_d.png"; .\swing.cmd
 
 ```
 
@@ -111,14 +116,14 @@ Clear this by clicking '***More info***' then select '***Run anyway***'.
 
 To avoid security warnings, run the file from a ***Windows console***, as shown in the above example.  
 
-***The file (or folder) within the ZIP archive that appears first within the ZIP file record, determines what extraction script, based on file type, is used.***
+***The file (or folder) stored first within the ZIP archive (the entry at the lowest offset, which is usually the first one added) determines what extraction script, based on file type, is used.***
 
 For common ***video & audio*** files, ***Linux*** will first attempt to use the media player ***mpv*** or ***vlc*** if no ***mpv***. ***Firefox*** is used as a last resort. ***Windows*** uses the default media player.  
 
 ***PDF*** - ***Linux*** will use ***evince*** or ***firefox***. ***Windows*** uses the default ***PDF*** viewer.  
 ***Python*** - ***Linux*** & ***Windows*** use ***python3*** to run these programs.  
 ***JavaScript*** - ***Linux*** & ***Windows*** use ***node*** (***Node.js***) to run these scripts.  
-***PowerShell*** - ***Linux*** uses ***pwsh*** (if installed), ***Windows*** uses either ***powershell.exe*** or ***pwsh.exe*** to run these scripts.  
+***PowerShell*** - ***Linux*** uses ***pwsh*** (if installed), ***Windows*** uses ***pwsh.exe*** if installed, otherwise ***powershell.exe***, to run these scripts.  
 ***Folder*** - ***Linux*** uses ***xdg-open***, ***Windows*** uses the ***default shell file association*** to open zipped folders.
 
 For any other file type within your ***ZIP*** file, ***Linux*** & ***Windows*** will rely on the operating system's set default method/application. Obviously, the compressed/embedded file needs to be compatible with the operating system you run it on.
@@ -132,7 +137,7 @@ Make sure to enclose arguments containing spaces, such as file & directory names
 ```console
 $ ./pdvzip my_cover_image.png jdvrif_linux_executable.zip
 
-For this file type you can provide command-line arguments here, if required.
+For this file type, if required, you can provide command-line arguments here.
 
 Linux: -e ../my_cover_image.jpg "../my document file.pdf"
 
@@ -156,13 +161,13 @@ Note: If you use this method to run your embedded Java program, you will have to
       this method. e.g.
       user1@mx:~/Desktop$ java -jar ./pjar_19662.png -u john_s -a 42 -f "John Smith"
 ```
-***Linux Option 2a, using bash (or sh) shell environment:***
+***Linux Option 2a, using the bash shell:***
 ```console
 $ ./pjar_19662.png
 Note: This method will execute the embedded Java program and also use any embedded
       command-line arguments with the Java program.
 ```
-***Linux Option 2b, using any other shell environment, you will need to invoke bash (or sh) to execute the image:***
+***Linux Option 2b, from any other shell (including sh/dash), invoke bash to execute the image:***
 ```console
 mx% bash ./pjar_19662.png
 ```
@@ -196,10 +201,10 @@ and you will lose the embedded content.
 
 Image dimensions can be set between a minimum of **68 x 68** and a maximum of **900 x 900**.
 
-***Note:*** *A cover image that is detected as ***PNG-32/24 Truecolor (color type 6 or 2),*** 
+***Note:*** *A cover image that is detected as **PNG-32/24 Truecolor (color type 6 or 2)**, 
 with less than 257 colors, 
-will be converted by ***pdvzip*** to a ***PNG-8 Indexed-color (color type 3)*** image. 
-This is done for compatiblity reasons as it should prevent platforms such as ***X-Twitter***
+will be converted by **pdvzip** to a **PNG-8 Indexed-color (color type 3)** image. 
+This is done for compatibility reasons as it should prevent platforms such as **X-Twitter**
 from also converting your image, which would result in the loss of the embedded archive file.*
 
 ***PNG-8 (Indexed-color)***
@@ -209,12 +214,12 @@ Image dimensions can be set between a minimum of **68 x 68** and a maximum of **
 ***PNG Chunks:***  
 
 For example, with ***X-Twitter*** you can ***overfill*** the following ***PNG*** chunks with arbitrary data,  
-in which the platform will preserve as long as you keep within the image dimension & file size limits.  
+which the platform will preserve as long as you keep within the image dimension & file size limits.  
 
 ***bKGD, cHRM, gAMA, hIST,*** *iCCP (Limited size chunk. 10KB Max. with X-Twitter)*,  
-***IDAT (Use as last IDAT chunk, after the final image IDAT chunk),  
-PLTE (Use only with ***PNG-32/24*** images),  
-pHYs, sBIT, sPLT, sRGB,*** *tRNS (Use only with PNG-32 images).* 
+***IDAT*** *(Use as last IDAT chunk, after the final image IDAT chunk)*,  
+***PLTE*** *(Use only with **PNG-32/24** images)*,  
+***pHYs, sBIT, sPLT, sRGB,*** *tRNS (Use only with PNG-32 images).* 
 
 *Other platforms may differ in what chunks they preserve and which ones you can overfill.*
   
@@ -222,16 +227,25 @@ pHYs, sBIT, sPLT, sRGB,*** *tRNS (Use only with PNG-32 images).*
 
 ## ***ZIP/JAR*** File Size & Other Important Information
 
-To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minus the image size, minus ***1500*** bytes (extraction script size).  
+To work out the maximum ***ZIP/JAR*** file size, start with the size limit, minus the image size, minus ***2024*** bytes (the extraction script, up to ***2000*** bytes, plus 24 bytes of PNG chunk framing for the script and archive chunks).  
   
-***X-Twitter*** example: (**5MB** limit) **5,242,880** - (**307,200** [image] + **1500** [extraction script]) = **4,934,180 bytes** available for your ***ZIP/JAR*** file.  
+***X-Twitter*** example: (**5MB** limit) **5,242,880** - (**307,200** [image] + **2024** [extraction script + chunk framing]) = **4,933,656 bytes** available for your ***ZIP/JAR*** file.  
 
 * Make sure your ***ZIP/JAR*** file is a standard ***ZIP/JAR*** archive, compatible with ***Linux*** unzip & ***Windows*** Explorer.
-* The archive must be unencrypted and must not use ***ZIP64*** or multi-disk entries. Filenames must be ***ASCII*** or ***UTF-8*** (legacy codepage filenames are rejected). Names that collide case-insensitively, or that match a ***Windows*** reserved device name (***CON, PRN, AUX, NUL, COM1***-***COM9, LPT1***-***LPT9***, etc.), are also rejected.
+* The archive must be unencrypted and must not use ***ZIP64*** or multi-disk entries. Entries must be ***Stored*** or ***DEFLATE*** compressed, and symlinks or other special files are rejected. Filenames must be ***ASCII*** or ***UTF-8*** with the ***ZIP*** UTF-8 flag set (legacy codepage filenames are rejected). Names that collide case-insensitively, or that match a ***Windows*** reserved device name (***CON, PRN, AUX, NUL, COM1***-***COM9, LPT1***-***LPT9***, etc.), are also rejected.
+* For a ***ZIP*** file, the first file (the one that is launched) must have an ***ASCII***-only name (path included) of at least 4 characters.
 * Do not include other ***.zip*** files within the main ***ZIP*** archive. (***.rar*** files are ok).
 * Do not include other ***pdvzip*** created ***PNG*** image files within the main ***ZIP*** archive, as they are essentially ***.zip*** files.
 * Always use file extensions for your file(s) within the ***ZIP*** archive: ***my_doc.pdf***, ***my_video.mp4***, ***my_program.py***, ***my_script.js***, etc.
   A file without an extension within a ***ZIP*** archive will be considered a ***Linux*** executable.      
+
+## Troubleshooting
+
+***PNG Error: IDAT data continues after the end of its zlib stream. The cover image may already be a pdvzip output; use the original PNG instead.***
+
+The cover image has extra data stored after its compressed image data. This is how a ***pdvzip*** output image carries its ***ZIP/JAR*** file,
+so you will see this error if you use a previously created polyglot image (e.g. ***pzip_12345.png*** or ***pjar_12345.png***) as the cover image.
+Use the original ***PNG*** image as the cover instead. Other ***PNG*** files with data appended to their image data are refused for the same reason.
 
 ## An 8 File Tweetable PNG Polyglot
 
@@ -284,16 +298,18 @@ Video credit: The video file used in the PowerShell example is the work of [***@
 
   This project uses the following third-party software and algorithms:
 
-  [LodePNG](https://github.com/lvandeve/lodepng) - PNG encoding, decoding, palette conversion and image processing.
+  [LodePNG](https://github.com/lvandeve/lodepng) - PNG encoding and decoding, and color-mode conversion.
 
   This is a locally modified copy. PDVZIP disables unused disk I/O, ancillary-chunk handling, and
-  LodePNG’s built-in CRC implementation, and adds PDVZIP-specific SSE2 optimizations.
+  LodePNG’s built-in CRC and zlib implementations (PNG data is compressed and decompressed with
+  the system zlib), and adds PDVZIP-specific SSE2 optimizations.
   
   License: [zlib](https://github.com/lvandeve/lodepng/blob/master/LICENSE)
   
   Copyright © 2005–2026 Lode Vandevenne
   
-  [zlib](https://github.com/madler/zlib) - Raw DEFLATE decompression and CRC-32 verification when validating ZIP/JAR entries.
+  [zlib](https://github.com/madler/zlib) - PNG image data compression and decompression (through LodePNG), and raw DEFLATE
+  decompression when validating ZIP/JAR entries.
 
   License: [zlib](https://github.com/madler/zlib/blob/develop/LICENSE)
   
@@ -302,5 +318,3 @@ Video credit: The video file used in the PowerShell example is the work of [***@
   [Hash Prospector lowbias32](https://github.com/skeeto/hash-prospector) - The palette lookup implementation incorporates Chris Wellons’ lowbias32 integer mixer.
   
   License: [Unlicense / public domain dedication](https://github.com/skeeto/hash-prospector/blob/master/UNLICENSE)
-
-##
